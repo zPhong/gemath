@@ -1,0 +1,93 @@
+@font-face {
+  font-family: appNameFont;
+  src: url('../../resources/fonts/HATINH.TTF');
+}
+
+@font-face {
+  font-family: appDescriptionFont;
+  src: url('../../resources/fonts/Nunito-Light.ttf');
+}
+
+@font-face {
+  font-family: appFooterFont;
+  src: url('../../resources/fonts/HelveticaNeue-Light.otf');
+}
+
+$headerHeight: 10vh;
+$footerHeight: 5vh;
+$bodyHeight: 100vh - $headerHeight - $footerHeight;
+
+$borderColor: #e4e4e4;
+
+.app-header {
+  height: $headerHeight;
+  font-size: 16px;
+  box-shadow: 0 4px 8px 0 rgba(255, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 255, 0, 0.2);
+
+  .app-name {
+    height: 66%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    p {
+      font-family: appNameFont, sans-serif;
+      font-size: 3rem;
+      margin: 0;
+    }
+  }
+
+  .app-description {
+    height: 33%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    p {
+      font-family: appDescriptionFont, sans-serif;
+      font-size: 1.75rem;
+      margin: 0;
+    }
+  }
+}
+
+.app-body {
+  height: $bodyHeight;
+  display: flex;
+  border-left: 1px solid $borderColor;
+  border-right: 1px solid $borderColor;
+  //background-color: red;
+
+  .app-controller {
+    display: block;
+    width: 20%;
+    border-right: 1px solid $borderColor;
+
+    .app-controller-nav {
+      margin-bottom: 20px;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+
+  .app-drawing-panel {
+    width: 80%;
+    margin: 10px 0 10px 0;
+  }
+}
+
+.app-footer {
+  display: flex;
+  height: $footerHeight;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+
+  p {
+    font-family: appFooterFont, sans-serif;
+    font-size: 1rem;
+    margin: 0;
+  }
+}
