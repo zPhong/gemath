@@ -1,0 +1,3 @@
+## ViewModel directory:
+
+In this directory, including all view-model are responsible for logics, handles,...
