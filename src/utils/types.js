@@ -30,7 +30,7 @@ export type DrawingDataType = {
 };
 
 // ax - y + b = 0
-export type LineEquation = {
+export type LineType = {
   a: number,
   b: number
 };
