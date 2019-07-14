@@ -2,8 +2,15 @@ import React from 'react';
 import './css/MainView.scss';
 import { InputItem } from './components';
 import { INPUT_ITEM_STATUS } from '../utils/values';
-
+import AppData from '../Model/AppData';
 class MainView extends React.Component {
+  constructor(props) {
+    super(props);
+    const { relationInput } = AppData;
+    if (relationInput.length === 0) {
+    }
+  }
+
   render() {
     return (
       <div className={'container-fluid'}>

@@ -1,6 +1,10 @@
 // @flow
-
+import { observable } from 'mobx';
+import RelationInput from './RelationInput';
 class AppData {
+  @observable
+  relationsInput: Array<RelationInput> = [];
+
   constructor() {
     this.additionSegment = [];
     this.relationsResult = {};
@@ -28,7 +32,7 @@ class AppData {
   }
 
   get getPointsMap() {
-    return this.pointsMap
+    return this.pointsMap;
   }
 
   set setPointsMap(newPointsMap) {
