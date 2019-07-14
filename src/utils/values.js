@@ -3,6 +3,8 @@ export const INPUT_ITEM_STATUS = {
   NORMAL: `Normal`,
   ERROR: 'Error'
 };
+export const WRONG_FORMAT = 'Sai định dạng';
+export const MAXIMUM_POINT_ERROR = 'Tối đa 3 điểm thẳng háng';
 
 export const INFINITY = 'vô cực';
 export const IMPOSSIBLE = 'vô nghiệm';
