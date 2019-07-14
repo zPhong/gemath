@@ -1,0 +1,34 @@
+@import '../../../utils/color.scss';
+
+.input-item {
+  height: 36px;
+  border-radius: 3px;
+  margin-bottom: 1rem;
+
+  .input-container {
+    width: 100%;
+    height: 1rem;
+
+    input {
+      display: flex;
+      flex: 1;
+    }
+    .input-status {
+      span {
+        background-color: white;
+      }
+    }
+  }
+}
+
+.success {
+  border: solid 1px $success-input-status-color;
+}
+
+.error {
+  border: solid 1px $error-input-status-color;
+}
+
+.normal {
+  border: solid 1px $normal-input-status-color;
+}

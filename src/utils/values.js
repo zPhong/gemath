@@ -1,3 +1,9 @@
+export const INPUT_ITEM_STATUS = {
+  SUCCESS: 'Success',
+  NORMAL: `Normal`,
+  ERROR: 'Error'
+};
+
 export const INFINITY = 'vô cực';
 export const IMPOSSIBLE = 'vô nghiệm';
 export const TOO_SHORT = 'quá ngắn';
