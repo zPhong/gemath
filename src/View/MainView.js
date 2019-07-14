@@ -3,14 +3,9 @@ import './css/MainView.scss';
 import { InputItem } from './components';
 import { INPUT_ITEM_STATUS } from '../utils/values';
 import AppData from '../Model/AppData';
+import { observer } from 'mobx-react';
+@observer
 class MainView extends React.Component {
-  constructor(props) {
-    super(props);
-    const { relationInput } = AppData;
-    if (relationInput.length === 0) {
-    }
-  }
-
   render() {
     return (
       <div className={'container-fluid'}>
@@ -46,9 +41,9 @@ class MainView extends React.Component {
                   aria-labelledby="headingOne"
                   data-parent="#accordionExample">
                   <div className="card-body">
-                    <InputItem status={INPUT_ITEM_STATUS.SUCCESS} />
-                    <InputItem status={INPUT_ITEM_STATUS.NORMAL} />
-                    <InputItem status={INPUT_ITEM_STATUS.ERROR} />
+                    {AppData.RelationsInput.map((model) => (
+                      <InputItem value={model.value} status={model.status} />
+                    ))}
                   </div>
                 </div>
               </div>
