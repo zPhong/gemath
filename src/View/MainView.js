@@ -1,11 +1,73 @@
 import React from 'react';
 import './css/MainView.scss';
 import { InputItem } from './components';
-import { INPUT_ITEM_STATUS } from '../utils/values';
 import AppData from '../Model/AppData';
 import { observer } from 'mobx-react';
+import autobind from 'autobind-decorator';
 @observer
 class MainView extends React.Component {
+  constructor(props) {
+    super(props);
+    this.inputRefs = [];
+    this.state = {
+      focusIndex: 0
+    };
+  }
+
+  @autobind
+  onValueChange(value: string, index: number) {
+    AppData.RelationsInput[index].value = value;
+  }
+
+  @autobind
+  onSubmit(index: number) {
+    if (index === AppData.RelationsInput.length - 1) {
+      AppData.addNewInput();
+    }
+
+    this.setState({ focusIndex: index + 1 });
+  }
+
+  @autobind
+  onBackspace(index: number) {
+    const value = AppData.RelationsInput[index].value;
+    if (index === AppData.RelationsInput.length - 1 && index > 0 && value.length === 0) {
+      AppData.removeInput();
+      this.inputRefs.pop();
+    }
+    this.setState({ focusIndex: index - 1 });
+  }
+
+  componentDidUpdate() {
+    const { focusIndex } = this.state;
+    if (this.inputRefs[focusIndex]) {
+      this.inputRefs[focusIndex].focus();
+    }
+  }
+
+  @autobind
+  renderRelationInput(): React.Node {
+    return AppData.RelationsInput.map((model, index) => (
+      <InputItem
+        key={`input-${index}`}
+        ref={(ref) => {
+          this.inputRefs[index] = ref;
+        }}
+        onValueChange={(value: string) => {
+          this.onValueChange(value, index);
+        }}
+        onSubmit={() => {
+          this.onSubmit(index);
+        }}
+        onBackspace={() => {
+          this.onBackspace(index);
+        }}
+        value={model.value}
+        status={model.status}
+      />
+    ));
+  }
+
   render() {
     return (
       <div className={'container-fluid'}>
@@ -40,11 +102,7 @@ class MainView extends React.Component {
                   className="collapse show"
                   aria-labelledby="headingOne"
                   data-parent="#accordionExample">
-                  <div className="card-body">
-                    {AppData.RelationsInput.map((model) => (
-                      <InputItem value={model.value} status={model.status} />
-                    ))}
-                  </div>
+                  <div className="card-body">{this.renderRelationInput()}</div>
                 </div>
               </div>
 
