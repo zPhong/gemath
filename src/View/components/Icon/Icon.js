@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { inputSuccess, inputError, inputNormal } from './Svg';
+import { inputSuccess, inputError, inputNormal, icInformation } from './Svg';
 
 type PropsType = {
   name: string,
@@ -13,7 +13,8 @@ type PropsType = {
 const iconList = {
   inputSuccess,
   inputError,
-  inputNormal
+  inputNormal,
+  icInformation
 };
 
 export default class Icon extends React.Component<PropsType> {

@@ -5,6 +5,8 @@ import AppData from '../Model/AppData';
 import { observer } from 'mobx-react';
 import autobind from 'autobind-decorator';
 import { DrawingPanel } from './components/DrawingPanel';
+import { Icon } from './components';
+import { OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
 @observer
 class MainView extends React.Component {
   constructor(props) {
@@ -90,16 +92,26 @@ class MainView extends React.Component {
           <div className={'app-controller'}>
             <div className="accordion" id="accordionExample">
               <div className="card">
-                <div className="card-header" id="headingOne">
-                  <button
-                    className="btn btn-primary"
-                    type="button"
-                    data-toggle="collapse"
-                    data-target="#viewOne"
-                    aria-expanded="true"
-                    aria-controls="collapseOne">
-                    Controller 1
-                  </button>
+                <div
+                  className="card-header left-panel-tab"
+                  id="headingOne"
+                  data-toggle="collapse"
+                  data-target="#viewOne"
+                  aria-expanded="true"
+                  aria-controls="collapseOne">
+                  <p>1. Nhập đề</p>
+                  <OverlayTrigger
+                    key="right"
+                    placement="right"
+                    overlay={
+                      <Tooltip id={`tooltip-right`}>
+                        <Icon name="icInformation" width={25} height={25} />
+                      </Tooltip>
+                    }>
+                    <Button className="bg-transparent icon-container">
+                      <Icon name="icInformation" width={25} height={25} />
+                    </Button>
+                  </OverlayTrigger>
                 </div>
 
                 <div
@@ -109,9 +121,9 @@ class MainView extends React.Component {
                   data-parent="#accordionExample">
                   <div className="card-body">
                     {this.renderRelationInput()}
-                    <button type="button" className="btn btn-success w-100" onClick={this.onClickDrawing}>
+                    <Button type="button" className="btn btn-success w-100" onClick={this.onClickDrawing}>
                       Vẽ hình
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -171,7 +183,7 @@ class MainView extends React.Component {
           </div>
 
           <div className={'app-drawing-panel'}>
-            <DrawingPanel />
+            <DrawingPanel drawingData={this.state.drawingData} />
           </div>
         </div>
 

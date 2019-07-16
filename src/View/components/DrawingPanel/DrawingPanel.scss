@@ -1,14 +1,8 @@
 .geometry-container {
   flex: 1;
-  background-color: white;
+  background-color: red;
   padding-left: 4px;
   position: relative;
-  min-width: 30vw;
-  max-width: 40vw;
-  width: 30vw;
-  min-height: 30vw;
-  max-height: 40vw;
-  height: 30vw;
   .geometry-scene {
     position: absolute;
     left: 0;

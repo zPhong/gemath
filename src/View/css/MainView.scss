@@ -70,6 +70,25 @@ $borderColor: #e4e4e4;
         width: 100%;
       }
     }
+
+    .left-panel-tab {
+      height: 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-right: 0.1rem;
+      .icon-container {
+        background-color: transparent;
+        border-color: transparent;
+        box-shadow: none !important;
+      }
+      p {
+        font-family: appDescriptionFont, sans-serif;
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin: 0;
+      }
+    }
   }
 
   .app-drawing-panel {
