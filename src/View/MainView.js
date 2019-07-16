@@ -4,13 +4,15 @@ import { InputItem } from './components';
 import AppData from '../Model/AppData';
 import { observer } from 'mobx-react';
 import autobind from 'autobind-decorator';
+import { DrawingPanel } from './components/DrawingPanel';
 @observer
 class MainView extends React.Component {
   constructor(props) {
     super(props);
     this.inputRefs = [];
     this.state = {
-      focusIndex: 0
+      focusIndex: 0,
+      drawingData: { points: [], segments: [] }
     };
   }
 
@@ -21,7 +23,7 @@ class MainView extends React.Component {
 
   @autobind
   onSubmit(index: number) {
-    if (index === AppData.RelationsInput.length - 1) {
+    if (index === AppData.RelationsInput.length - 1 && AppData.RelationsInput[index].value.length > 2) {
       AppData.addNewInput();
     }
 
@@ -34,9 +36,12 @@ class MainView extends React.Component {
     if (index === AppData.RelationsInput.length - 1 && index > 0 && value.length === 0) {
       AppData.removeInput();
       this.inputRefs.pop();
+      this.setState({ focusIndex: index - 1 });
     }
-    this.setState({ focusIndex: index - 1 });
   }
+
+  @autobind
+  onClickDrawing() {}
 
   componentDidUpdate() {
     const { focusIndex } = this.state;
@@ -102,7 +107,12 @@ class MainView extends React.Component {
                   className="collapse show"
                   aria-labelledby="headingOne"
                   data-parent="#accordionExample">
-                  <div className="card-body">{this.renderRelationInput()}</div>
+                  <div className="card-body">
+                    {this.renderRelationInput()}
+                    <button type="button" className="btn btn-success w-100" onClick={this.onClickDrawing}>
+                      Vẽ hình
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -160,7 +170,9 @@ class MainView extends React.Component {
             </div>
           </div>
 
-          <div className={'app-drawing-panel'}></div>
+          <div className={'app-drawing-panel'}>
+            <DrawingPanel />
+          </div>
         </div>
 
         <div className={'app-footer'}>
