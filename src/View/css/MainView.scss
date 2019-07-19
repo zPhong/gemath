@@ -56,7 +56,6 @@ $borderColor: #e4e4e4;
   display: flex;
   border-left: 1px solid $borderColor;
   border-right: 1px solid $borderColor;
-  //background-color: red;
 
   .app-controller {
     display: block;
@@ -77,6 +76,7 @@ $borderColor: #e4e4e4;
       justify-content: space-between;
       align-items: center;
       padding-right: 0.1rem;
+
       .icon-container {
         background-color: transparent;
         border-color: transparent;
@@ -110,4 +110,17 @@ $borderColor: #e4e4e4;
     font-size: 1rem;
     margin: 0;
   }
+}
+
+#tooltip-right {
+  .tooltip-inner {
+    background-color: #fff;
+    color: #000;
+  }
+}
+
+#tooltip-right .arrow:before {
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 5px solid #fff;
 }

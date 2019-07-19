@@ -1,11 +1,6 @@
 // @flow
-import { observable, action } from 'mobx';
-import RelationInputModel from './RelationInputModel';
-import autobind from 'autobind-decorator';
-class AppData {
-  @observable
-  relationsInput: Array<RelationInputModel>;
 
+class AppData {
   constructor() {
     this.additionSegment = [];
     this.relationsResult = {};
@@ -14,7 +9,6 @@ class AppData {
     this.executedRelations = [];
     this.executedNode = [];
     this.__pointDetails__ = new Map();
-    this.relationsInput = [new RelationInputModel()];
   }
 
   clear() {
@@ -23,20 +17,6 @@ class AppData {
     this.executedRelations = [];
     this.executedNode = [];
     this.__pointDetails__.clear();
-  }
-
-  get RelationsInput() {
-    return this.relationsInput;
-  }
-
-  @action
-  addNewInput() {
-    this.relationsInput.push(new RelationInputModel());
-  }
-
-  @action
-  removeInput() {
-    this.relationsInput.pop();
   }
 
   get getAdditionSegment() {

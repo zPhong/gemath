@@ -1,12 +1,17 @@
 import React from 'react';
 import './css/MainView.scss';
-import { InputItem } from './components';
-import AppData from '../Model/AppData';
 import { observer } from 'mobx-react';
 import autobind from 'autobind-decorator';
+import { OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
+
+import DataViewModel from '../ViewModel/DataViewModel';
+
+import { InputItem } from './components';
 import { DrawingPanel } from './components/DrawingPanel';
 import { Icon } from './components';
-import { OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
+import { isVectorSameDirection, calculateVector, calculateDistanceTwoPoints } from '../core/math/Math2D';
+import type { SegmentDataType } from '../utils/types';
+
 @observer
 class MainView extends React.Component {
   constructor(props) {
@@ -14,19 +19,140 @@ class MainView extends React.Component {
     this.inputRefs = [];
     this.state = {
       focusIndex: 0,
-      drawingData: { points: [], segments: [] }
+      drawingData: {
+        points: [
+          { id: 'A', coordinate: { x: 0, y: 0, z: 0 } },
+          { id: 'B', coordinate: { y: 5, x: -7 } },
+          { id: 'C', coordinate: { x: -9, y: 4.0901353661613005 } },
+          { id: 'H', coordinate: { x: -3.0849364905389067, y: 6.781088913245535 } },
+          { id: 'D', coordinate: { x: -5.250000000000003, y: 3.7500000000000018 } },
+          { id: 'E', coordinate: { x: -8, y: 9.794855240493977 } }
+        ],
+        segments: [
+          'AB',
+          'BC',
+          'AC',
+          'AH',
+          'DH',
+          'DE',
+          'HB',
+          'HA',
+          'HA',
+          'HD',
+          'DA',
+          'DD',
+          'DD',
+          'DA',
+          'ED',
+          'EA',
+          'HB',
+          'HA',
+          'HA',
+          'HD',
+          'DA',
+          'DD',
+          'DD',
+          'DA',
+          'ED',
+          'EA',
+          'HB',
+          'HA',
+          'HA',
+          'HD',
+          'DA',
+          'DD',
+          'DD',
+          'DA',
+          'ED',
+          'EA'
+        ]
+      }
     };
   }
 
   @autobind
+  trimDrawingData() {
+    const {
+      drawingData: { points, segments }
+    } = this.state;
+    //change to DataViewModel.getNodeInPointsMapById.coordinate when refactor done
+    const pointData = {};
+    points.forEach((point) => {
+      pointData[point.id] = point.coordinate;
+    });
+
+    const segmentsData = {};
+    let result = [];
+    points.forEach((point) => {
+      segmentsData[point.id] = segments
+        .filter((segment: string): boolean => segment.includes(point.id))
+        .map((segment: string): SegmentDataType => {
+          const firstPoint = pointData[segment[0]];
+          const secondPoint = pointData[segment[1]];
+          return {
+            name: segment,
+            vector: calculateVector(firstPoint, secondPoint),
+            length: calculateDistanceTwoPoints(firstPoint, secondPoint)
+          };
+        });
+    });
+
+    Object.keys(segmentsData).forEach((point) => {
+      const segments = this.uniqueSegmentData(segmentsData[point]);
+      result = result.concat(segments);
+    });
+
+    result = [
+      ...new Set(
+        result.map((segment: string): string =>
+          segment
+            .split('')
+            .sort()
+            .join('')
+        )
+      )
+    ].filter((segment: string): boolean => segment[0] !== segment[1]);
+
+    console.log(result);
+  }
+
+  uniqueSegmentData(data: Array<SegmentDataType>): Array<string> {
+    let result = [data[0]];
+    for (let i = 1; i < data.length; i++) {
+      const segmentData = data[i];
+      const length = result.length;
+      let isValid = true;
+      let replaceIndex = -1;
+      for (let j = 0; j < length; j++) {
+        if (isVectorSameDirection(segmentData.vector, result[j].vector)) {
+          if (segmentData.length >= result[j].length) {
+            replaceIndex = j;
+            isValid = true;
+          }
+        } else {
+          isValid = true;
+        }
+      }
+      if (isValid) {
+        if (replaceIndex >= 0) {
+          result[replaceIndex] = segmentData;
+        } else {
+          result.push(segmentData);
+        }
+      }
+    }
+    return result.map((segmentData: SegmentDataType): string => segmentData.name);
+  }
+
+  @autobind
   onValueChange(value: string, index: number) {
-    AppData.RelationsInput[index].value = value;
+    DataViewModel.RelationsInput[index].value = value;
   }
 
   @autobind
   onSubmit(index: number) {
-    if (index === AppData.RelationsInput.length - 1 && AppData.RelationsInput[index].value.length > 2) {
-      AppData.addNewInput();
+    if (index === DataViewModel.RelationsInput.length - 1 && DataViewModel.RelationsInput[index].value.length > 2) {
+      DataViewModel.addNewInput();
     }
 
     this.setState({ focusIndex: index + 1 });
@@ -34,16 +160,18 @@ class MainView extends React.Component {
 
   @autobind
   onBackspace(index: number) {
-    const value = AppData.RelationsInput[index].value;
-    if (index === AppData.RelationsInput.length - 1 && index > 0 && value.length === 0) {
-      AppData.removeInput();
+    const value = DataViewModel.RelationsInput[index].value;
+    if (index === DataViewModel.RelationsInput.length - 1 && index > 0 && value.length === 0) {
+      DataViewModel.removeInput();
       this.inputRefs.pop();
       this.setState({ focusIndex: index - 1 });
     }
   }
 
   @autobind
-  onClickDrawing() {}
+  onClickDrawing() {
+    this.trimDrawingData();
+  }
 
   componentDidUpdate() {
     const { focusIndex } = this.state;
@@ -54,7 +182,7 @@ class MainView extends React.Component {
 
   @autobind
   renderRelationInput(): React.Node {
-    return AppData.RelationsInput.map((model, index) => (
+    return DataViewModel.RelationsInput.map((model, index) => (
       <InputItem
         key={`input-${index}`}
         ref={(ref) => {
@@ -102,10 +230,21 @@ class MainView extends React.Component {
                   <p>1. Nhập đề</p>
                   <OverlayTrigger
                     key="right"
+                    container={this}
                     placement="right"
                     overlay={
-                      <Tooltip id={`tooltip-right`}>
-                        <Icon name="icInformation" width={25} height={25} />
+                      <Tooltip id={`tooltip-right`} className="help-tooltip">
+                        <div style={{ backgroundColor: 'white', flex: 1 }}>
+                          <span>
+                            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
+                            squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
+                            nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
+                            single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft
+                            beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice
+                            lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you
+                            probably haven't heard of them accusamus labore sustainable VHS.
+                          </span>
+                        </div>
                       </Tooltip>
                     }>
                     <Button className="bg-transparent icon-container">
@@ -113,7 +252,6 @@ class MainView extends React.Component {
                     </Button>
                   </OverlayTrigger>
                 </div>
-
                 <div
                   id="viewOne"
                   className="collapse show"
@@ -129,27 +267,41 @@ class MainView extends React.Component {
               </div>
 
               <div className="card">
-                <div className="card-header" id="headingTwo">
-                  <button
-                    className="btn btn-primary"
-                    type="button"
-                    data-toggle="collapse"
-                    data-target="#viewTwo"
-                    aria-expanded="true"
-                    aria-controls="collapseOne">
-                    Controller 2
-                  </button>
+                <div
+                  className="card-header left-panel-tab"
+                  id="headingTwp"
+                  data-toggle="collapse"
+                  data-target="#viewTwo"
+                  aria-expanded="true"
+                  aria-controls="collapseTwp">
+                  <p>2. Chỉnh sửa hình</p>
+                  <OverlayTrigger
+                    key="right"
+                    container={this}
+                    placement="right"
+                    overlay={
+                      <Tooltip id={`tooltip-right`} className="help-tooltip">
+                        <div style={{ backgroundColor: 'white', flex: 1 }}>
+                          <span>
+                            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
+                            squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
+                            nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
+                            single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft
+                            beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice
+                            lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you
+                            probably haven't heard of them accusamus labore sustainable VHS.
+                          </span>
+                        </div>
+                      </Tooltip>
+                    }>
+                    <Button className="bg-transparent icon-container">
+                      <Icon name="icInformation" width={25} height={25} />
+                    </Button>
+                  </OverlayTrigger>
                 </div>
-
                 <div id="viewTwo" className="collapse " aria-labelledby="headingOne" data-parent="#accordionExample">
                   <div className="card-body">
-                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3
-                    wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum
-                    eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla
-                    assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt
-                    sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer
-                    farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus
-                    labore sustainable VHS.
+                    <input type="checkbox" data-toggle="toggle" data-on="Enabled" data-off="Disabled" />
                   </div>
                 </div>
               </div>
