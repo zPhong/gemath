@@ -9,13 +9,13 @@ function _makeRound(num: number, f: number = 3): number {
 
 export function calculateVector(firstPoint: CoordinateType, secondPoint: CoordinateType): CoordinateType {
   return {
-    x: secondPoint.x - firstPoint.x,
-    y: secondPoint.y - firstPoint.y
+    x: _makeRound(secondPoint.x - firstPoint.x),
+    y: _makeRound(secondPoint.y - firstPoint.y)
   };
 }
 
 export function isVectorSameDirection(firstVector: CoordinateType, secondVector: CoordinateType): boolean {
-  return firstVector.x / secondVector.x === firstVector.y / secondVector.y;
+  return _makeRound(firstVector.x / secondVector.x) === _makeRound(firstVector.y / secondVector.y);
 }
 
 export function calculateMiddlePoint(firstPoint: CoordinateType, secondPoint: CoordinateType): CoordinateType {

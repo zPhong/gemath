@@ -25,6 +25,12 @@ export type NodeType = {
 };
 
 export type SegmentDataType = { name: string, vector: CoordinateType, length: number };
+
+export type DrawingSegmentType = {
+  name: string,
+  visible: boolean
+};
+
 export type DrawingDataType = {
   points: Array<NodeType>,
   segment: Array<string>

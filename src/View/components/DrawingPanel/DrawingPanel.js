@@ -12,8 +12,13 @@ class DrawingPanel extends React.Component<PropsType> {
     this.renderGeometry(this.props.drawingData);
   }
 
+  componentDidUpdate() {
+    this.renderGeometry(this.props.drawingData);
+  }
+
   renderGeometry(drawingData: DrawingDataType) {
     const svg = document.getElementById('geometry');
+
     while (svg.firstChild) {
       svg.firstChild.remove();
     }
@@ -64,7 +69,9 @@ class DrawingPanel extends React.Component<PropsType> {
     });
 
     segments.forEach((segment) => {
-      scene.segment(segment, segment[0], segment[1]);
+      if (segment.visible) {
+        scene.segment(segment.name, segment.name[0], segment.name[1]);
+      }
     });
 
     scene.update();

@@ -6,12 +6,10 @@ import { OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
 
 import DataViewModel from '../ViewModel/DataViewModel';
 
-import { InputItem } from './components';
+import { InputItem, SegmentSetting, Icon } from './components';
 import { DrawingPanel } from './components/DrawingPanel';
-import { Icon } from './components';
 import { isVectorSameDirection, calculateVector, calculateDistanceTwoPoints } from '../core/math/Math2D';
-import type { SegmentDataType } from '../utils/types';
-
+import type { SegmentDataType, DrawingSegmentType } from '../utils/types';
 @observer
 class MainView extends React.Component {
   constructor(props) {
@@ -70,6 +68,18 @@ class MainView extends React.Component {
     };
   }
 
+  componentWillMount() {
+    this.setState((prevState) => ({
+      drawingData: {
+        ...prevState.drawingData,
+        segments: this.trimDrawingData().map((segment: string): DrawingSegmentType => ({
+          name: segment,
+          visible: true
+        }))
+      }
+    }));
+  }
+
   @autobind
   trimDrawingData() {
     const {
@@ -85,7 +95,14 @@ class MainView extends React.Component {
     let result = [];
     points.forEach((point) => {
       segmentsData[point.id] = segments
+        .map((segment: string): string =>
+          segment
+            .split('')
+            .sort()
+            .join('')
+        )
         .filter((segment: string): boolean => segment.includes(point.id))
+
         .map((segment: string): SegmentDataType => {
           const firstPoint = pointData[segment[0]];
           const secondPoint = pointData[segment[1]];
@@ -97,46 +114,37 @@ class MainView extends React.Component {
         });
     });
 
+    const removeSegments = [];
+
     Object.keys(segmentsData).forEach((point) => {
-      const segments = this.uniqueSegmentData(segmentsData[point]);
+      const segments = this.uniqueSegmentData(segmentsData[point], removeSegments);
       result = result.concat(segments);
     });
 
-    result = [
-      ...new Set(
-        result.map((segment: string): string =>
-          segment
-            .split('')
-            .sort()
-            .join('')
-        )
-      )
-    ].filter((segment: string): boolean => segment[0] !== segment[1]);
+    result = [...new Set(result)].filter((segment: string): boolean => segment[0] !== segment[1]);
 
-    console.log(result);
+    return result;
   }
 
-  uniqueSegmentData(data: Array<SegmentDataType>): Array<string> {
+  uniqueSegmentData(data: Array<SegmentDataType>, removeSegments: Array<string>): Array<string> {
     let result = [data[0]];
     for (let i = 1; i < data.length; i++) {
       const segmentData = data[i];
       const length = result.length;
-      let isValid = true;
       let replaceIndex = -1;
       for (let j = 0; j < length; j++) {
         if (isVectorSameDirection(segmentData.vector, result[j].vector)) {
           if (segmentData.length >= result[j].length) {
             replaceIndex = j;
-            isValid = true;
+          } else {
+            removeSegments.push(segmentData.name);
           }
-        } else {
-          isValid = true;
         }
       }
-      if (isValid) {
-        if (replaceIndex >= 0) {
-          result[replaceIndex] = segmentData;
-        } else {
+      if (replaceIndex >= 0) {
+        result[replaceIndex] = segmentData;
+      } else {
+        if (!removeSegments.includes(segmentData.name)) {
           result.push(segmentData);
         }
       }
@@ -201,6 +209,66 @@ class MainView extends React.Component {
         status={model.status}
       />
     ));
+  }
+
+  @autobind
+  onDoneSegmentSetting(data: DrawingSegmentType, index: number) {
+    const {
+      drawingData: { segments }
+    } = this.state;
+
+    const newSegments = [...segments];
+    newSegments[index] = data;
+
+    this.setState((prevState) => ({
+      drawingData: {
+        ...prevState.drawingData,
+        segments: newSegments
+      }
+    }));
+  }
+
+  @autobind
+  onChangeSegmentSetting(data: DrawingSegmentType, index: number) {
+    const {
+      drawingData: { segments }
+    } = this.state;
+
+    const newSegments = [...segments];
+    newSegments[index] = data;
+
+    this.setState((prevState) => ({
+      drawingData: {
+        ...prevState.drawingData,
+        segments: newSegments
+      }
+    }));
+  }
+
+  @autobind
+  renderSegmentSettings(): React.Node {
+    const {
+      drawingData: { segments }
+    } = this.state;
+    const points = this.state.drawingData.points.map((point: NodeType): number => point.id);
+
+    return segments.map((segment: DrawingSegmentType, index: number): React.Node => {
+      return (
+        <SegmentSetting
+          data={points}
+          value={segment}
+          onDone={(value) => {
+            this.onDoneSegmentSetting(value, index);
+          }}
+          onVisibleChange={(value) => {
+            this.onChangeSegmentSetting(value, index);
+          }}
+          onDelete={() => {
+            //this.onChangeSegmentSetting(segment, index);
+          }}
+        />
+      );
+    });
   }
 
   render() {
@@ -300,9 +368,7 @@ class MainView extends React.Component {
                   </OverlayTrigger>
                 </div>
                 <div id="viewTwo" className="collapse " aria-labelledby="headingOne" data-parent="#accordionExample">
-                  <div className="card-body">
-                    <input type="checkbox" data-toggle="toggle" data-on="Enabled" data-off="Disabled" />
-                  </div>
+                  <div className="card-body">{this.renderSegmentSettings()}</div>
                 </div>
               </div>
 

@@ -1,0 +1,121 @@
+@font-face {
+  font-family: appDescriptionFont;
+  src: url('../../../resources/fonts/Nunito-Light.ttf');
+}
+
+.segment-setting {
+  .container {
+    position: relative;
+    background-color: cornsilk;
+    border: solid 2px slategray;
+    border-radius: 5px;
+    padding: 2.5% 5%;
+    margin-bottom: 10px;
+    .title {
+      background-color: transparent;
+      p {
+        margin-bottom: 5px;
+        font-weight: bold;
+        font-size: 1rem;
+        font-family: appDescriptionFont, sans-serif;
+      }
+    }
+    .content-show {
+      .content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        > span {
+          > p {
+            flex: 1;
+            display: flex;
+            margin: 0;
+            font-weight: bold;
+            font-size: 2rem;
+            font-family: appDescriptionFont, sans-serif;
+          }
+        }
+        .toggle {
+          border-radius: 100px;
+          overflow: hidden;
+          background-color: aliceblue;
+          border: solid 1px black;
+
+          .toggle-handle {
+            background-color: aliceblue;
+            border: solid 1px black;
+            height: 34px;
+            width: 34px;
+            border-radius: 25px;
+          }
+        }
+      }
+    }
+    .content-edit {
+      .drop-down-container {
+        width: 100%;
+        flex-direction: row;
+        display: flex;
+        flex-wrap: wrap;
+        > div {
+          flex: 1;
+          .dropdown {
+            > button {
+              width: 100%;
+              min-width: 60px;
+              background-color: white;
+              border: solid 1px black;
+              padding: 5%;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              color: black;
+              font-weight: 500;
+              font-family: appDescriptionFont, sans-serif;
+            }
+            button:focus {
+              outline: none;
+              box-shadow: none;
+            }
+            button:after {
+              color: black;
+            }
+          }
+        }
+        .right-drop-down {
+          margin-left: 5px;
+        }
+      }
+      .button-container {
+        display: flex;
+        justify-content: flex-end;
+        button {
+          min-width: 60px;
+          outline: none;
+          box-shadow: none;
+          margin-top: 5px;
+        }
+      }
+    }
+    .delete-btn-container {
+      width: 15px;
+      height: 15px;
+      position: absolute;
+      right: -7.5px;
+      top: -7.5p;
+      .delete-icon-container {
+        width: 0px;
+        height: 0px;
+        border-radius: 10px;
+        background-color: white;
+        overflow: hidden;
+      }
+    }
+    .delete-btn-container:hover {
+      .delete-icon-container {
+        width: 15px;
+        height: 15px;
+      }
+    }
+  }
+}

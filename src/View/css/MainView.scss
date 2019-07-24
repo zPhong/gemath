@@ -60,6 +60,7 @@ $borderColor: #e4e4e4;
   .app-controller {
     display: block;
     width: 25vw;
+    min-width: 300px;
     border-right: 1px solid $borderColor;
 
     .app-controller-nav {
