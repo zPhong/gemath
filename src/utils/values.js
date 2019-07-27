@@ -14,9 +14,20 @@ const String = Object.freeze({
   NOT_BE_IN_LINE: 'điểm không thuộc đường',
 });
 
+const Regex = Object.freeze({
+  KEY: '[^{\\}]+(?=})',
+  OTHER: '(^([^{]+(?={)))|((?<=})([^{]+)(?={))|(((?<=})[^}]+)$)'
+});
+
+const Others = Object.freeze({
+  OPERATIONS: ['+', '-', '*', '<', '>', '='],
+});
+
 const GConst = {
   Number,
-  String
+  String,
+  Regex,
+  Others
 };
 
 export default GConst;
