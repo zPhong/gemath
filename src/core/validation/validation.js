@@ -1,4 +1,4 @@
-import { RankingObjectContain, validate } from '../../configuration/define';
+import { RankingObjectContain, validate } from '../definition/define.js';
 import { checkFormatString } from '../definition/defineObjType';
 
 export function validateValue(value, type) {
