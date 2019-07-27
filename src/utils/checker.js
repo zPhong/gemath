@@ -16,6 +16,11 @@ export function isObject(value) {
   return value !== null && (type === 'object' || type === 'function');
 }
 
+export function isQuadraticEquation (equation): boolean {
+  if (equation.coefficientX) return false;
+  return equation.a === 1 && equation.b === 1;
+}
+
 export function isFunction(value) {
   if (!isObject(value)) {
     return false

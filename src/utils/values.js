@@ -1,7 +1,20 @@
-export const INFINITY = 'vô cực';
-export const IMPOSSIBLE = 'vô nghiệm';
-export const TOO_SHORT = 'quá ngắn';
-export const NOT_ENOUGH_SET = 'không đủ phương trình tạo thành hệ';
-export const NOT_BE_IN_LINE = 'điểm không thuộc đường';
-export const MIN_RANDOM_NUMBER = -10;
-export const MAX_RANDOM_NUMBER = 10;
+const Number = Object.freeze({
+  MIN_RANDOM_NUMBER: -10,
+  MAX_RANDOM_NUMBER: 10,
+  NOT_FOUND: 99,
+});
+
+const String = Object.freeze({
+  INFINITY: 'vô cực',
+  IMPOSSIBLE: 'vô nghiệm',
+  TOO_SHORT: 'quá ngắn',
+  NOT_ENOUGH_SET: 'không đủ phương trình tạo thành hệ',
+  NOT_BE_IN_LINE: 'điểm không thuộc đường',
+});
+
+const GConst = {
+  Number,
+  String
+};
+
+export default GConst;
