@@ -1,6 +1,8 @@
 const Number = Object.freeze({
   MIN_RANDOM_NUMBER: -10,
   MAX_RANDOM_NUMBER: 10,
+  MIN_RANDOM_GENERATION: 5,
+  MAX_RANDOM_GENERATION: 15,
   NOT_FOUND: 99,
 });
 
