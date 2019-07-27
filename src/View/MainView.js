@@ -66,6 +66,7 @@ class MainView extends React.Component {
         ]
       }
     };
+    this.scrollView = React.createRef();
   }
 
   componentWillMount() {
@@ -78,6 +79,16 @@ class MainView extends React.Component {
         }))
       }
     }));
+  }
+
+  @autobind
+  scrollToBottom() {
+    if (this.scrollView.current) {
+      console.log(this.scrollView.current);
+      setTimeout(() => {
+        this.scrollView.current.firstChild.scrollIntoView(false);
+      }, 250);
+    }
   }
 
   @autobind
@@ -102,7 +113,6 @@ class MainView extends React.Component {
             .join('')
         )
         .filter((segment: string): boolean => segment.includes(point.id))
-
         .map((segment: string): SegmentDataType => {
           const firstPoint = pointData[segment[0]];
           const secondPoint = pointData[segment[1]];
@@ -217,13 +227,12 @@ class MainView extends React.Component {
       drawingData: { segments }
     } = this.state;
 
-    const newSegments = [...segments];
-    newSegments[index] = data;
+    segments[index] = data;
 
     this.setState((prevState) => ({
       drawingData: {
         ...prevState.drawingData,
-        segments: newSegments
+        segments
       }
     }));
   }
@@ -246,6 +255,17 @@ class MainView extends React.Component {
   }
 
   @autobind
+  addNewSegmentSetting() {
+    this.scrollToBottom();
+    this.setState((prevState) => ({
+      drawingData: {
+        ...prevState.drawingData,
+        segments: prevState.drawingData.segments.concat([undefined])
+      }
+    }));
+  }
+
+  @autobind
   renderSegmentSettings(): React.Node {
     const {
       drawingData: { segments }
@@ -255,6 +275,7 @@ class MainView extends React.Component {
     return segments.map((segment: DrawingSegmentType, index: number): React.Node => {
       return (
         <SegmentSetting
+          key={`segment-setting-${index}`}
           data={points}
           value={segment}
           onDone={(value) => {
@@ -284,8 +305,8 @@ class MainView extends React.Component {
           </div>
         </div>
 
-        <div className={'app-body'}>
-          <div className={'app-controller'}>
+        <div className="app-body">
+          <div className="app-controller">
             <div className="accordion" id="accordionExample">
               <div className="card">
                 <div
@@ -326,10 +347,12 @@ class MainView extends React.Component {
                   aria-labelledby="headingOne"
                   data-parent="#accordionExample">
                   <div className="card-body">
-                    {this.renderRelationInput()}
-                    <Button type="button" className="btn btn-success w-100" onClick={this.onClickDrawing}>
-                      Vẽ hình
-                    </Button>
+                    <div>
+                      {this.renderRelationInput()}
+                      <Button type="button" className="btn btn-success w-100" onClick={this.onClickDrawing}>
+                        Vẽ hình
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -368,32 +391,13 @@ class MainView extends React.Component {
                   </OverlayTrigger>
                 </div>
                 <div id="viewTwo" className="collapse " aria-labelledby="headingOne" data-parent="#accordionExample">
-                  <div className="card-body">{this.renderSegmentSettings()}</div>
-                </div>
-              </div>
-
-              <div className="card">
-                <div className="card-header" id="headingThree">
-                  <button
-                    className="btn btn-primary"
-                    type="button"
-                    data-toggle="collapse"
-                    data-target="#viewThree"
-                    aria-expanded="true"
-                    aria-controls="collapseOne">
-                    Controller 3
-                  </button>
-                </div>
-
-                <div id="viewThree" className="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
-                  <div className="card-body">
-                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3
-                    wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum
-                    eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla
-                    assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt
-                    sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer
-                    farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus
-                    labore sustainable VHS.
+                  <div className="card-body" ref={this.scrollView}>
+                    <div>
+                      {this.renderSegmentSettings()}
+                      <Button variant="success" onClick={this.addNewSegmentSetting}>
+                        +
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>

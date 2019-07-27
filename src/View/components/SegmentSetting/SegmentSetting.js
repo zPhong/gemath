@@ -94,7 +94,10 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
 
   @autobind
   onChangeContentState() {
-    const { isEditMode } = this.state;
+    const { isEditMode, start, end } = this.state;
+    if (!start || !end) {
+      return;
+    }
     this.setState({ isEditMode: !isEditMode });
   }
   @autobind
@@ -123,7 +126,7 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
           </div>
         </div>
         <div className="button-container">
-          <Button variant="success" disabled={!(start && end)}>
+          <Button variant="success" disabled={!(start && end)} onClick={this.onDone}>
             Thêm
           </Button>
         </div>
@@ -142,15 +145,7 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
           <span>
             <p>{name}</p>
           </span>
-          <Toggle
-            onstyle="success"
-            onClick={this.onVisibleChange}
-            on=" "
-            off=" "
-            width={40}
-            height={20}
-            active={visible}
-          />
+          <Toggle onstyle="success" onClick={this.onVisibleChange} on=" " off=" " width={40} active={visible} />
         </div>
       </div>
     );

@@ -2,11 +2,12 @@
   flex: 1;
   padding-left: 4px;
   position: relative;
+  display: flex;
   .geometry-scene {
+    width: 100%;
+    height: 100%;
     position: absolute;
     left: 0;
-    width: 30vw;
-    height: 30vw;
     stroke: black;
     fill: none;
     .point {

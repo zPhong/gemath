@@ -98,11 +98,11 @@
       }
     }
     .delete-btn-container {
-      width: 15px;
-      height: 15px;
+      width: 20px;
+      height: 20px;
       position: absolute;
-      right: -7.5px;
-      top: -7.5p;
+      right: -10px;
+      top: -10px;
       .delete-icon-container {
         width: 0px;
         height: 0px;
@@ -113,8 +113,8 @@
     }
     .delete-btn-container:hover {
       .delete-icon-container {
-        width: 15px;
-        height: 15px;
+        width: 20px;
+        height: 20px;
       }
     }
   }
