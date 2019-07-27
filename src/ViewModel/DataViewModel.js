@@ -19,6 +19,10 @@ class DataViewModel {
     this.data.clear();
   }
 
+  get getData() {
+    return this.data;
+  }
+
   createPointDetails() {
     this.data.getPointsMap.forEach((node) => {
       const roots = this.isValidCoordinate(node.coordinate) ? [node.coordinate] : [];
