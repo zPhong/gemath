@@ -1,7 +1,7 @@
 import dataViewModel from "../../ViewModel/DataViewModel";
 import type { CoordinateType } from '../../utils/types';
-import { calculateDistanceTwoPoints, getLineFromTwoPoints, } from "../math/Math2D";
-import { getRandomValue } from '../math/Generation.js';
+import { calculateDistanceTwoPoints, getLineFromTwoPoints, } from "./Math2D";
+import { getRandomValue } from './Generation.js';
 import GConst from "../../utils/values";
 
 const MIN = GConst.Number.MIN_RANDOM_GENERATION;
