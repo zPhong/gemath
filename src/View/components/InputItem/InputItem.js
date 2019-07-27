@@ -13,6 +13,11 @@ type PropsType = {
   onBackspace: void
 };
 
+const KEYCODE = Object.freeze({
+  BACKSPACE: 8,
+  ENTER: 13,
+});
+
 class InputItem extends React.Component<PropsType> {
   inputRef: ReactRefs = React.createRef();
 
@@ -34,14 +39,14 @@ class InputItem extends React.Component<PropsType> {
   @autobind
   onKeyUp(e: React.KeyboardEvent<FormControl>) {
     const { onBackspace, onSubmit } = this.props;
-    //Enter
-    if (e.keyCode === 13) {
+
+    if (e.keyCode === KEYCODE.ENTER) {
       if (onSubmit) {
         onSubmit();
       }
     }
-    //Backspace
-    if (e.keyCode === 8) {
+
+    else if (e.keyCode === KEYCODE.BACKSPACE) {
       if (onBackspace) {
         onBackspace();
       }
