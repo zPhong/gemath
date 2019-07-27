@@ -1,8 +1,14 @@
 // @flow
 
 import appData from "../Model/AppData";
-import type {EquationType, PointDetailsType} from "../utils/types";
-import {NodeType} from '../utils/types'
+import type { EquationType, PointDetailsType } from "../utils/types";
+import { NodeType } from '../utils/types'
+import GConst from '../utils/values.js';
+import { calculateIntersectionTwoCircleEquations, isIn, makeRoundCoordinate } from '../core/math/Math2D.js';
+import { isQuadraticEquation } from '../utils/checker.js';
+
+const NOT_FOUND = GConst.Number.NOT_FOUND;
+const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
 
 class DataViewModel {
   constructor({appData}) {
@@ -98,8 +104,8 @@ class DataViewModel {
   };
 
   getNextExecuteNode = (): NodeType => {
-    const clonePointsMap = [...this.pointsMap]
-      .filter((node) => !this.executedNode.includes(node.id))
+    const clonePointsMap = [...this.data.pointsMap]
+      .filter((node) => !this.data.executedNode.includes(node.id))
       .sort(this.sortNodeByPriority);
 
     if (clonePointsMap.length > 0) return clonePointsMap[0];
@@ -219,11 +225,11 @@ class DataViewModel {
     return false;
   };
 
-  _calculateSet(equations: Array<EquationType>) {
+  _calculateSet = (equations: Array<EquationType>) => {
     if (equations.length === 2) {
       return calculateIntersectionTwoCircleEquations(equations[0], equations[1]);
     } else return NOT_ENOUGH_SET;
-  }
+  };
 
   _updatePointDetails(pointId: string, pointDetails: PointDetailsType) {
     this.data.getPointDetails.set(
@@ -272,9 +278,9 @@ class DataViewModel {
     }
 
     if (this.data.getPointDetails.get(pointId).setOfEquation.length === 2) {
-      if (this.isQuadraticEquation(equation) && !isFirst) {
+      if (isQuadraticEquation(equation) && !isFirst) {
         for (let i = 0; i < 2; i++) {
-          if (!this.isQuadraticEquation(this.data.getPointDetails.get(pointId).setOfEquation[i])) {
+          if (!isQuadraticEquation(this.data.getPointDetails.get(pointId).setOfEquation[i])) {
             this.data.getPointDetails.get(pointId).setOfEquation[i] = equation;
             break;
           }
@@ -316,4 +322,4 @@ class DataViewModel {
 
 const dataViewModel = new DataViewModel(appData);
 
-export default DataViewModel;
+export default dataViewModel;
