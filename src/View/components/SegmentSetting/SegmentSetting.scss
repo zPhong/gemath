@@ -4,13 +4,14 @@
 }
 
 .segment-setting {
+  border-bottom: solid 1px;
+  border-bottom-color: #dcdcdc;
+  padding: 1% 2.5%;
   .container {
+    cursor: pointer;
     position: relative;
-    background-color: cornsilk;
-    border: solid 2px slategray;
-    border-radius: 5px;
-    padding: 2.5% 5%;
-    margin-bottom: 10px;
+    background-color: white;
+    padding: 5px 0 0 0;
     .title {
       background-color: transparent;
       p {
@@ -25,29 +26,55 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        > div {
+          width: 24px;
+          height: 24px;
+          justify-content: center;
+          align-items: center;
+          display: flex;
+        }
+        > div:hover {
+          background-color: #dcdcdc;
+        }
+
         > span {
+          flex: 1;
           > p {
             flex: 1;
             display: flex;
             margin: 0;
             font-weight: bold;
-            font-size: 2rem;
+            font-size: 1rem;
             font-family: appDescriptionFont, sans-serif;
           }
         }
         .toggle {
-          border-radius: 100px;
-          overflow: hidden;
-          background-color: aliceblue;
+          border-radius: 3px;
           border: solid 1px black;
-
-          .toggle-handle {
-            background-color: aliceblue;
-            border: solid 1px black;
-            height: 34px;
-            width: 34px;
-            border-radius: 25px;
+          border-style: outset;
+          margin-right: 5px;
+          height: 18px;
+          .toggle-on {
+            padding: 0;
+            font-size: 0.75rem;
+            font-weight: 500;
           }
+          .toggle-off {
+            padding: 0;
+            font-size: 0.75rem;
+            font-weight: 500;
+          }
+          .toggle-handler {
+            width: 0;
+            height: 0;
+          }
+          .btn:not(:disabled):not(.disabled) {
+            cursor: default;
+          }
+        }
+        .toggle.btn {
+          min-width: 30px;
+          min-height: 20px;
         }
       }
     }
@@ -94,27 +121,14 @@
           outline: none;
           box-shadow: none;
           margin-top: 5px;
+          font-weight: 500;
         }
-      }
-    }
-    .delete-btn-container {
-      width: 20px;
-      height: 20px;
-      position: absolute;
-      right: -10px;
-      top: -10px;
-      .delete-icon-container {
-        width: 0px;
-        height: 0px;
-        border-radius: 10px;
-        background-color: white;
-        overflow: hidden;
-      }
-    }
-    .delete-btn-container:hover {
-      .delete-icon-container {
-        width: 20px;
-        height: 20px;
+        .btn-link {
+          color: #28a745;
+        }
+        button:hover {
+          text-decoration: none;
+        }
       }
     }
   }

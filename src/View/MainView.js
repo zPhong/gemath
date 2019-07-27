@@ -84,7 +84,6 @@ class MainView extends React.Component {
   @autobind
   scrollToBottom() {
     if (this.scrollView.current) {
-      console.log(this.scrollView.current);
       setTimeout(() => {
         this.scrollView.current.firstChild.scrollIntoView(false);
       }, 250);
@@ -227,9 +226,14 @@ class MainView extends React.Component {
       drawingData: { segments }
     } = this.state;
 
+    if (segments.map((segment: SegmentDataType): string => segment.name).includes(data.name)) {
+      this.onDeleteSegmentSetting(index);
+      return;
+    }
+
     segments[index] = data;
 
-    this.setState((prevState) => ({
+    segments.this.setState((prevState) => ({
       drawingData: {
         ...prevState.drawingData,
         segments
@@ -250,6 +254,21 @@ class MainView extends React.Component {
       drawingData: {
         ...prevState.drawingData,
         segments: newSegments
+      }
+    }));
+  }
+
+  @autobind
+  onDeleteSegmentSetting(index: number) {
+    const {
+      drawingData: { segments }
+    } = this.state;
+
+    segments.splice(index, 1);
+    this.setState((prevState) => ({
+      drawingData: {
+        ...prevState.drawingData,
+        segments
       }
     }));
   }
@@ -285,7 +304,7 @@ class MainView extends React.Component {
             this.onChangeSegmentSetting(value, index);
           }}
           onDelete={() => {
-            //this.onChangeSegmentSetting(segment, index);
+            this.onDeleteSegmentSetting(index);
           }}
         />
       );
@@ -394,9 +413,10 @@ class MainView extends React.Component {
                   <div className="card-body" ref={this.scrollView}>
                     <div>
                       {this.renderSegmentSettings()}
-                      <Button variant="success" onClick={this.addNewSegmentSetting}>
-                        +
-                      </Button>
+                      <div className={'add-row-container'} onClick={this.addNewSegmentSetting}>
+                        <Icon name={'icAdd'} width={35} height={35} color={'#757575'} />
+                        <p>Thêm đoạn thẳng</p>
+                      </div>
                     </div>
                   </div>
                 </div>

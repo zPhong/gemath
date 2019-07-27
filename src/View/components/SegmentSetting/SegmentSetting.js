@@ -20,7 +20,8 @@ type StateType = {
   start: string,
   end: string,
   visible: boolean,
-  isEditMode: boolean
+  isEditMode: boolean,
+  isCreateMode: boolean
 };
 
 class SegmentSetting extends React.Component<PropsType, StateType> {
@@ -32,7 +33,8 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
       start,
       end,
       visible: true,
-      isEditMode: !props.value
+      isEditMode: !props.value,
+      isCreateMode: !props.value
     };
   }
 
@@ -116,7 +118,7 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
   @autobind
   renderEditContent(): React.Node {
     const { data } = this.props;
-    const { start, end } = this.state;
+    const { start, end, isCreateMode } = this.state;
     return (
       <div className="content-edit">
         <div className="drop-down-container">
@@ -126,8 +128,12 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
           </div>
         </div>
         <div className="button-container">
-          <Button variant="success" disabled={!(start && end)} onClick={this.onDone}>
-            Thêm
+          <Button variant="outline-danger" onClick={isCreateMode ? this.onDelete : this.onChangeContentState}>
+            HỦY
+          </Button>
+          <div style={{ width: 5 }}></div>
+          <Button variant={`${isCreateMode ? 'link' : 'success'}`} disabled={!(start && end)} onClick={this.onDone}>
+            {isCreateMode ? 'THÊM' : 'CẬP NHẬT'}
           </Button>
         </div>
       </div>
@@ -145,7 +151,22 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
           <span>
             <p>{name}</p>
           </span>
-          <Toggle onstyle="success" onClick={this.onVisibleChange} on=" " off=" " width={40} active={visible} />
+          <Toggle
+            onstyle="success"
+            offstyle="danger"
+            handleClassName="toggle-handler"
+            onClick={this.onVisibleChange}
+            off="HIỆN"
+            on="ẨN"
+            width={40}
+            active={visible}
+          />
+          <div onClick={this.onChangeContentState}>
+            <Icon name={'icEdit'} color={'#757575'} width={15} height={15} />
+          </div>
+          <div onClick={this.onDelete}>
+            <Icon name={'icRemove'} color={'#757575'} width={15} height={15} />
+          </div>
         </div>
       </div>
     );
@@ -162,22 +183,17 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
   }
 
   render(): React.Node {
-    const { isEditMode } = this.state;
+    const { isEditMode, isCreateMode } = this.state;
 
     return (
       <div className="segment-setting">
-        <div className="container" onDoubleClick={this.onChangeContentState}>
+        <div className="container">
           {isEditMode && (
             <div className="title">
-              <p>Thêm đoạn thẳng :</p>
+              <p>{`${isCreateMode ? 'Thêm' : 'Cập nhật'} đoạn thẳng :`}</p>
             </div>
           )}
           {this.renderContent()}
-          <div className="delete-btn-container">
-            <div className="delete-icon-container">
-              <Icon name="icClose" width={20} height={20} />
-            </div>
-          </div>
         </div>
       </div>
     );
