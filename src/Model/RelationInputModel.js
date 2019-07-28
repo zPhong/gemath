@@ -1,10 +1,10 @@
 // @flow
 import { observable } from 'mobx';
-import { INPUT_ITEM_STATUS } from '../utils/values';
+import GConst from '../utils/values';
 
 export default class RelationInputModel {
   value: string = '';
 
   @observable
-  status: string = INPUT_ITEM_STATUS.NORMAL;
+  status: string = GConst.InputStatus.NORMAL;
 }

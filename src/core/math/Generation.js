@@ -1,8 +1,11 @@
 // @flow
 
-import {MAX_RANDOM_NUMBER, MIN_RANDOM_NUMBER} from '../../utils/values';
+import GConst from '../../utils/values';
 import type {CoordinateType, EquationType} from '../../utils/types'
 import {calculateQuadraticEquation, getLineFromTwoPoints} from './Math2D';
+
+const MIN = GConst.Number.MIN_RANDOM_NUMBER;
+const MAX = GConst.Number.MAX_RANDOM_NUMBER;
 
 export function getStartPoint(): CoordinateType {
   return {x: 0, y: 0, z: 0};
@@ -15,7 +18,7 @@ export function getRandomValue(min: number, max: number): number {
 export function getRandomPointInEquation(equation: EquationType): CoordinateType {
   if (equation.a === 0 && equation.b === 0) {
     if (equation.d !== 0) {
-      const tempX = getRandomValue(MIN_RANDOM_NUMBER, MAX_RANDOM_NUMBER);
+      const tempX = getRandomValue(MIN, MAX);
       return {
         x: tempX,
         y: (-equation.e - equation.c * tempX) / equation.d
@@ -23,7 +26,7 @@ export function getRandomPointInEquation(equation: EquationType): CoordinateType
     } else {
       return {
         x: -equation.e / equation.c,
-        y: getRandomValue(MIN_RANDOM_NUMBER, MAX_RANDOM_NUMBER)
+        y: getRandomValue(MIN, MAX)
       };
     }
   } else if (equation.a === 1 && equation.b === 1) {
@@ -62,8 +65,8 @@ export function generatePointAlignmentOutside(
   isRight: boolean = true
 ): CoordinateType {
   const line = getLineFromTwoPoints(firstPoint, secondPoint);
-  const tempXRight = getRandomValue(secondPoint.x, MAX_RANDOM_NUMBER);
-  const tempXLeft = getRandomValue(MIN_RANDOM_NUMBER, firstPoint.x);
+  const tempXRight = getRandomValue(secondPoint.x, MAX);
+  const tempXLeft = getRandomValue(MIN, firstPoint.x);
   return isRight
     ? {
       x: tempXRight,
@@ -77,10 +80,10 @@ export function generatePointAlignmentOutside(
 
 export function generatePointNotAlignment(firstPoint: CoordinateType, secondPoint: CoordinateType): CoordinateType {
   let resultPoint: CoordinateType = {};
-  resultPoint.x = getRandomValue(MIN_RANDOM_NUMBER, MAX_RANDOM_NUMBER);
+  resultPoint.x = getRandomValue(MIN, MAX);
   const line = getLineFromTwoPoints(firstPoint, secondPoint);
   do {
-    resultPoint.y = getRandomValue(MIN_RANDOM_NUMBER, MAX_RANDOM_NUMBER);
+    resultPoint.y = getRandomValue(MIN, MAX);
   } while (resultPoint.y === line.c * resultPoint.x + line.e);
   return resultPoint;
 }

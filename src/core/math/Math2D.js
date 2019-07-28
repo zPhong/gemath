@@ -1,6 +1,12 @@
-import { IMPOSSIBLE, INFINITY, MAX_RANDOM_NUMBER, NOT_BE_IN_LINE } from '../../utils/values';
-import type { CoordinateType, EquationType, LineType } from '../../utils/types';
-import { convertEquationToLineType, convertLinearToEquation, convertLineTypeToEquation } from './Converter';
+import GConst from "../../utils/values";
+import type {CoordinateType, EquationType, LineType} from "../../utils/types";
+import {convertEquationToLineType, convertLinearToEquation, convertLineTypeToEquation,} from './Converter'
+
+const MIN = GConst.Number.MIN_RANDOM_NUMBER;
+const MAX = GConst.Number.MAX_RANDOM_NUMBER;
+const INFINITY = GConst.String.INFINITY;
+const IMPOSSIBLE = GConst.String.IMPOSSIBLE;
+const NOT_BE_IN_LINE = GConst.String.NOT_BE_IN_LINE;
 
 function _makeRound(num: number, f: number = 3): number {
   const myF = Math.pow(10, f);
@@ -62,7 +68,7 @@ export function getLineFromTwoPoints(p1: EquationType, p2: EquationType): Equati
 
 export function calculateParallelEquation(equation: EquationType): EquationType {
   // Random a constance term from MIN_RANDOM_NUMBER -> MAX_RANDOM_NUMBER
-  const e = Math.floor(Math.random() * 100) - MAX_RANDOM_NUMBER;
+  const e = Math.floor(Math.random() * 100) - MAX;
 
   let parallelEquation: EquationType = { coefficientZ: 0 };
   parallelEquation.c = equation.c;
@@ -74,7 +80,7 @@ export function calculateParallelEquation(equation: EquationType): EquationType 
 
 export function calculatePerpendicularEquation(equation: EquationType): EquationType {
   // Random a constance term from MIN_RANDOM_NUMBER -> MAX_RANDOM_NUMBER
-  const e = Math.floor(Math.random() * 100) - MAX_RANDOM_NUMBER;
+  const e = Math.floor(Math.random() * 100) - MIN;
 
   let perpendicularEquation: EquationType = { coefficientZ: 0 };
   perpendicularEquation.c = -equation.c;
