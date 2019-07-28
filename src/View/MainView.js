@@ -173,7 +173,7 @@ class MainView extends React.Component {
       DataViewModel.addNewInput();
     }
 
-    this.setState({focusIndex: index + 1});
+    this.setState({ focusIndex: index + 1 });
   }
 
   @autobind
@@ -182,7 +182,7 @@ class MainView extends React.Component {
     if (index === DataViewModel.RelationsInput.length - 1 && index > 0 && value.length === 0) {
       DataViewModel.removeInput();
       this.inputRefs.pop();
-      this.setState({focusIndex: index - 1});
+      this.setState({ focusIndex: index - 1 });
     }
   }
 
@@ -202,7 +202,7 @@ class MainView extends React.Component {
   }
 
   componentDidUpdate() {
-    const {focusIndex} = this.state;
+    const { focusIndex } = this.state;
     if (this.inputRefs[focusIndex]) {
       this.inputRefs[focusIndex].focus();
     }
@@ -234,7 +234,7 @@ class MainView extends React.Component {
   @autobind
   onDoneSegmentSetting(data: DrawingSegmentType, index: number) {
     const { drawingSegments } = this.state;
-    if (data === drawingSegments[index]) {
+    if (JSON.stringify(data) === JSON.stringify(drawingSegments[index])) {
       return;
     }
 
@@ -332,19 +332,19 @@ class MainView extends React.Component {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
-                          <span>
-                            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
-                            squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
-                            nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
-                            single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft
-                            beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice
-                            lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you
-                            probably haven't heard of them accusamus labore sustainable VHS.
-                          </span>
+                        <span>
+                          Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
+                          squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
+                          nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
+                          single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer
+                          labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo.
+                          Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably
+                          haven't heard of them accusamus labore sustainable VHS.
+                        </span>
                       </Tooltip>
                     }>
                     <div className="bg-transparent icon-container">
-                      <Icon name="icInformation" width={22} height={22}/>
+                      <Icon name="icInformation" width={22} height={22} />
                     </div>
                   </OverlayTrigger>
                 </div>
@@ -379,19 +379,19 @@ class MainView extends React.Component {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
-                          <span>
-                            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
-                            squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
-                            nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
-                            single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft
-                            beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice
-                            lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you
-                            probably haven't heard of them accusamus labore sustainable VHS.
-                          </span>
+                        <span>
+                          Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
+                          squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
+                          nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
+                          single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer
+                          labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo.
+                          Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably
+                          haven't heard of them accusamus labore sustainable VHS.
+                        </span>
                       </Tooltip>
                     }>
                     <div className="bg-transparent icon-container">
-                      <Icon name="icInformation" width={22} height={22}/>
+                      <Icon name="icInformation" width={22} height={22} />
                     </div>
                   </OverlayTrigger>
                 </div>
@@ -400,7 +400,7 @@ class MainView extends React.Component {
                     <div>
                       {this.renderSegmentSettings()}
                       <div className={'add-row-container'} onClick={this.addNewSegmentSetting}>
-                        <Icon name={'icAdd'} width={35} height={35} color={'#757575'}/>
+                        <Icon name={'icAdd'} width={35} height={35} color={'#757575'} />
                         <p>Thêm đoạn thẳng</p>
                       </div>
                     </div>
