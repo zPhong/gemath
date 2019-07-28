@@ -1,6 +1,6 @@
-import GConst from "../../utils/values";
-import type {CoordinateType, EquationType, LineType} from "../../utils/types";
-import {convertEquationToLineType, convertLinearToEquation, convertLineTypeToEquation,} from './Converter'
+import GConst from '../../utils/values';
+import type { CoordinateType, EquationType, LineType } from '../../utils/types';
+import { convertEquationToLineType, convertLinearToEquation, convertLineTypeToEquation } from './Converter';
 
 const MIN = GConst.Number.MIN_RANDOM_NUMBER;
 const MAX = GConst.Number.MAX_RANDOM_NUMBER;
@@ -47,10 +47,10 @@ export function calculateSymmetricalPoint(
       };
 }
 
-export function getLineFromTwoPoints(p1: EquationType, p2: EquationType): EquationType {
+export function getLineFromTwoPoints(p1: CoordinateType, p2: CoordinateType): EquationType {
   const directionVector = {
-    a: p2.c - p1.c,
-    b: p2.d - p1.d
+    a: p2.x - p1.x,
+    b: p2.y - p1.y
   };
   const normalVector = {
     a: -directionVector.b,
@@ -125,6 +125,7 @@ export function calculatePerpendicularLineByPointAndLine(point: CoordinateType, 
 
   // perpendicular line has the direction vector is opposite pairs with the other line.
   // perpendicular line's e = -ax - y with (x,y) is coordinate of the point
+  console.log(line);
   if (line.c === 0) {
     perpendicularLine.c = -1 / line.d;
     perpendicularLine.d = 0;
@@ -140,6 +141,7 @@ export function calculatePerpendicularLineByPointAndLine(point: CoordinateType, 
     perLine.b = point.y + point.x / lineEquation.a;
 
     perpendicularLine = convertLineTypeToEquation(perLine);
+    console.log(perLine, perpendicularLine);
   }
 
   return perpendicularLine;
