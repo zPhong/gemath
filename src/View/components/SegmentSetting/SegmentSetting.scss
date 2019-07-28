@@ -4,16 +4,17 @@
 }
 
 .segment-setting {
-  border-bottom: solid 1px;
-  border-bottom-color: #dcdcdc;
+  margin: 0.5rem 0 0.5rem 0;
+  padding: 0 0 0.25rem 0;
+  border-bottom: solid 1px #dcdcdc;
   .container {
     position: relative;
     background-color: white;
-    padding: 5px 0 0 0;
+    padding: 0;
     .title {
       background-color: transparent;
       p {
-        margin-bottom: 5px;
+        margin: 0;
         font-weight: bold;
         font-size: 1rem;
         font-family: appDescriptionFont, sans-serif;
@@ -31,32 +32,48 @@
           align-items: center;
           display: flex;
         }
-        > div:hover {
-          background-color: #dcdcdc;
-        }
 
-        > span {
-          flex: 1;
+        .segment-edit-name {
+          padding: 0;
+          display: flex;
+          justify-content: start;
           > p {
             flex: 1;
             display: flex;
             margin: 0;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-family: appDescriptionFont, sans-serif;
           }
         }
+
+        .segment-edit-controller {
+          padding: 0;
+          display: flex;
+          justify-content: space-between;
+
+          > div {
+            display: flex;
+            align-items: center;
+            &:hover {
+              cursor: pointer;
+              color: #dc3545;
+            }
+          }
+        }
+
         .toggle {
           border-radius: 3px;
           margin-right: 5px;
-          height: 18px;
+          min-width: 50px;
+          min-height: 25px;
           .toggle-on {
-            padding: 0;
+            padding: 0.15rem;
             font-size: 0.75rem;
             font-weight: 500;
           }
           .toggle-off {
-            padding: 0;
+            padding: 0.15rem;
             font-size: 0.75rem;
             font-weight: 500;
           }
@@ -69,12 +86,14 @@
           }
         }
         .toggle.btn {
-          min-width: 30px;
-          min-height: 20px;
+          min-width: 50px;
+          min-height: 25px;
         }
       }
     }
+
     .content-edit {
+      margin: 0.3rem 0 0.5rem 0;
       .drop-down-container {
         width: 100%;
         flex-direction: row;
@@ -88,7 +107,7 @@
               min-width: 60px;
               background-color: white;
               border: solid 1px black;
-              padding: 5%;
+              padding: 5px 7px 5px 12px;
               display: flex;
               align-items: center;
               justify-content: space-between;
@@ -118,9 +137,20 @@
           box-shadow: none;
           margin-top: 5px;
           font-weight: 500;
+          padding: 5px 12px 5px 12px;
         }
         .btn-link {
           color: #28a745;
+          border: solid 1px #28a745;
+        }
+        .btn-cancel {
+          min-width: 66px;
+          border: none;
+          background-color: transparent;
+          color: #dc3545;
+        }
+        .btn-update{
+          min-width: 105px;
         }
         button:hover {
           text-decoration: none;

@@ -378,7 +378,7 @@ class MainView extends React.Component {
                       </Tooltip>
                     }>
                     <div className="bg-transparent icon-container">
-                      <Icon name="icInformation" width={25} height={25}/>
+                      <Icon name="icInformation" width={22} height={22}/>
                     </div>
                   </OverlayTrigger>
                 </div>
@@ -425,7 +425,7 @@ class MainView extends React.Component {
                       </Tooltip>
                     }>
                     <div className="bg-transparent icon-container">
-                      <Icon name="icInformation" width={25} height={25}/>
+                      <Icon name="icInformation" width={22} height={22}/>
                     </div>
                   </OverlayTrigger>
                 </div>
