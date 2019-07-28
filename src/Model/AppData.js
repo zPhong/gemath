@@ -19,6 +19,10 @@ class AppData {
     this.__pointDetails__.clear();
   }
 
+  setRelationsResult(value) {
+    this.relationsResult = value;
+  }
+
   get getAdditionSegment() {
     return this.additionSegment;
   }
@@ -31,7 +35,7 @@ class AppData {
     return this.pointsMap
   }
 
-  set setPointsMap(newPointsMap) {
+  setPointsMap(newPointsMap) {
     this.pointsMap = newPointsMap;
   }
 

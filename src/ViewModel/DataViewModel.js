@@ -1,8 +1,17 @@
 // @flow
 
 import appData from "../Model/AppData";
-import type {EquationType, PointDetailsType} from "../utils/types";
-import {NodeType} from '../utils/types'
+import type { EquationType, PointDetailsType } from "../utils/types";
+import { NodeType } from '../utils/types'
+import GConst from '../utils/values.js';
+import { calculateIntersectionTwoCircleEquations, isIn, makeRoundCoordinate } from '../core/math/Math2D.js';
+import { isQuadraticEquation } from '../utils/checker.js';
+import { defineSentences } from "../core/definition/define";
+import { defineInformation } from "../core/definition";
+import { analyzeResult } from "../core/analysis/Analysis";
+
+const NOT_FOUND = GConst.Number.NOT_FOUND;
+const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
 
 class DataViewModel {
   constructor({appData}) {
@@ -11,6 +20,10 @@ class DataViewModel {
 
   clear() {
     this.data.clear();
+  }
+
+  get getData() {
+    return this.data;
   }
 
   createPointDetails() {
@@ -98,8 +111,8 @@ class DataViewModel {
   };
 
   getNextExecuteNode = (): NodeType => {
-    const clonePointsMap = [...this.pointsMap]
-      .filter((node) => !this.executedNode.includes(node.id))
+    const clonePointsMap = [...this.data.pointsMap]
+      .filter((node) => !this.data.executedNode.includes(node.id))
       .sort(this.sortNodeByPriority);
 
     if (clonePointsMap.length > 0) return clonePointsMap[0];
@@ -219,11 +232,11 @@ class DataViewModel {
     return false;
   };
 
-  _calculateSet(equations: Array<EquationType>) {
+  _calculateSet = (equations: Array<EquationType>) => {
     if (equations.length === 2) {
       return calculateIntersectionTwoCircleEquations(equations[0], equations[1]);
     } else return NOT_ENOUGH_SET;
-  }
+  };
 
   _updatePointDetails(pointId: string, pointDetails: PointDetailsType) {
     this.data.getPointDetails.set(
@@ -272,9 +285,9 @@ class DataViewModel {
     }
 
     if (this.data.getPointDetails.get(pointId).setOfEquation.length === 2) {
-      if (this.isQuadraticEquation(equation) && !isFirst) {
+      if (isQuadraticEquation(equation) && !isFirst) {
         for (let i = 0; i < 2; i++) {
-          if (!this.isQuadraticEquation(this.data.getPointDetails.get(pointId).setOfEquation[i])) {
+          if (!isQuadraticEquation(this.data.getPointDetails.get(pointId).setOfEquation[i])) {
             this.data.getPointDetails.get(pointId).setOfEquation[i] = equation;
             break;
           }
@@ -312,8 +325,127 @@ class DataViewModel {
       });
     }
   }
+
+  getInformation(string) {
+    const _string = '_ '.concat(string.concat(' _'));
+    let isMatching = false;
+    let preProgress = [];
+    Object.keys(defineSentences).forEach((key) => {
+      defineSentences[key].forEach((sentence) => {
+        sentence = '_ '.concat(sentence.concat(' _'));
+
+        if (isMatching) return;
+        const value = this.getBasicInformation(_string, sentence, key);
+        if (Object.keys(value).length > 0) {
+          isMatching = true;
+          preProgress = value;
+          preProgress['outputType'] = key;
+        }
+      });
+    });
+    const type = preProgress.outputType;
+
+    const result = defineInformation(preProgress);
+
+    if (result.Error) return { Error: `Sai định dạng "${string}"` };
+    if (result.point && result.point.length > 3) return { Error: 'Tối đa 3 điểm thẳng háng' };
+
+    // add operation for define type
+    if (type === 'define') {
+      GConst.Others.OPERATIONS.forEach((operation) => {
+        if (result.operation) return;
+        if (string.includes(operation)) {
+          result.operation = operation;
+          if (operation === '=' && !result.value) {
+            result.value = '1';
+            result.operation = '*';
+          }
+        }
+      });
+    }
+    return result;
+  }
+
+  getBasicInformation(string, _defineSentence, type) {
+    let others = _defineSentence.match(new RegExp(GConst.Regex.OTHER, 'g'));
+    let params = _defineSentence.match(new RegExp(GConst.Regex.KEY, 'g'));
+
+    let result = {};
+
+    params.forEach((key) => {
+      result[key] = [];
+    });
+
+    for (let i = 0; i < params.length; i++) {
+      let start =
+        others[i]
+          .replace('+', '\\+')
+          .replace('-', '\\-')
+          .replace('*', '\\*') || '';
+      let end =
+        others[i + 1]
+          .replace('+', '\\+')
+          .replace('-', '\\-')
+          .replace('*', '\\*') || '';
+
+      let param = string.match(new RegExp(start + '(.*)' + end));
+
+      if (param) result[params[i]].push(param[1]);
+
+      if (i === others.length - 1) {
+        let lastParam = string.match(new RegExp(end + '(.*)'));
+        if (lastParam) result[params[i + 1]].push(lastParam[1]);
+      }
+    }
+
+    if (this.getLength(result) === params.length) {
+      if (type === 'relation') result[type] = others[1].replace('_', '').trim();
+      return result;
+    }
+
+    return [];
+  }
+
+  getLength(dictionary) {
+    let count = 0;
+    Object.keys(dictionary).forEach((key) => {
+      count += dictionary[key].length;
+    });
+    return count;
+  }
+
+  analyzeInput(input) {
+    const data = input
+    // eslint-disable-next-line no-control-getBasicInformation
+      .replace(new RegExp('(\r?\n)', 'g'), '')
+      .split(';')
+      .filter((sentence) => !!sentence)
+      .map((sentence) => {
+        return this.getInformation(sentence);
+      });
+
+    let result = {
+      shapes: [],
+      relations: []
+    };
+    for (let i = 0; i < data.length; i++) {
+      let item = data[i];
+      if (!item) return { Error: 'lỗi' };
+      if (item.Error) return item;
+
+      if (item.outputType === 'shape') {
+        result.shapes.push(item);
+      } else {
+        result.relations.push(item);
+      }
+    }
+
+    this.data.setRelationsResult(result);
+
+    return analyzeResult(result);
+  }
 }
 
 const dataViewModel = new DataViewModel(appData);
 
-export default DataViewModel;
+export default dataViewModel;
