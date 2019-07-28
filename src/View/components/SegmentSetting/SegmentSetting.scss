@@ -6,7 +6,6 @@
 .segment-setting {
   border-bottom: solid 1px;
   border-bottom-color: #dcdcdc;
-  padding: 1% 2.5%;
   .container {
     position: relative;
     background-color: white;
@@ -49,8 +48,6 @@
         }
         .toggle {
           border-radius: 3px;
-          border: solid 1px black;
-          border-style: outset;
           margin-right: 5px;
           height: 18px;
           .toggle-on {

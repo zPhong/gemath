@@ -2,14 +2,14 @@ import React from 'react';
 import './css/MainView.scss';
 import { observer } from 'mobx-react';
 import autobind from 'autobind-decorator';
-import { OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
+import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import DataViewModel from '../ViewModel/DataViewModel';
 
-import { InputItem, SegmentSetting, Icon } from './components';
+import { Icon, InputItem, SegmentSetting } from './components';
 import { DrawingPanel } from './components/DrawingPanel';
-import { isVectorSameDirection, calculateVector, calculateDistanceTwoPoints } from '../core/math/Math2D';
-import type { SegmentDataType, DrawingSegmentType } from '../utils/types';
+import { calculateDistanceTwoPoints, calculateVector, isVectorSameDirection } from '../core/math/Math2D';
+import type { DrawingSegmentType, SegmentDataType } from '../utils/types';
 
 @observer
 class MainView extends React.Component {
@@ -20,12 +20,12 @@ class MainView extends React.Component {
       focusIndex: 0,
       drawingData: {
         points: [
-          { id: 'A', coordinate: { x: 0, y: 0, z: 0 } },
-          { id: 'B', coordinate: { y: 5, x: -7 } },
-          { id: 'C', coordinate: { x: -9, y: 4.0901353661613005 } },
-          { id: 'H', coordinate: { x: -3.0849364905389067, y: 6.781088913245535 } },
-          { id: 'D', coordinate: { x: -5.250000000000003, y: 3.7500000000000018 } },
-          { id: 'E', coordinate: { x: -8, y: 9.794855240493977 } }
+          {id: 'A', coordinate: {x: 0, y: 0, z: 0}},
+          {id: 'B', coordinate: {y: 5, x: -7}},
+          {id: 'C', coordinate: {x: -9, y: 4.0901353661613005}},
+          {id: 'H', coordinate: {x: -3.0849364905389067, y: 6.781088913245535}},
+          {id: 'D', coordinate: {x: -5.250000000000003, y: 3.7500000000000018}},
+          {id: 'E', coordinate: {x: -8, y: 9.794855240493977}}
         ],
         segments: [
           'AB',
@@ -94,7 +94,7 @@ class MainView extends React.Component {
   @autobind
   trimDrawingData() {
     const {
-      drawingData: { points, segments }
+      drawingData: {points, segments}
     } = this.state;
 
     //change to DataViewModel.getNodeInPointsMapById.coordinate when refactor done
@@ -174,7 +174,7 @@ class MainView extends React.Component {
       DataViewModel.addNewInput();
     }
 
-    this.setState({ focusIndex: index + 1 });
+    this.setState({focusIndex: index + 1});
   }
 
   @autobind
@@ -183,14 +183,14 @@ class MainView extends React.Component {
     if (index === DataViewModel.RelationsInput.length - 1 && index > 0 && value.length === 0) {
       DataViewModel.removeInput();
       this.inputRefs.pop();
-      this.setState({ focusIndex: index - 1 });
+      this.setState({focusIndex: index - 1});
     }
   }
 
   @autobind
   onClickDrawing() {
     const data = DataViewModel.analyzeInput();
-    this.setState({ drawingData: data }, () => {
+    this.setState({drawingData: data}, () => {
       this.setState((prevState) => ({
         drawingData: {
           ...prevState.drawingData,
@@ -206,7 +206,7 @@ class MainView extends React.Component {
   }
 
   componentDidUpdate() {
-    const { focusIndex } = this.state;
+    const {focusIndex} = this.state;
     if (this.inputRefs[focusIndex]) {
       this.inputRefs[focusIndex].focus();
     }
@@ -238,7 +238,7 @@ class MainView extends React.Component {
   @autobind
   onDoneSegmentSetting(data: DrawingSegmentType, index: number) {
     const {
-      drawingData: { segments }
+      drawingData: {segments}
     } = this.state;
 
     if (segments.map((segment: SegmentDataType): string => segment.name).includes(data.name)) {
@@ -259,7 +259,7 @@ class MainView extends React.Component {
   @autobind
   onChangeSegmentSetting(data: DrawingSegmentType, index: number) {
     const {
-      drawingData: { segments }
+      drawingData: {segments}
     } = this.state;
 
     const newSegments = [...segments];
@@ -276,7 +276,7 @@ class MainView extends React.Component {
   @autobind
   onDeleteSegmentSetting(index: number) {
     const {
-      drawingData: { segments }
+      drawingData: {segments}
     } = this.state;
 
     segments.splice(index, 1);
@@ -302,7 +302,7 @@ class MainView extends React.Component {
   @autobind
   renderSegmentSettings(): React.Node {
     const {
-      drawingData: { segments }
+      drawingData: {segments}
     } = this.state;
     const points = this.state.drawingData.points.map((point: NodeType): number => point.id);
 
@@ -357,7 +357,6 @@ class MainView extends React.Component {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
-                        <div style={{ backgroundColor: 'white', flex: 1 }}>
                           <span>
                             Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
                             squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
@@ -367,12 +366,11 @@ class MainView extends React.Component {
                             lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you
                             probably haven't heard of them accusamus labore sustainable VHS.
                           </span>
-                        </div>
                       </Tooltip>
                     }>
-                    <Button className="bg-transparent icon-container">
-                      <Icon name="icInformation" width={25} height={25} />
-                    </Button>
+                    <div className="bg-transparent icon-container">
+                      <Icon name="icInformation" width={25} height={25}/>
+                    </div>
                   </OverlayTrigger>
                 </div>
                 <div
@@ -406,7 +404,6 @@ class MainView extends React.Component {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
-                        <div style={{ backgroundColor: 'white', flex: 1 }}>
                           <span>
                             Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
                             squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
@@ -416,12 +413,11 @@ class MainView extends React.Component {
                             lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you
                             probably haven't heard of them accusamus labore sustainable VHS.
                           </span>
-                        </div>
                       </Tooltip>
                     }>
-                    <Button className="bg-transparent icon-container">
-                      <Icon name="icInformation" width={25} height={25} />
-                    </Button>
+                    <div className="bg-transparent icon-container">
+                      <Icon name="icInformation" width={25} height={25}/>
+                    </div>
                   </OverlayTrigger>
                 </div>
                 <div id="viewTwo" className="collapse " aria-labelledby="headingOne" data-parent="#accordionExample">
@@ -429,7 +425,7 @@ class MainView extends React.Component {
                     <div>
                       {this.renderSegmentSettings()}
                       <div className={'add-row-container'} onClick={this.addNewSegmentSetting}>
-                        <Icon name={'icAdd'} width={35} height={35} color={'#757575'} />
+                        <Icon name={'icAdd'} width={35} height={35} color={'#757575'}/>
                         <p>Thêm đoạn thẳng</p>
                       </div>
                     </div>
@@ -440,7 +436,7 @@ class MainView extends React.Component {
           </div>
 
           <div className={'app-drawing-panel'}>
-            <DrawingPanel drawingData={this.state.drawingData} />
+            <DrawingPanel drawingData={this.state.drawingData}/>
           </div>
         </div>
 

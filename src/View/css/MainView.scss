@@ -94,6 +94,7 @@ $borderColor: #e4e4e4;
           }
           .card-header {
             height: $cardHeaderHeight;
+            padding: 10px 7px 10px 15px;
           }
           .card-body::-webkit-scrollbar {
             display: none; // Safari and Chrome
@@ -119,6 +120,8 @@ $borderColor: #e4e4e4;
           background-color: transparent;
           border-color: transparent;
           box-shadow: none !important;
+          display: flex;
+          justify-content: center;
         }
         p {
           font-family: appDescriptionFont, sans-serif;
@@ -154,8 +157,11 @@ $borderColor: #e4e4e4;
 
   #tooltip-right {
     .tooltip-inner {
-      background-color: #fff;
-      color: #000;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      max-height: 200px;
+      max-width: 1000px;
+      overflow-y: hidden;
     }
   }
 
