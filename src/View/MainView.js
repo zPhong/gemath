@@ -96,6 +96,7 @@ class MainView extends React.Component {
     const {
       drawingData: { points, segments }
     } = this.state;
+
     //change to DataViewModel.getNodeInPointsMapById.coordinate when refactor done
     const pointData = {};
     points.forEach((point) => {
@@ -190,8 +191,18 @@ class MainView extends React.Component {
   onClickDrawing() {
     const data = DataViewModel.analyzeInput();
     this.setState({ drawingData: data }, () => {
-      this.trimDrawingData();
+      this.setState((prevState) => ({
+        drawingData: {
+          ...prevState.drawingData,
+          segments: this.trimDrawingData().map((segment: string): DrawingSegmentType => ({
+            name: segment,
+            visible: true
+          }))
+        }
+      }));
     });
+
+    DataViewModel.getData.clear();
   }
 
   componentDidUpdate() {

@@ -102,7 +102,7 @@ class DataViewModel {
       node.isStatic = this.isStaticNode(node);
       return node;
     });
-    this.data.setPointsMap(pointsMap);
+    this.data.setPointsMap = pointsMap;
   };
 
   updatePointsMap = (node: NodeType) => {
@@ -433,6 +433,8 @@ class DataViewModel {
         return this.getInformation(sentence);
       });
 
+    console.log(data);
+
     let result = {
       shapes: [],
       relations: []
@@ -449,7 +451,7 @@ class DataViewModel {
       }
     }
 
-    this.data.setRelationsResult(result);
+    this.data.setRelationsResult = result;
 
     return analyzeResult(result);
   }

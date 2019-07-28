@@ -1,8 +1,8 @@
-import {defineObject} from './defineObjType';
-import {validateInformation} from '../validation/validation';
-import {definePointType} from './definePointType';
-import {defineShapeType} from './defineShapeType';
-import {reversedDependentObjRelation} from "./define";
+import { defineObject } from './defineObjType';
+import { validateInformation } from '../validation/validation';
+import { definePointType } from './definePointType';
+import { defineShapeType } from './defineShapeType';
+import { reversedDependentObjRelation } from './define';
 
 function defineInformation(data) {
   let result;
@@ -52,7 +52,7 @@ function defineInformation(data) {
   if (validate) {
     return result;
   } else {
-    return {Error: result};
+    return { Error: result };
   }
 }
 
@@ -62,4 +62,4 @@ function sortString(str) {
   return sorted.join('');
 }
 
-export {defineInformation};
+export { defineInformation };
