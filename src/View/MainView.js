@@ -18,68 +18,65 @@ class MainView extends React.Component {
     this.inputRefs = [];
     this.state = {
       focusIndex: 0,
-      drawingData: {
-        points: [
-          { id: 'A', coordinate: { x: 0, y: 0, z: 0 } },
-          { id: 'B', coordinate: { y: 5, x: -7 } },
-          { id: 'C', coordinate: { x: -9, y: 4.0901353661613005 } },
-          { id: 'H', coordinate: { x: -3.0849364905389067, y: 6.781088913245535 } },
-          { id: 'D', coordinate: { x: -5.250000000000003, y: 3.7500000000000018 } },
-          { id: 'E', coordinate: { x: -8, y: 9.794855240493977 } }
-        ],
-        segments: [
-          'AB',
-          'BC',
-          'AC',
-          'AH',
-          'DH',
-          'DE',
-          'HB',
-          'HA',
-          'HA',
-          'HD',
-          'DA',
-          'DD',
-          'DD',
-          'DA',
-          'ED',
-          'EA',
-          'HB',
-          'HA',
-          'HA',
-          'HD',
-          'DA',
-          'DD',
-          'DD',
-          'DA',
-          'ED',
-          'EA',
-          'HB',
-          'HA',
-          'HA',
-          'HD',
-          'DA',
-          'DD',
-          'DD',
-          'DA',
-          'ED',
-          'EA'
-        ]
-      }
+      points: [
+        { id: 'A', coordinate: { x: 0, y: 0, z: 0 } },
+        { id: 'B', coordinate: { y: 5, x: -7 } },
+        { id: 'C', coordinate: { x: -9, y: 4.0901353661613005 } },
+        { id: 'H', coordinate: { x: -3.0849364905389067, y: 6.781088913245535 } },
+        { id: 'D', coordinate: { x: -5.250000000000003, y: 3.7500000000000018 } },
+        { id: 'E', coordinate: { x: -8, y: 9.794855240493977 } }
+      ],
+      segments: [
+        'AB',
+        'BC',
+        'AC',
+        'AH',
+        'DH',
+        'DE',
+        'HB',
+        'HA',
+        'HA',
+        'HD',
+        'DA',
+        'DD',
+        'DD',
+        'DA',
+        'ED',
+        'EA',
+        'HB',
+        'HA',
+        'HA',
+        'HD',
+        'DA',
+        'DD',
+        'DD',
+        'DA',
+        'ED',
+        'EA',
+        'HB',
+        'HA',
+        'HA',
+        'HD',
+        'DA',
+        'DD',
+        'DD',
+        'DA',
+        'ED',
+        'EA'
+      ],
+      drawingSegments: []
     };
     this.scrollView = React.createRef();
   }
 
   componentWillMount() {
-    this.setState((prevState) => ({
-      drawingData: {
-        ...prevState.drawingData,
-        segments: this.trimDrawingData().map((segment: string): DrawingSegmentType => ({
-          name: segment,
-          visible: true
-        }))
-      }
-    }));
+    const { points, segments } = this.state;
+    this.setState({
+      drawingSegments: this.trimDrawingData({ points, segments }).map((segment: string): DrawingSegmentType => ({
+        name: segment,
+        visible: true
+      }))
+    });
   }
 
   @autobind
@@ -92,10 +89,8 @@ class MainView extends React.Component {
   }
 
   @autobind
-  trimDrawingData() {
-    const {
-      drawingData: { points, segments }
-    } = this.state;
+  trimDrawingData(data) {
+    const { points, segments } = data;
 
     //change to DataViewModel.getNodeInPointsMapById.coordinate when refactor done
     const pointData = {};
@@ -194,16 +189,13 @@ class MainView extends React.Component {
   @autobind
   onClickDrawing() {
     const data = DataViewModel.analyzeInput();
-    this.setState({ drawingData: data }, () => {
-      this.setState((prevState) => ({
-        drawingData: {
-          ...prevState.drawingData,
-          segments: this.trimDrawingData().map((segment: string): DrawingSegmentType => ({
-            name: segment,
-            visible: true
-          }))
-        }
-      }));
+    this.setState({
+      points: data.points,
+      segments: data.segments,
+      drawingSegments: this.trimDrawingData(data).map((segment: string): DrawingSegmentType => ({
+        name: segment,
+        visible: true
+      }))
     });
 
     DataViewModel.getData.clear();
@@ -241,81 +233,54 @@ class MainView extends React.Component {
 
   @autobind
   onDoneSegmentSetting(data: DrawingSegmentType, index: number) {
-    const {
-      drawingData: { segments }
-    } = this.state;
+    const { drawingSegments } = this.state;
+    if (data === drawingSegments[index]) {
+      return;
+    }
 
-    segments[index] = data;
+    drawingSegments[index] = data;
 
-    this.setState(
-      (prevState) => ({
-        drawingData: {
-          ...prevState.drawingData,
-          segments
-        }
-      }),
-      () => {
-        if (segments.map((segment: SegmentDataType): string => segment.name).includes(data.name)) {
-          this.onDeleteSegmentSetting(index);
-        }
+    this.setState({ drawingSegments }, () => {
+      if (drawingSegments.map((segment: SegmentDataType): string => segment.name).includes(data.name)) {
+        this.onDeleteSegmentSetting(index);
       }
-    );
+    });
   }
 
   @autobind
   onChangeSegmentSetting(data: DrawingSegmentType, index: number) {
-    const {
-      drawingData: { segments }
-    } = this.state;
+    const { drawingSegments } = this.state;
 
-    const newSegments = [...segments];
-    newSegments[index] = data;
+    drawingSegments[index] = data;
 
-    this.setState((prevState) => ({
-      drawingData: {
-        ...prevState.drawingData,
-        segments: newSegments
-      }
-    }));
+    this.setState({ drawingSegments });
   }
 
   @autobind
   onDeleteSegmentSetting(index: number) {
-    const {
-      drawingData: { segments }
-    } = this.state;
+    const { drawingSegments } = this.state;
 
-    segments.splice(index, 1);
-    this.setState((prevState) => ({
-      drawingData: {
-        ...prevState.drawingData,
-        segments
-      }
-    }));
+    drawingSegments.splice(index, 1);
+    this.setState({ drawingSegments });
   }
 
   @autobind
   addNewSegmentSetting() {
-    if (this.state.drawingData.segments.includes(undefined)) {
+    if (this.state.drawingSegments.includes(undefined)) {
       return;
     }
     this.scrollToBottom();
     this.setState((prevState) => ({
-      drawingData: {
-        ...prevState.drawingData,
-        segments: prevState.drawingData.segments.concat([undefined])
-      }
+      drawingSegments: prevState.drawingSegments.concat([undefined])
     }));
   }
 
   @autobind
   renderSegmentSettings(): React.Node {
-    const {
-      drawingData: { segments }
-    } = this.state;
-    const points = this.state.drawingData.points.map((point: NodeType): number => point.id);
+    const { drawingSegments } = this.state;
+    const points = this.state.points.map((point: NodeType): number => point.id);
 
-    return segments.map((segment: DrawingSegmentType, index: number): React.Node => {
+    return drawingSegments.map((segment: DrawingSegmentType, index: number): React.Node => {
       return (
         <SegmentSetting
           key={`segment-setting-${index}`}
@@ -336,6 +301,7 @@ class MainView extends React.Component {
   }
 
   render() {
+    const { points, drawingSegments } = this.state;
     return (
       <div className={'container-fluid'}>
         <div className={'app-header'}>
@@ -449,7 +415,7 @@ class MainView extends React.Component {
           </div>
 
           <div className={'app-drawing-panel'}>
-            <DrawingPanel drawingData={this.state.drawingData} />
+            <DrawingPanel drawingData={{ points, segments: drawingSegments }} />
           </div>
         </div>
 
