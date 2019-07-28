@@ -440,7 +440,7 @@ class DataViewModel {
       }
     }
 
-    dataViewModel.getData.getRelationsResult = result;
+    this.data.setRelationsResult(result);
 
     return analyzeResult(result);
   }
