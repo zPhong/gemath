@@ -245,19 +245,21 @@ class MainView extends React.Component {
       drawingData: { segments }
     } = this.state;
 
-    if (segments.map((segment: SegmentDataType): string => segment.name).includes(data.name)) {
-      this.onDeleteSegmentSetting(index);
-      return;
-    }
-
     segments[index] = data;
 
-    segments.this.setState((prevState) => ({
-      drawingData: {
-        ...prevState.drawingData,
-        segments
+    this.setState(
+      (prevState) => ({
+        drawingData: {
+          ...prevState.drawingData,
+          segments
+        }
+      }),
+      () => {
+        if (segments.map((segment: SegmentDataType): string => segment.name).includes(data.name)) {
+          this.onDeleteSegmentSetting(index);
+        }
       }
-    }));
+    );
   }
 
   @autobind
@@ -294,6 +296,9 @@ class MainView extends React.Component {
 
   @autobind
   addNewSegmentSetting() {
+    if (this.state.drawingData.segments.includes(undefined)) {
+      return;
+    }
     this.scrollToBottom();
     this.setState((prevState) => ({
       drawingData: {
