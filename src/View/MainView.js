@@ -128,8 +128,10 @@ class MainView extends React.Component {
     const removeSegments = [];
 
     Object.keys(segmentsData).forEach((point) => {
-      const segments = this.uniqueSegmentData(segmentsData[point], removeSegments);
-      result = result.concat(segments);
+      if (segmentsData[point].length > 0) {
+        const segments = this.uniqueSegmentData(segmentsData[point], removeSegments);
+        result = result.concat(segments);
+      }
     });
 
     result = [...new Set(result)].filter((segment: string): boolean => segment[0] !== segment[1]);
@@ -141,6 +143,7 @@ class MainView extends React.Component {
     let result = [data[0]];
     for (let i = 1; i < data.length; i++) {
       const segmentData = data[i];
+
       const length = result.length;
       let replaceIndex = -1;
       for (let j = 0; j < length; j++) {
@@ -160,6 +163,7 @@ class MainView extends React.Component {
         }
       }
     }
+
     return result.map((segmentData: SegmentDataType): string => segmentData.name);
   }
 
