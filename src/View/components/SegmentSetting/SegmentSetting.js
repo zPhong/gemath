@@ -232,10 +232,11 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
   }
 
   render(): React.Node {
+    const {style} = this.props;
     const {isEditMode, isCreateMode} = this.state;
 
     return (
-      <div className="segment-setting">
+      <div className="segment-setting" style={{...style}}>
         <div className="container">
           {isEditMode && (
             <div className="title">

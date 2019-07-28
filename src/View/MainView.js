@@ -19,12 +19,12 @@ class MainView extends React.Component {
     this.state = {
       focusIndex: 0,
       points: [
-        { id: 'A', coordinate: { x: 0, y: 0, z: 0 } },
-        { id: 'B', coordinate: { y: 5, x: -7 } },
-        { id: 'C', coordinate: { x: -9, y: 4.0901353661613005 } },
-        { id: 'H', coordinate: { x: -3.0849364905389067, y: 6.781088913245535 } },
-        { id: 'D', coordinate: { x: -5.250000000000003, y: 3.7500000000000018 } },
-        { id: 'E', coordinate: { x: -8, y: 9.794855240493977 } }
+        {id: 'A', coordinate: {x: 0, y: 0, z: 0}},
+        {id: 'B', coordinate: {y: 5, x: -7}},
+        {id: 'C', coordinate: {x: -9, y: 4.0901353661613005}},
+        {id: 'H', coordinate: {x: -3.0849364905389067, y: 6.781088913245535}},
+        {id: 'D', coordinate: {x: -5.250000000000003, y: 3.7500000000000018}},
+        {id: 'E', coordinate: {x: -8, y: 9.794855240493977}}
       ],
       segments: [
         'AB',
@@ -70,9 +70,9 @@ class MainView extends React.Component {
   }
 
   componentWillMount() {
-    const { points, segments } = this.state;
+    const {points, segments} = this.state;
     this.setState({
-      drawingSegments: this.trimDrawingData({ points, segments }).map((segment: string): DrawingSegmentType => ({
+      drawingSegments: this.trimDrawingData({points, segments}).map((segment: string): DrawingSegmentType => ({
         name: segment,
         visible: true
       }))
@@ -90,7 +90,7 @@ class MainView extends React.Component {
 
   @autobind
   trimDrawingData(data) {
-    const { points, segments } = data;
+    const {points, segments} = data;
 
     //change to DataViewModel.getNodeInPointsMapById.coordinate when refactor done
     const pointData = {};
@@ -233,14 +233,14 @@ class MainView extends React.Component {
 
   @autobind
   onDoneSegmentSetting(data: DrawingSegmentType, index: number) {
-    const { drawingSegments } = this.state;
-    if (data === drawingSegments[index]) {
+    const {drawingSegments} = this.state;
+    if (JSON.stringify(data) === JSON.stringify(drawingSegments[index])) {
       return;
     }
 
     drawingSegments[index] = data;
 
-    this.setState({ drawingSegments }, () => {
+    this.setState({drawingSegments}, () => {
       if (drawingSegments.map((segment: SegmentDataType): string => segment.name).includes(data.name)) {
         this.onDeleteSegmentSetting(index);
       }
@@ -249,19 +249,19 @@ class MainView extends React.Component {
 
   @autobind
   onChangeSegmentSetting(data: DrawingSegmentType, index: number) {
-    const { drawingSegments } = this.state;
+    const {drawingSegments} = this.state;
 
     drawingSegments[index] = data;
 
-    this.setState({ drawingSegments });
+    this.setState({drawingSegments});
   }
 
   @autobind
   onDeleteSegmentSetting(index: number) {
-    const { drawingSegments } = this.state;
+    const {drawingSegments} = this.state;
 
     drawingSegments.splice(index, 1);
-    this.setState({ drawingSegments });
+    this.setState({drawingSegments});
   }
 
   @autobind
@@ -277,7 +277,7 @@ class MainView extends React.Component {
 
   @autobind
   renderSegmentSettings(): React.Node {
-    const { drawingSegments } = this.state;
+    const {drawingSegments} = this.state;
     const points = this.state.points.map((point: NodeType): number => point.id);
 
     return drawingSegments.map((segment: DrawingSegmentType, index: number): React.Node => {
@@ -295,13 +295,14 @@ class MainView extends React.Component {
           onDelete={() => {
             this.onDeleteSegmentSetting(index);
           }}
+          style={index === 0 ? {marginTop: "1rem"} : {}}
         />
       );
     });
   }
 
   render() {
-    const { points, drawingSegments } = this.state;
+    const {points, drawingSegments} = this.state;
     return (
       <div className={'container-fluid'}>
         <div className={'app-header'}>
@@ -332,15 +333,15 @@ class MainView extends React.Component {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
-                          <span>
-                            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
-                            squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
-                            nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
-                            single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft
-                            beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice
-                            lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you
-                            probably haven't heard of them accusamus labore sustainable VHS.
-                          </span>
+                        <span>
+                          Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
+                          squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
+                          nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
+                          single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer
+                          labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo.
+                          Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably
+                          haven't heard of them accusamus labore sustainable VHS.
+                        </span>
                       </Tooltip>
                     }>
                     <div className="bg-transparent icon-container">
@@ -379,15 +380,15 @@ class MainView extends React.Component {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
-                          <span>
-                            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
-                            squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
-                            nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
-                            single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft
-                            beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice
-                            lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you
-                            probably haven't heard of them accusamus labore sustainable VHS.
-                          </span>
+                        <span>
+                          Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
+                          squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
+                          nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
+                          single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer
+                          labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo.
+                          Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably
+                          haven't heard of them accusamus labore sustainable VHS.
+                        </span>
                       </Tooltip>
                     }>
                     <div className="bg-transparent icon-container">
@@ -411,7 +412,7 @@ class MainView extends React.Component {
           </div>
 
           <div className={'app-drawing-panel'}>
-            <DrawingPanel drawingData={{ points, segments: drawingSegments }} />
+            <DrawingPanel drawingData={{points, segments: drawingSegments}}/>
           </div>
         </div>
 
