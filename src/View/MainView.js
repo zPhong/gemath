@@ -2,14 +2,14 @@ import React from 'react';
 import './css/MainView.scss';
 import { observer } from 'mobx-react';
 import autobind from 'autobind-decorator';
-import { OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
+import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import DataViewModel from '../ViewModel/DataViewModel';
 
-import { InputItem, SegmentSetting, Icon } from './components';
+import { Icon, InputItem, SegmentSetting } from './components';
 import { DrawingPanel } from './components/DrawingPanel';
-import { isVectorSameDirection, calculateVector, calculateDistanceTwoPoints } from '../core/math/Math2D';
-import type { SegmentDataType, DrawingSegmentType } from '../utils/types';
+import { calculateDistanceTwoPoints, calculateVector, isVectorSameDirection } from '../core/math/Math2D';
+import type { DrawingSegmentType, SegmentDataType } from '../utils/types';
 
 @observer
 class MainView extends React.Component {
@@ -18,68 +18,65 @@ class MainView extends React.Component {
     this.inputRefs = [];
     this.state = {
       focusIndex: 0,
-      drawingData: {
-        points: [
-          { id: 'A', coordinate: { x: 0, y: 0, z: 0 } },
-          { id: 'B', coordinate: { y: 5, x: -7 } },
-          { id: 'C', coordinate: { x: -9, y: 4.0901353661613005 } },
-          { id: 'H', coordinate: { x: -3.0849364905389067, y: 6.781088913245535 } },
-          { id: 'D', coordinate: { x: -5.250000000000003, y: 3.7500000000000018 } },
-          { id: 'E', coordinate: { x: -8, y: 9.794855240493977 } }
-        ],
-        segments: [
-          'AB',
-          'BC',
-          'AC',
-          'AH',
-          'DH',
-          'DE',
-          'HB',
-          'HA',
-          'HA',
-          'HD',
-          'DA',
-          'DD',
-          'DD',
-          'DA',
-          'ED',
-          'EA',
-          'HB',
-          'HA',
-          'HA',
-          'HD',
-          'DA',
-          'DD',
-          'DD',
-          'DA',
-          'ED',
-          'EA',
-          'HB',
-          'HA',
-          'HA',
-          'HD',
-          'DA',
-          'DD',
-          'DD',
-          'DA',
-          'ED',
-          'EA'
-        ]
-      }
+      points: [
+        { id: 'A', coordinate: { x: 0, y: 0, z: 0 } },
+        { id: 'B', coordinate: { y: 5, x: -7 } },
+        { id: 'C', coordinate: { x: -9, y: 4.0901353661613005 } },
+        { id: 'H', coordinate: { x: -3.0849364905389067, y: 6.781088913245535 } },
+        { id: 'D', coordinate: { x: -5.250000000000003, y: 3.7500000000000018 } },
+        { id: 'E', coordinate: { x: -8, y: 9.794855240493977 } }
+      ],
+      segments: [
+        'AB',
+        'BC',
+        'AC',
+        'AH',
+        'DH',
+        'DE',
+        'HB',
+        'HA',
+        'HA',
+        'HD',
+        'DA',
+        'DD',
+        'DD',
+        'DA',
+        'ED',
+        'EA',
+        'HB',
+        'HA',
+        'HA',
+        'HD',
+        'DA',
+        'DD',
+        'DD',
+        'DA',
+        'ED',
+        'EA',
+        'HB',
+        'HA',
+        'HA',
+        'HD',
+        'DA',
+        'DD',
+        'DD',
+        'DA',
+        'ED',
+        'EA'
+      ],
+      drawingSegments: []
     };
     this.scrollView = React.createRef();
   }
 
   componentWillMount() {
-    this.setState((prevState) => ({
-      drawingData: {
-        ...prevState.drawingData,
-        segments: this.trimDrawingData().map((segment: string): DrawingSegmentType => ({
-          name: segment,
-          visible: true
-        }))
-      }
-    }));
+    const { points, segments } = this.state;
+    this.setState({
+      drawingSegments: this.trimDrawingData({ points, segments }).map((segment: string): DrawingSegmentType => ({
+        name: segment,
+        visible: true
+      }))
+    });
   }
 
   @autobind
@@ -92,10 +89,8 @@ class MainView extends React.Component {
   }
 
   @autobind
-  trimDrawingData() {
-    const {
-      drawingData: { points, segments }
-    } = this.state;
+  trimDrawingData(data) {
+    const { points, segments } = data;
 
     //change to DataViewModel.getNodeInPointsMapById.coordinate when refactor done
     const pointData = {};
@@ -128,8 +123,10 @@ class MainView extends React.Component {
     const removeSegments = [];
 
     Object.keys(segmentsData).forEach((point) => {
-      const segments = this.uniqueSegmentData(segmentsData[point], removeSegments);
-      result = result.concat(segments);
+      if (segmentsData[point].length > 0) {
+        const segments = this.uniqueSegmentData(segmentsData[point], removeSegments);
+        result = result.concat(segments);
+      }
     });
 
     result = [...new Set(result)].filter((segment: string): boolean => segment[0] !== segment[1]);
@@ -141,6 +138,7 @@ class MainView extends React.Component {
     let result = [data[0]];
     for (let i = 1; i < data.length; i++) {
       const segmentData = data[i];
+
       const length = result.length;
       let replaceIndex = -1;
       for (let j = 0; j < length; j++) {
@@ -160,6 +158,7 @@ class MainView extends React.Component {
         }
       }
     }
+
     return result.map((segmentData: SegmentDataType): string => segmentData.name);
   }
 
@@ -174,7 +173,7 @@ class MainView extends React.Component {
       DataViewModel.addNewInput();
     }
 
-    this.setState({ focusIndex: index + 1 });
+    this.setState({focusIndex: index + 1});
   }
 
   @autobind
@@ -183,30 +182,27 @@ class MainView extends React.Component {
     if (index === DataViewModel.RelationsInput.length - 1 && index > 0 && value.length === 0) {
       DataViewModel.removeInput();
       this.inputRefs.pop();
-      this.setState({ focusIndex: index - 1 });
+      this.setState({focusIndex: index - 1});
     }
   }
 
   @autobind
   onClickDrawing() {
     const data = DataViewModel.analyzeInput();
-    this.setState({ drawingData: data }, () => {
-      this.setState((prevState) => ({
-        drawingData: {
-          ...prevState.drawingData,
-          segments: this.trimDrawingData().map((segment: string): DrawingSegmentType => ({
-            name: segment,
-            visible: true
-          }))
-        }
-      }));
+    this.setState({
+      points: data.points,
+      segments: data.segments,
+      drawingSegments: this.trimDrawingData(data).map((segment: string): DrawingSegmentType => ({
+        name: segment,
+        visible: true
+      }))
     });
 
     DataViewModel.getData.clear();
   }
 
   componentDidUpdate() {
-    const { focusIndex } = this.state;
+    const {focusIndex} = this.state;
     if (this.inputRefs[focusIndex]) {
       this.inputRefs[focusIndex].focus();
     }
@@ -237,76 +233,54 @@ class MainView extends React.Component {
 
   @autobind
   onDoneSegmentSetting(data: DrawingSegmentType, index: number) {
-    const {
-      drawingData: { segments }
-    } = this.state;
-
-    if (segments.map((segment: SegmentDataType): string => segment.name).includes(data.name)) {
-      this.onDeleteSegmentSetting(index);
+    const { drawingSegments } = this.state;
+    if (data === drawingSegments[index]) {
       return;
     }
 
-    segments[index] = data;
+    drawingSegments[index] = data;
 
-    segments.this.setState((prevState) => ({
-      drawingData: {
-        ...prevState.drawingData,
-        segments
+    this.setState({ drawingSegments }, () => {
+      if (drawingSegments.map((segment: SegmentDataType): string => segment.name).includes(data.name)) {
+        this.onDeleteSegmentSetting(index);
       }
-    }));
+    });
   }
 
   @autobind
   onChangeSegmentSetting(data: DrawingSegmentType, index: number) {
-    const {
-      drawingData: { segments }
-    } = this.state;
+    const { drawingSegments } = this.state;
 
-    const newSegments = [...segments];
-    newSegments[index] = data;
+    drawingSegments[index] = data;
 
-    this.setState((prevState) => ({
-      drawingData: {
-        ...prevState.drawingData,
-        segments: newSegments
-      }
-    }));
+    this.setState({ drawingSegments });
   }
 
   @autobind
   onDeleteSegmentSetting(index: number) {
-    const {
-      drawingData: { segments }
-    } = this.state;
+    const { drawingSegments } = this.state;
 
-    segments.splice(index, 1);
-    this.setState((prevState) => ({
-      drawingData: {
-        ...prevState.drawingData,
-        segments
-      }
-    }));
+    drawingSegments.splice(index, 1);
+    this.setState({ drawingSegments });
   }
 
   @autobind
   addNewSegmentSetting() {
+    if (this.state.drawingSegments.includes(undefined)) {
+      return;
+    }
     this.scrollToBottom();
     this.setState((prevState) => ({
-      drawingData: {
-        ...prevState.drawingData,
-        segments: prevState.drawingData.segments.concat([undefined])
-      }
+      drawingSegments: prevState.drawingSegments.concat([undefined])
     }));
   }
 
   @autobind
   renderSegmentSettings(): React.Node {
-    const {
-      drawingData: { segments }
-    } = this.state;
-    const points = this.state.drawingData.points.map((point: NodeType): number => point.id);
+    const { drawingSegments } = this.state;
+    const points = this.state.points.map((point: NodeType): number => point.id);
 
-    return segments.map((segment: DrawingSegmentType, index: number): React.Node => {
+    return drawingSegments.map((segment: DrawingSegmentType, index: number): React.Node => {
       return (
         <SegmentSetting
           key={`segment-setting-${index}`}
@@ -327,6 +301,7 @@ class MainView extends React.Component {
   }
 
   render() {
+    const { points, drawingSegments } = this.state;
     return (
       <div className={'container-fluid'}>
         <div className={'app-header'}>
@@ -357,7 +332,6 @@ class MainView extends React.Component {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
-                        <div style={{ backgroundColor: 'white', flex: 1 }}>
                           <span>
                             Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
                             squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
@@ -367,12 +341,11 @@ class MainView extends React.Component {
                             lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you
                             probably haven't heard of them accusamus labore sustainable VHS.
                           </span>
-                        </div>
                       </Tooltip>
                     }>
-                    <Button className="bg-transparent icon-container">
-                      <Icon name="icInformation" width={25} height={25} />
-                    </Button>
+                    <div className="bg-transparent icon-container">
+                      <Icon name="icInformation" width={22} height={22}/>
+                    </div>
                   </OverlayTrigger>
                 </div>
                 <div
@@ -406,7 +379,6 @@ class MainView extends React.Component {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
-                        <div style={{ backgroundColor: 'white', flex: 1 }}>
                           <span>
                             Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
                             squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
@@ -416,12 +388,11 @@ class MainView extends React.Component {
                             lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you
                             probably haven't heard of them accusamus labore sustainable VHS.
                           </span>
-                        </div>
                       </Tooltip>
                     }>
-                    <Button className="bg-transparent icon-container">
-                      <Icon name="icInformation" width={25} height={25} />
-                    </Button>
+                    <div className="bg-transparent icon-container">
+                      <Icon name="icInformation" width={22} height={22}/>
+                    </div>
                   </OverlayTrigger>
                 </div>
                 <div id="viewTwo" className="collapse " aria-labelledby="headingOne" data-parent="#accordionExample">
@@ -429,7 +400,7 @@ class MainView extends React.Component {
                     <div>
                       {this.renderSegmentSettings()}
                       <div className={'add-row-container'} onClick={this.addNewSegmentSetting}>
-                        <Icon name={'icAdd'} width={35} height={35} color={'#757575'} />
+                        <Icon name={'icAdd'} width={35} height={35} color={'#757575'}/>
                         <p>Thêm đoạn thẳng</p>
                       </div>
                     </div>
@@ -440,7 +411,7 @@ class MainView extends React.Component {
           </div>
 
           <div className={'app-drawing-panel'}>
-            <DrawingPanel drawingData={this.state.drawingData} />
+            <DrawingPanel drawingData={{ points, segments: drawingSegments }} />
           </div>
         </div>
 

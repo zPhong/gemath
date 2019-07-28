@@ -1,4 +1,4 @@
-import type { CoordinateType, } from '../../utils/types';
+import type { CoordinateType } from '../../utils/types';
 import dataViewModel from '../../ViewModel/DataViewModel.js';
 import {
   calculateCircleEquationByCenterPoint,
@@ -14,7 +14,7 @@ import {
   getAngleFromTwoLines,
   getLineFromTwoPoints,
   getMiddlePointFromThreePointsInALine,
-  isIn,
+  isIn
 } from '../math/Math2D';
 import {
   generatePointAlignmentInside,
@@ -22,7 +22,6 @@ import {
   getRandomPointInEquation,
   getRandomValue
 } from '../math/Generation.js';
-
 
 export function readRelation(relation: mixed, point: string) {
   let equationResults;
@@ -326,19 +325,19 @@ function analyzeOperationType(relation: mixed, point: string): any {
     valueData[object] =
       objectType === 'segment'
         ? calculateDistanceTwoPoints(
-        dataViewModel.getNodeInPointsMapById(object[0]).coordinate,
-        dataViewModel.getNodeInPointsMapById(object[1]).coordinate
-        )
+            dataViewModel.getNodeInPointsMapById(object[0]).coordinate,
+            dataViewModel.getNodeInPointsMapById(object[1]).coordinate
+          )
         : getAngleFromTwoLines(
-        getLineFromTwoPoints(
-          dataViewModel.getNodeInPointsMapById(object[0]).coordinate,
-          dataViewModel.getNodeInPointsMapById(object[1]).coordinate
-        ),
-        getLineFromTwoPoints(
-          dataViewModel.getNodeInPointsMapById(object[1]).coordinate,
-          dataViewModel.getNodeInPointsMapById(object[2]).coordinate
-        )
-        );
+            getLineFromTwoPoints(
+              dataViewModel.getNodeInPointsMapById(object[0]).coordinate,
+              dataViewModel.getNodeInPointsMapById(object[1]).coordinate
+            ),
+            getLineFromTwoPoints(
+              dataViewModel.getNodeInPointsMapById(object[1]).coordinate,
+              dataViewModel.getNodeInPointsMapById(object[2]).coordinate
+            )
+          );
   }
 
   //điểm cần tính phụ thuộc 1 điểm duy nhất

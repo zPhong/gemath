@@ -31,10 +31,6 @@ class AppData {
     return this.relationsResult;
   }
 
-  set setRelationsResult(value) {
-    this.relationsResult = value;
-  }
-
   get getPointsMap() {
     return this.pointsMap;
   }

@@ -11,6 +11,7 @@ import { defineInformation } from '../core/definition';
 import { analyzeResult } from '../core/analysis/Analysis';
 import RelationInputModel from '../Model/RelationInputModel';
 import { observable, action } from 'mobx';
+import ErrorService from '../utils/ErrorHandleService';
 
 const NOT_FOUND = GConst.Number.NOT_FOUND;
 const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
@@ -18,6 +19,10 @@ const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
 class DataViewModel {
   @observable
   relationsInput: Array<RelationInputModel>;
+
+  inputData: Array<mixed>;
+
+  executedInputIndex: number;
 
   constructor(appData) {
     this.data = appData;
@@ -337,7 +342,7 @@ class DataViewModel {
     }
   }
 
-  getInformation(string) {
+  getInformation(string: string): mixed {
     const _string = '_ '.concat(string.concat(' _'));
     let isMatching = false;
     let preProgress = [];
@@ -357,9 +362,14 @@ class DataViewModel {
     const type = preProgress.outputType;
 
     const result = defineInformation(preProgress);
-
-    if (result.Error) return { Error: `Sai định dạng "${string}"` };
-    if (result.point && result.point.length > 3) return { Error: 'Tối đa 3 điểm thẳng háng' };
+    if (result.Error || !result.outputType) {
+      ErrorService.showError('300');
+      return;
+    }
+    if (result.point && result.point.length > 3) {
+      ErrorService.showError('301');
+      return;
+    }
 
     // add operation for define type
     if (type === 'define') {
@@ -429,11 +439,14 @@ class DataViewModel {
     const data = this.RelationsInput.map((relationsInput: RelationInputModel): string => relationsInput.value)
       // eslint-disable-next-line no-control-getBasicInformation
       .filter((sentence) => !!sentence)
-      .map((sentence) => {
-        return this.getInformation(sentence);
+      .map((sentence: string, index: number) => {
+        this.executedInputIndex = index;
+        const result = this.getInformation(sentence);
+        this.relationsInput[index].status = GConst.InputStatus.SUCCESS;
+        return result;
       });
 
-    console.log(data);
+    this.inputData = data;
 
     let result = {
       shapes: [],
@@ -441,8 +454,6 @@ class DataViewModel {
     };
     for (let i = 0; i < data.length; i++) {
       let item = data[i];
-      if (!item) return { Error: 'lỗi' };
-      if (item.Error) return item;
 
       if (item.outputType === 'shape') {
         result.shapes.push(item);
@@ -453,6 +464,9 @@ class DataViewModel {
 
     this.data.setRelationsResult = result;
 
+    this.RelationsInput.forEach((input: RelationInputModel) => {
+      input.status = GConst.InputStatus.SUCCESS;
+    });
     return analyzeResult(result);
   }
 }

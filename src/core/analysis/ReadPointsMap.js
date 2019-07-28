@@ -37,7 +37,6 @@ export function readPointsMap(): Array | {} {
       }
 
       let relationEquation = readRelation(relation, executingNode.id);
-
       if (relationEquation) {
         if (Array.isArray(relationEquation)) {
           relationEquation = relationEquation[getRandomValue(0, relationEquation.length)];
