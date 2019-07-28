@@ -10,6 +10,7 @@ import { InputItem, SegmentSetting, Icon } from './components';
 import { DrawingPanel } from './components/DrawingPanel';
 import { isVectorSameDirection, calculateVector, calculateDistanceTwoPoints } from '../core/math/Math2D';
 import type { SegmentDataType, DrawingSegmentType } from '../utils/types';
+
 @observer
 class MainView extends React.Component {
   constructor(props) {
@@ -187,7 +188,10 @@ class MainView extends React.Component {
 
   @autobind
   onClickDrawing() {
-    this.trimDrawingData();
+    const data = DataViewModel.analyzeInput();
+    this.setState({ drawingData: data }, () => {
+      this.trimDrawingData();
+    });
   }
 
   componentDidUpdate() {

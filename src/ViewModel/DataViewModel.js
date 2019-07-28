@@ -425,11 +425,9 @@ class DataViewModel {
     return count;
   }
 
-  analyzeInput(input) {
-    const data = input
+  analyzeInput() {
+    const data = this.RelationsInput.map((relationsInput: RelationInputModel): string => relationsInput.value)
       // eslint-disable-next-line no-control-getBasicInformation
-      .replace(new RegExp('(\r?\n)', 'g'), '')
-      .split(';')
       .filter((sentence) => !!sentence)
       .map((sentence) => {
         return this.getInformation(sentence);
