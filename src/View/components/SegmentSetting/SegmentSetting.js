@@ -193,8 +193,9 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
             />
 
             <div onClick={this.onChangeContentState}
-                 onMouseMove={this.mouseHoverEdition}
-                 onMouseLeave={this.mouseLeaveEdition}>
+                 onMouseLeave={this.mouseLeaveEdition}
+                 onMouseOver={this.mouseHoverEdition}
+                 onMouseDown={this.mouseLeaveEdition}>
               {
                 this.state.isMouseHoverEdition ?
                   <Icon name={'icEdit'} color={'#218838'} width={16} height={16}/>
@@ -204,8 +205,9 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
             </div>
 
             <div onClick={this.onDelete}
-                 onMouseMove={this.mouseHoverDeletion}
-                 onMouseLeave={this.mouseLeaveDeletion}>
+                 onMouseOver={this.mouseHoverDeletion}
+                 onMouseLeave={this.mouseLeaveDeletion}
+                 onMouseDown={this.mouseLeaveDeletion}>
               {
                 this.state.isMouseHoverDeletion ?
                   <Icon name={'icRemove'} color={'#dc3545'} width={16} height={16}/>
