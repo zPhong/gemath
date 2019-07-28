@@ -13,6 +13,7 @@ import { getRandomValue } from '../math/Generation';
 import { mappingShapeType, shapeRules, TwoStaticPointRequireShape } from '../definition/define';
 import { generateGeometry } from '../math/GenerateGeometry';
 import { readRelation } from './ReadRelation';
+import ErrorService from '../../utils/ErrorHandleService.js';
 
 export function readPointsMap(): Array | {} {
   dataViewModel.createPointDetails();
@@ -58,7 +59,8 @@ export function readPointsMap(): Array | {} {
     if (dataViewModel.getData.getPointDetails.has(executingNode.id)) {
       const roots = dataViewModel.getData.getPointDetails.get(executingNode.id).roots;
       if (typeof roots === 'string') {
-        return { Error: `không tính toán được` };
+        ErrorService.showError('400');
+        return;
       }
       if (roots.length > 0) {
         let coordinate;
@@ -96,8 +98,6 @@ export function readPointsMap(): Array | {} {
           }
         }
         dataViewModel.updateCoordinate(executingNode.id, coordinate);
-      } else {
-        //return { Error: `không tính toán được` };
       }
     }
 
@@ -172,8 +172,6 @@ function makeCorrectShape(shape: string, shapeName: string, rules: string, nonSt
     arrayRules.forEach((rule) => {
       const relationType = rule[2];
       if (rule.includes(nonStaticIndex)) {
-        console.log(nonStaticIndex, rule);
-
         let equation;
         // eslint-disable-next-line default-case
         switch (relationType) {

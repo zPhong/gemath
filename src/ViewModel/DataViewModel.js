@@ -10,8 +10,10 @@ import { defineSentences } from '../core/definition/define';
 import { defineInformation } from '../core/definition';
 import { analyzeResult } from '../core/analysis/Analysis';
 import RelationInputModel from '../Model/RelationInputModel';
-import { observable, action } from 'mobx';
+import { observable, action, computed } from 'mobx';
 import ErrorService from '../utils/ErrorHandleService';
+import { observer } from 'mobx-react';
+import autobind from 'autobind-decorator';
 
 const NOT_FOUND = GConst.Number.NOT_FOUND;
 const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
@@ -20,17 +22,28 @@ class DataViewModel {
   @observable
   relationsInput: Array<RelationInputModel>;
 
-  inputData: Array<mixed>;
+  inputData: Array<mixed> = [];
 
   executedInputIndex: number;
+
+  @observable
+  executingRelation: mixed;
 
   constructor(appData) {
     this.data = appData;
     this.relationsInput = [new RelationInputModel()];
   }
 
+  @computed
   get RelationsInput() {
     return this.relationsInput;
+  }
+
+  @action
+  onInputChange(value: string, index: number) {
+    const newRelationInput = { ...this.relationsInput[index] };
+    newRelationInput.value = value;
+    this.relationsInput[index] = newRelationInput;
   }
 
   @action
@@ -208,7 +221,7 @@ class DataViewModel {
   };
 
   getIndexOfRelationInRelationsList = (relation: any): number => {
-    const list = [...this.data.getRelationsResult.shapes, ...this.data.getRelationsResult.relations];
+    const list = this.data.getRelationsResult.shapes.concat(this.data.getRelationsResult.relations);
     for (let i = 0; i < list.length; i++) {
       if (relation === list[i]) return i;
     }
@@ -325,7 +338,8 @@ class DataViewModel {
     const tempLength = temp.length;
 
     if (typeof temp === 'string') {
-      return { Error: temp };
+      ErrorService.showError('500');
+      return;
     }
 
     temp = temp.filter((root) => {
@@ -443,10 +457,9 @@ class DataViewModel {
         this.executedInputIndex = index;
         const result = this.getInformation(sentence);
         this.relationsInput[index].status = GConst.InputStatus.SUCCESS;
+        this.inputData.push(result);
         return result;
       });
-
-    this.inputData = data;
 
     let result = {
       shapes: [],

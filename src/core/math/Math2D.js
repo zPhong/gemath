@@ -125,7 +125,6 @@ export function calculatePerpendicularLineByPointAndLine(point: CoordinateType, 
 
   // perpendicular line has the direction vector is opposite pairs with the other line.
   // perpendicular line's e = -ax - y with (x,y) is coordinate of the point
-  console.log(line);
   if (line.c === 0) {
     perpendicularLine.c = -1 / line.d;
     perpendicularLine.d = 0;
@@ -141,7 +140,6 @@ export function calculatePerpendicularLineByPointAndLine(point: CoordinateType, 
     perLine.b = point.y + point.x / lineEquation.a;
 
     perpendicularLine = convertLineTypeToEquation(perLine);
-    console.log(perLine, perpendicularLine);
   }
 
   return perpendicularLine;

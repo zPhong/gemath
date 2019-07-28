@@ -13,12 +13,22 @@ type PropsType = {
   onBackspace: void
 };
 
+type StateType = {
+  shouldRemove: boolean
+};
+
 const KEYCODE = Object.freeze({
   BACKSPACE: 8,
-  ENTER: 13,
+  ENTER: 13
 });
 
 class InputItem extends React.Component<PropsType> {
+  constructor(props: PropsType) {
+    super(props);
+    this.state = {
+      shouldRemove: true
+    };
+  }
   inputRef: ReactRefs = React.createRef();
 
   focus() {
@@ -38,16 +48,23 @@ class InputItem extends React.Component<PropsType> {
 
   @autobind
   onKeyUp(e: React.KeyboardEvent<FormControl>) {
-    const { onBackspace, onSubmit } = this.props;
+    const { onBackspace, onSubmit, value } = this.props;
+
+    if (value) {
+      this.setState({
+        shouldRemove: false
+      });
+    }
 
     if (e.keyCode === KEYCODE.ENTER) {
       if (onSubmit) {
         onSubmit();
       }
-    }
-
-    else if (e.keyCode === KEYCODE.BACKSPACE) {
-      if (onBackspace) {
+    } else if (e.keyCode === KEYCODE.BACKSPACE) {
+      if (!value) {
+        this.setState({ shouldRemove: true });
+      }
+      if (this.state.shouldRemove && onBackspace) {
         onBackspace();
       }
     }

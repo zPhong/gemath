@@ -19,7 +19,7 @@ class AppData {
     this.__pointDetails__.clear();
   }
 
-  setRelationsResult(value) {
+  set setRelationsResult(value) {
     this.relationsResult = value;
   }
 
