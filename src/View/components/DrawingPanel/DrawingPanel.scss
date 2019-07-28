@@ -1,0 +1,69 @@
+.geometry-container {
+  flex: 1;
+  padding-left: 4px;
+  position: relative;
+  display: flex;
+  .geometry-scene {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    stroke: black;
+    fill: none;
+    .point {
+      fill: black;
+      stroke: none;
+    }
+    .point-name {
+      font-size: 2rem;
+      font-weight: bolder;
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+      fill: black !important;
+      stroke: none;
+    }
+    .free-point {
+      fill: blue;
+      stroke: none;
+      cursor: pointer;
+    }
+    .handle {
+      fill: none;
+      stroke: rgba(0, 0, 0, 0);
+      stroke-width: 20;
+    }
+    .active {
+      stroke-width: 2px;
+      cursor: pointer;
+    }
+
+    .point {
+      fill: black;
+      stroke: none;
+    }
+
+    .point-name {
+      font-size: 2rem;
+      font-weight: bolder;
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+      fill: black !important;
+      stroke: none;
+    }
+
+    .free-point {
+      fill: blue;
+      stroke: none;
+      cursor: pointer;
+    }
+
+    .handle {
+      fill: none;
+      stroke: rgba(0, 0, 0, 0);
+      stroke-width: 20;
+    }
+
+    .active {
+      stroke-width: 2px;
+      cursor: pointer;
+    }
+  }
+}

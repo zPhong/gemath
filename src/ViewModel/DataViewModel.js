@@ -1,21 +1,41 @@
 // @flow
 
-import appData from "../Model/AppData";
-import type { EquationType, PointDetailsType } from "../utils/types";
-import { NodeType } from '../utils/types'
+import appData from '../Model/AppData';
+import type { EquationType, PointDetailsType } from '../utils/types';
+import { NodeType } from '../utils/types';
 import GConst from '../utils/values.js';
 import { calculateIntersectionTwoCircleEquations, isIn, makeRoundCoordinate } from '../core/math/Math2D.js';
 import { isQuadraticEquation } from '../utils/checker.js';
-import { defineSentences } from "../core/definition/define";
-import { defineInformation } from "../core/definition";
-import { analyzeResult } from "../core/analysis/Analysis";
+import { defineSentences } from '../core/definition/define';
+import { defineInformation } from '../core/definition';
+import { analyzeResult } from '../core/analysis/Analysis';
+import RelationInputModel from '../Model/RelationInputModel';
+import { observable, action } from 'mobx';
 
 const NOT_FOUND = GConst.Number.NOT_FOUND;
 const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
 
 class DataViewModel {
-  constructor({appData}) {
+  @observable
+  relationsInput: Array<RelationInputModel>;
+
+  constructor(appData) {
     this.data = appData;
+    this.relationsInput = [new RelationInputModel()];
+  }
+
+  get RelationsInput() {
+    return this.relationsInput;
+  }
+
+  @action
+  addNewInput() {
+    this.relationsInput.push(new RelationInputModel());
+  }
+
+  @action
+  removeInput() {
+    this.relationsInput.pop();
   }
 
   clear() {
@@ -29,14 +49,11 @@ class DataViewModel {
   createPointDetails() {
     this.data.getPointsMap.forEach((node) => {
       const roots = this.isValidCoordinate(node.coordinate) ? [node.coordinate] : [];
-      this._updatePointDetails(
-        node.id,
-        {
-          setOfEquation: [],
-          roots: roots,
-          exceptedCoordinates: []
-        }
-      );
+      this._updatePointDetails(node.id, {
+        setOfEquation: [],
+        roots: roots,
+        exceptedCoordinates: []
+      });
     });
   }
 
@@ -46,7 +63,8 @@ class DataViewModel {
       for (let i = 0; i < roots.length; i++) {
         if (
           this.data.getPointDirectionMap[pointId] ||
-          JSON.stringify(makeRoundCoordinate(roots[i])) === JSON.stringify(makeRoundCoordinate(this.getNodeInPointsMapById(pointId).coordinate))
+          JSON.stringify(makeRoundCoordinate(roots[i])) ===
+            JSON.stringify(makeRoundCoordinate(this.getNodeInPointsMapById(pointId).coordinate))
         ) {
           return false;
         }
@@ -81,11 +99,10 @@ class DataViewModel {
 
   updateStaticNode = () => {
     const pointsMap = this.data.getPointsMap.map((node: NodeType): NodeType => {
-        node.isStatic = this.isStaticNode(node);
-        return node;
-      }
-    );
-    this.data.setPointsMap(pointsMap);
+      node.isStatic = this.isStaticNode(node);
+      return node;
+    });
+    this.data.setPointsMap = pointsMap;
   };
 
   updatePointsMap = (node: NodeType) => {
@@ -239,14 +256,11 @@ class DataViewModel {
   };
 
   _updatePointDetails(pointId: string, pointDetails: PointDetailsType) {
-    this.data.getPointDetails.set(
-      pointId,
-      {
-        setOfEquation: pointDetails.setOfEquation,
-        roots: pointDetails.roots,
-        exceptedCoordinates: pointDetails.exceptedCoordinates
-      }
-    );
+    this.data.getPointDetails.set(pointId, {
+      setOfEquation: pointDetails.setOfEquation,
+      roots: pointDetails.roots,
+      exceptedCoordinates: pointDetails.exceptedCoordinates
+    });
   }
 
   uniqueSetOfEquation(equations: any[]): any[] {
@@ -265,14 +279,11 @@ class DataViewModel {
   executePointDetails(pointId: string, equation: EquationType) {
     let isFirst = false;
     if (!this.data.getPointDetails.has(pointId)) {
-      this._updatePointDetails(
-        pointId,
-        {
-          setOfEquation: [],
-          roots: [],
-          exceptedCoordinates: []
-        }
-      );
+      this._updatePointDetails(pointId, {
+        setOfEquation: [],
+        roots: [],
+        exceptedCoordinates: []
+      });
     }
 
     if (this.data.getPointDetails.get(pointId).setOfEquation.length <= 1) {
@@ -309,7 +320,7 @@ class DataViewModel {
     const tempLength = temp.length;
 
     if (typeof temp === 'string') {
-      return {Error: temp};
+      return { Error: temp };
     }
 
     temp = temp.filter((root) => {
@@ -414,15 +425,15 @@ class DataViewModel {
     return count;
   }
 
-  analyzeInput(input) {
-    const data = input
-    // eslint-disable-next-line no-control-getBasicInformation
-      .replace(new RegExp('(\r?\n)', 'g'), '')
-      .split(';')
+  analyzeInput() {
+    const data = this.RelationsInput.map((relationsInput: RelationInputModel): string => relationsInput.value)
+      // eslint-disable-next-line no-control-getBasicInformation
       .filter((sentence) => !!sentence)
       .map((sentence) => {
         return this.getInformation(sentence);
       });
+
+    console.log(data);
 
     let result = {
       shapes: [],
@@ -440,7 +451,7 @@ class DataViewModel {
       }
     }
 
-    this.data.setRelationsResult(result);
+    this.data.setRelationsResult = result;
 
     return analyzeResult(result);
   }

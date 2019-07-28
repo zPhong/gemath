@@ -1,11 +1,7 @@
 // @flow
 
-import { objectWithPoint } from '../definition/define.js'
-import type {
-  DrawingDataType,
-  NodeRelationType,
-  NodeType,
-} from '../../utils/types.js';
+import { objectWithPoint } from '../definition/define.js';
+import type { DrawingDataType, NodeRelationType, NodeType } from '../../utils/types.js';
 import dataViewModel from '../../ViewModel/DataViewModel';
 import { readPointsMap } from './ReadPointsMap';
 
@@ -30,12 +26,10 @@ export function analyzeResult(validatedResult): DrawingDataType {
   let result = {};
 
   readPointsMap();
-  result.points = dataViewModel.getData.getPointsMap.map(
-    (node: NodeType) => ({
-      id: node.id,
-      coordinate: node.coordinate
-    })
-  );
+  result.points = dataViewModel.getData.getPointsMap.map((node: NodeType) => ({
+    id: node.id,
+    coordinate: node.coordinate
+  }));
 
   result.segments = [...getArraySegments(validatedResult), ...dataViewModel.getData.getAdditionSegment];
   return result;
@@ -79,12 +73,10 @@ function getShapeSegments(shape: any): Array<string> {
 }
 
 function trimPointsMap() {
-  dataViewModel.getData.setPointsMap(dataViewModel.getData.getPointsMap.map(
-    (node: NodeType): NodeType => ({
-      ...node,
-      dependentNodes: unique(node.dependentNodes)
-    })
-  )) ;
+  dataViewModel.getData.setPointsMap = dataViewModel.getData.getPointsMap.map((node: NodeType): NodeType => ({
+    ...node,
+    dependentNodes: unique(node.dependentNodes)
+  }));
 }
 
 function unique(dependentNodes: Array<NodeRelationType>): Array<NodeRelationType> {
@@ -101,18 +93,16 @@ function unique(dependentNodes: Array<NodeRelationType>): Array<NodeRelationType
 }
 
 function sortPriority(points) {
-  return points.sort(
-    (el1: string, el2: string): number => {
-      const index1 = findIndexByNodeId(el1, dataViewModel.getData.getPointsMap);
-      const index2 = findIndexByNodeId(el2, dataViewModel.getData.getPointsMap);
+  return points.sort((el1: string, el2: string): number => {
+    const index1 = findIndexByNodeId(el1, dataViewModel.getData.getPointsMap);
+    const index2 = findIndexByNodeId(el2, dataViewModel.getData.getPointsMap);
 
-      if (index1 === -1 && index2 === -1) {
-        return 1;
-      }
-      if (index1 >= 0 && index2 >= 0) return 1;
-      return index2 - index1;
+    if (index1 === -1 && index2 === -1) {
+      return 1;
     }
-  );
+    if (index1 >= 0 && index2 >= 0) return 1;
+    return index2 - index1;
+  });
 }
 
 function createPointsMapByShape(shape: any) {
@@ -146,20 +136,18 @@ function getFirstStaticPointInShape(shape: string): string {
 
   const shapePointCount = {};
 
-  angles.forEach(
-    (angle: string): void => {
-      angle.split('').forEach((point, index) => {
-        //don't check middle point
-        if (index !== 1) {
-          if (shapePointCount[point]) {
-            shapePointCount[point] += 1;
-          } else {
-            shapePointCount[point] = 1;
-          }
+  angles.forEach((angle: string): void => {
+    angle.split('').forEach((point, index) => {
+      //don't check middle point
+      if (index !== 1) {
+        if (shapePointCount[point]) {
+          shapePointCount[point] += 1;
+        } else {
+          shapePointCount[point] = 1;
         }
-      });
-    }
-  );
+      }
+    });
+  });
 
   let minCountPoint = shape[0];
   Object.keys(shapePointCount).forEach((point) => {
@@ -193,15 +181,13 @@ function createPointsMapByRelation(relation: any) {
     }
   });
 
-  RelationPointsMap = [...RelationPointsMap].sort(
-    (nodeOne: NodeType, nodeTwo: NodeType): number => {
-      const index1 = findIndexByNodeId(nodeOne.id, dataViewModel.getData.getPointsMap);
-      const index2 = findIndexByNodeId(nodeTwo.id, dataViewModel.getData.getPointsMap);
-      if (index1 === -1 && index2 === -1) return 1;
-      if (index1 >= 0 && index2 >= 0) return index1 - index2;
-      return index2 - index1;
-    }
-  );
+  RelationPointsMap = [...RelationPointsMap].sort((nodeOne: NodeType, nodeTwo: NodeType): number => {
+    const index1 = findIndexByNodeId(nodeOne.id, dataViewModel.getData.getPointsMap);
+    const index2 = findIndexByNodeId(nodeTwo.id, dataViewModel.getData.getPointsMap);
+    if (index1 === -1 && index2 === -1) return 1;
+    if (index1 >= 0 && index2 >= 0) return index1 - index2;
+    return index2 - index1;
+  });
 
   if (relation.operation === '=' && relation.value) {
     const lastNodeDependentLength = RelationPointsMap[RelationPointsMap.length - 1].dependentNodes.length;

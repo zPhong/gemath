@@ -16,79 +16,153 @@
 $headerHeight: 10vh;
 $footerHeight: 5vh;
 $bodyHeight: 100vh - $headerHeight - $footerHeight;
+$cardHeaderHeight: 8vh;
 
+$cardHeight: $bodyHeight - $cardHeaderHeight - $cardHeaderHeight;
 $borderColor: #e4e4e4;
 
-.app-header {
-  height: $headerHeight;
-  font-size: 16px;
-  box-shadow: 0 4px 8px 0 rgba(255, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 255, 0, 0.2);
+.container-fluid {
+  padding: 0;
 
-  .app-name {
-    height: 66%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  .app-header {
+    height: $headerHeight;
+    font-size: 16px;
+    box-shadow: 0 4px 8px 0 rgba(255, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 255, 0, 0.2);
 
-    p {
-      font-family: appNameFont, sans-serif;
-      font-size: 3rem;
-      margin: 0;
+    .app-name {
+      height: 66%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      p {
+        font-family: appNameFont, sans-serif;
+        font-size: 3rem;
+        margin: 0;
+      }
     }
-  }
 
-  .app-description {
-    height: 33%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    .app-description {
+      height: 33%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
-    p {
-      font-family: appDescriptionFont, sans-serif;
-      font-size: 1.75rem;
-      margin: 0;
-    }
-  }
-}
-
-.app-body {
-  height: $bodyHeight;
-  display: flex;
-  border-left: 1px solid $borderColor;
-  border-right: 1px solid $borderColor;
-  //background-color: red;
-
-  .app-controller {
-    display: block;
-    width: 25vw;
-    border-right: 1px solid $borderColor;
-
-    .app-controller-nav {
-      margin-bottom: 20px;
-
-      button {
-        width: 100%;
+      p {
+        font-family: appDescriptionFont, sans-serif;
+        font-size: 1.75rem;
+        margin: 0;
       }
     }
   }
 
-  .app-drawing-panel {
+  .app-body {
+    height: $bodyHeight;
     display: flex;
-    flex: 1;
-    margin: 10px 0 10px 0;
+    border-left: 1px solid $borderColor;
+    border-right: 1px solid $borderColor;
+
+    .app-controller {
+      display: block;
+      width: 25vw;
+      min-width: 300px;
+      border-right: 1px solid $borderColor;
+
+      .accordion {
+        .card {
+          .card-body {
+            max-height: $cardHeight;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+            scrollbar-color: transparent;
+            padding: 0.5rem;
+            padding-bottom: 0;
+            > div {
+              padding-bottom: 0.5rem;
+              .add-row-container {
+                cursor: pointer;
+                margin-top: 10px;
+                display: flex;
+                color: #757575;
+                font-size: 1rem;
+                align-items: center;
+                > p {
+                  margin: 0;
+                  margin-left: 8px;
+                }
+              }
+            }
+          }
+          .card-header {
+            height: $cardHeaderHeight;
+          }
+          .card-body::-webkit-scrollbar {
+            display: none; // Safari and Chrome
+          }
+        }
+      }
+      .app-controller-nav {
+        margin-bottom: 20px;
+
+        button {
+          width: 100%;
+        }
+      }
+
+      .left-panel-tab {
+        height: 50px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-right: 0.1rem;
+
+        .icon-container {
+          background-color: transparent;
+          border-color: transparent;
+          box-shadow: none !important;
+        }
+        p {
+          font-family: appDescriptionFont, sans-serif;
+          font-size: 1.25rem;
+          font-weight: bold;
+          margin: 0;
+        }
+      }
+    }
+
+    .app-drawing-panel {
+      display: flex;
+      flex: 1;
+      margin: 10px 0 10px 0;
+    }
   }
-}
 
-.app-footer {
-  display: flex;
-  height: $footerHeight;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+  .app-footer {
+    position: relative;
+    background-color: #fff;
+    display: flex;
+    height: $footerHeight;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
 
-  p {
-    font-family: appFooterFont, sans-serif;
-    font-size: 1rem;
-    margin: 0;
+    p {
+      font-family: appFooterFont, sans-serif;
+      font-size: 1rem;
+      margin: 0;
+    }
+  }
+
+  #tooltip-right {
+    .tooltip-inner {
+      background-color: #fff;
+      color: #000;
+    }
+  }
+
+  #tooltip-right .arrow:before {
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-right: 5px solid #fff;
   }
 }

@@ -1,6 +1,6 @@
 export type CoordinateType = {
   x: number,
-  y: number,
+  y: number
 };
 
 // Ax2 + By2 + Cx + Dy + E = 0
@@ -21,8 +21,15 @@ export type NodeType = {
   id: string,
   isStatic: boolean,
   coordinate: CoordinateType,
-  dependentNodes: Array<NodeRelationType>,
-}
+  dependentNodes: Array<NodeRelationType>
+};
+
+export type SegmentDataType = { name: string, vector: CoordinateType, length: number };
+
+export type DrawingSegmentType = {
+  name: string,
+  visible: boolean
+};
 
 export type DrawingDataType = {
   points: Array<NodeType>,
@@ -38,7 +45,7 @@ export type LineType = {
 // u(a,b) | n(a,b)
 export type Vector = {
   a: number,
-  b: number,
+  b: number
 };
 
 export type PointDetailsType = {

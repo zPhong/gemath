@@ -16,10 +16,10 @@ import { readRelation } from './ReadRelation';
 
 export function readPointsMap(): Array | {} {
   dataViewModel.createPointDetails();
-  console.table(dataViewModel.getData.getPointsMap);
   while (!dataViewModel.isPointsMapStatic()) {
     //get node to calculate
     const executingNode = dataViewModel.getNextExecuteNode();
+
     if (!executingNode) break;
 
     const executingNodeRelations = _makeUniqueNodeRelation(executingNode.dependentNodes);
@@ -59,7 +59,7 @@ export function readPointsMap(): Array | {} {
     if (dataViewModel.getData.getPointDetails.has(executingNode.id)) {
       const roots = dataViewModel.getData.getPointDetails.get(executingNode.id).roots;
       if (typeof roots === 'string') {
-        return {Error: `không tính toán được`};
+        return { Error: `không tính toán được` };
       }
       if (roots.length > 0) {
         let coordinate;
@@ -98,7 +98,7 @@ export function readPointsMap(): Array | {} {
         }
         dataViewModel.updateCoordinate(executingNode.id, coordinate);
       } else {
-        return {Error: `không tính toán được`};
+        //return { Error: `không tính toán được` };
       }
     }
 
@@ -108,6 +108,7 @@ export function readPointsMap(): Array | {} {
     //update static Node
     dataViewModel.updateStaticNode();
   }
+  console.table(dataViewModel.getData.getPointsMap);
 
   return dataViewModel.getData.getPointsMap.map((node) => ({
     id: node.id,
@@ -205,11 +206,7 @@ function makeCorrectShape(shape: string, shapeName: string, rules: string, nonSt
   }
 }
 
-function getLinearEquationsByEqualRule(
-  rule: string,
-  shape: string,
-  nonStaticIndex: number
-): Array<EquationType> {
+function getLinearEquationsByEqualRule(rule: string, shape: string, nonStaticIndex: number): Array<EquationType> {
   const lines = rule.split('=');
   let staticLine;
   let nonStaticLines = [];

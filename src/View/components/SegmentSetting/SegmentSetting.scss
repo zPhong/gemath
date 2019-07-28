@@ -1,0 +1,135 @@
+@font-face {
+  font-family: appDescriptionFont;
+  src: url('../../../resources/fonts/Nunito-Light.ttf');
+}
+
+.segment-setting {
+  border-bottom: solid 1px;
+  border-bottom-color: #dcdcdc;
+  padding: 1% 2.5%;
+  .container {
+    cursor: pointer;
+    position: relative;
+    background-color: white;
+    padding: 5px 0 0 0;
+    .title {
+      background-color: transparent;
+      p {
+        margin-bottom: 5px;
+        font-weight: bold;
+        font-size: 1rem;
+        font-family: appDescriptionFont, sans-serif;
+      }
+    }
+    .content-show {
+      .content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        > div {
+          width: 24px;
+          height: 24px;
+          justify-content: center;
+          align-items: center;
+          display: flex;
+        }
+        > div:hover {
+          background-color: #dcdcdc;
+        }
+
+        > span {
+          flex: 1;
+          > p {
+            flex: 1;
+            display: flex;
+            margin: 0;
+            font-weight: bold;
+            font-size: 1rem;
+            font-family: appDescriptionFont, sans-serif;
+          }
+        }
+        .toggle {
+          border-radius: 3px;
+          border: solid 1px black;
+          border-style: outset;
+          margin-right: 5px;
+          height: 18px;
+          .toggle-on {
+            padding: 0;
+            font-size: 0.75rem;
+            font-weight: 500;
+          }
+          .toggle-off {
+            padding: 0;
+            font-size: 0.75rem;
+            font-weight: 500;
+          }
+          .toggle-handler {
+            width: 0;
+            height: 0;
+          }
+          .btn:not(:disabled):not(.disabled) {
+            cursor: default;
+          }
+        }
+        .toggle.btn {
+          min-width: 30px;
+          min-height: 20px;
+        }
+      }
+    }
+    .content-edit {
+      .drop-down-container {
+        width: 100%;
+        flex-direction: row;
+        display: flex;
+        flex-wrap: wrap;
+        > div {
+          flex: 1;
+          .dropdown {
+            > button {
+              width: 100%;
+              min-width: 60px;
+              background-color: white;
+              border: solid 1px black;
+              padding: 5%;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              color: black;
+              font-weight: 500;
+              font-family: appDescriptionFont, sans-serif;
+            }
+            button:focus {
+              outline: none;
+              box-shadow: none;
+            }
+            button:after {
+              color: black;
+            }
+          }
+        }
+        .right-drop-down {
+          margin-left: 5px;
+        }
+      }
+      .button-container {
+        display: flex;
+        justify-content: flex-end;
+        button {
+          min-width: 60px;
+          outline: none;
+          box-shadow: none;
+          margin-top: 5px;
+          font-weight: 500;
+        }
+        .btn-link {
+          color: #28a745;
+        }
+        button:hover {
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}
