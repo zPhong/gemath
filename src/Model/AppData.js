@@ -19,6 +19,10 @@ class AppData {
     this.__pointDetails__.clear();
   }
 
+  set setRelationsResult(value) {
+    this.relationsResult = value;
+  }
+
   get getAdditionSegment() {
     return this.additionSegment;
   }

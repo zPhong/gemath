@@ -79,12 +79,12 @@ function getShapeSegments(shape: any): Array<string> {
 }
 
 function trimPointsMap() {
-  dataViewModel.getData.getPointsMap = dataViewModel.getData.getPointsMap.map(
+  dataViewModel.getData.setPointsMap(dataViewModel.getData.getPointsMap.map(
     (node: NodeType): NodeType => ({
       ...node,
       dependentNodes: unique(node.dependentNodes)
     })
-  );
+  )) ;
 }
 
 function unique(dependentNodes: Array<NodeRelationType>): Array<NodeRelationType> {
