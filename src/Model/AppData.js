@@ -19,7 +19,7 @@ class AppData {
     this.__pointDetails__.clear();
   }
 
-  set setRelationsResult(value) {
+  setRelationsResult(value) {
     this.relationsResult = value;
   }
 
@@ -35,7 +35,7 @@ class AppData {
     return this.pointsMap
   }
 
-  set setPointsMap(newPointsMap) {
+  setPointsMap(newPointsMap) {
     this.pointsMap = newPointsMap;
   }
 
