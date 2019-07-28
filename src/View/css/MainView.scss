@@ -16,9 +16,10 @@
 $headerHeight: 10vh;
 $footerHeight: 5vh;
 $bodyHeight: 100vh - $headerHeight - $footerHeight;
-$cardHeaderHeight: 8vh;
+$cardHeaderHeight: 60px;
 
-$cardHeight: $bodyHeight - $cardHeaderHeight - $cardHeaderHeight;
+$cardWidth: 380px;
+$cardHeight: calc(#{$bodyHeight} - #{$cardHeaderHeight} - #{$cardHeaderHeight});
 $borderColor: #e4e4e4;
 
 .container-fluid {
@@ -64,7 +65,7 @@ $borderColor: #e4e4e4;
 
     .app-controller {
       display: block;
-      width: 25vw;
+      width: $cardWidth;
       min-width: 300px;
       border-right: 1px solid $borderColor;
 
@@ -75,8 +76,7 @@ $borderColor: #e4e4e4;
             overflow-y: scroll;
             scroll-behavior: smooth;
             scrollbar-color: transparent;
-            padding: 0.5rem;
-            padding-bottom: 0;
+            padding: 0.75rem 0.5rem 0 1rem;
             > div {
               padding-bottom: 0.5rem;
               .add-row-container {
@@ -87,14 +87,14 @@ $borderColor: #e4e4e4;
                 font-size: 1rem;
                 align-items: center;
                 > p {
-                  margin: 0;
-                  margin-left: 8px;
+                  margin: 0 0 0 8px;
                 }
               }
             }
           }
           .card-header {
             height: $cardHeaderHeight;
+            padding: 0.75rem 0.5rem 0.75rem 1rem;
           }
           .card-body::-webkit-scrollbar {
             display: none; // Safari and Chrome
@@ -120,6 +120,8 @@ $borderColor: #e4e4e4;
           background-color: transparent;
           border-color: transparent;
           box-shadow: none !important;
+          display: flex;
+          justify-content: center;
         }
         p {
           font-family: appDescriptionFont, sans-serif;
@@ -155,8 +157,11 @@ $borderColor: #e4e4e4;
 
   #tooltip-right {
     .tooltip-inner {
-      background-color: #fff;
-      color: #000;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      max-height: 200px;
+      max-width: 1000px;
+      overflow-y: hidden;
     }
   }
 

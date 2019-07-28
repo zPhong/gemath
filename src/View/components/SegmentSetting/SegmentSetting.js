@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Toggle from 'react-bootstrap-toggle';
-import { DropdownButton, Dropdown, Button } from 'react-bootstrap';
+import { Button, Dropdown, DropdownButton } from 'react-bootstrap';
 import autobind from 'autobind-decorator';
 import { Icon } from '../index';
 import type { DrawingSegmentType } from '../../../utils/types';
@@ -21,7 +21,9 @@ type StateType = {
   end: string,
   visible: boolean,
   isEditMode: boolean,
-  isCreateMode: boolean
+  isCreateMode: boolean,
+  isMouseHoverEdition: boolean,
+  isMouseHoverDeletion: boolean,
 };
 
 class SegmentSetting extends React.Component<PropsType, StateType> {
@@ -34,24 +36,26 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
       end,
       visible: true,
       isEditMode: !props.value,
-      isCreateMode: !props.value
+      isCreateMode: !props.value,
+      isMouseHoverEdition: false,
+      isMouseHoverDeletion: false,
     };
   }
 
   @autobind
   onDone() {
-    const { start, end } = this.state;
-    const { onDone } = this.props;
+    const {start, end} = this.state;
+    const {onDone} = this.props;
 
     if (onDone) {
-      onDone({ name: [start, end].sort().join(''), visible: true });
+      onDone({name: [start, end].sort().join(''), visible: true});
     }
-    this.setState({ isEditMode: false });
+    this.setState({isEditMode: false});
   }
 
   @autobind
   onDelete() {
-    const { onDelete } = this.props;
+    const {onDelete} = this.props;
     if (onDelete) {
       onDelete();
     }
@@ -59,15 +63,15 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
 
   @autobind
   onVisibleChange(visible: boolean) {
-    const { onVisibleChange, value } = this.props;
+    const {onVisibleChange, value} = this.props;
     if (onVisibleChange) {
-      onVisibleChange({ name: value.name, visible: !value.visible });
+      onVisibleChange({name: value.name, visible: !value.visible});
     }
   }
 
   @autobind
   getIndexInData(dropdownIndex: string, filterValue: string): number {
-    const { data } = this.props;
+    const {data} = this.props;
     const filterValueIndex = data.indexOf(filterValue);
     if (filterValueIndex < 0) {
       return dropdownIndex;
@@ -77,31 +81,51 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
 
   @autobind
   onStartPointSelect(index: string) {
-    const { data } = this.props;
-    const { start, end } = this.state;
+    const {data} = this.props;
+    const {start, end} = this.state;
     const newStartValue = data[index];
     if (newStartValue === end) {
-      this.setState({ start: newStartValue, end: start });
+      this.setState({start: newStartValue, end: start});
     } else {
-      this.setState({ start: newStartValue });
+      this.setState({start: newStartValue});
     }
   }
 
   @autobind
   onEndPointSelect(index: string) {
-    const { data } = this.props;
+    const {data} = this.props;
+    this.setState({end: data[this.getIndexInData(index, this.state.start)]});
+  }
 
-    this.setState({ end: data[this.getIndexInData(index, this.state.start)] });
+  @autobind
+  mouseHoverEdition() {
+    this.setState({isMouseHoverEdition: true})
+  }
+
+  @autobind
+  mouseLeaveEdition() {
+    this.setState({isMouseHoverEdition: false})
+  }
+
+  @autobind
+  mouseHoverDeletion() {
+    this.setState({isMouseHoverDeletion: true})
+  }
+
+  @autobind
+  mouseLeaveDeletion() {
+    this.setState({isMouseHoverDeletion: false})
   }
 
   @autobind
   onChangeContentState() {
-    const { isEditMode, start, end } = this.state;
+    const {isEditMode, start, end} = this.state;
     if (!start || !end) {
       return;
     }
-    this.setState({ isEditMode: !isEditMode });
+    this.setState({isEditMode: !isEditMode});
   }
+
   @autobind
   renderDropdown(value: string, data: Array<string>, onSelect: void): React.Node {
     return (
@@ -117,24 +141,29 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
 
   @autobind
   renderEditContent(): React.Node {
-    const { data } = this.props;
-    const { start, end, isCreateMode } = this.state;
+    const {data} = this.props;
+    const {start, end, isCreateMode} = this.state;
     return (
       <div className="content-edit">
         <div className="drop-down-container">
-          <div>{this.renderDropdown(start, data, this.onStartPointSelect)}</div>
-          <div className="right-drop-down">
+          <div className={"col-6 p-0"}>
+            {this.renderDropdown(start, data, this.onStartPointSelect)}
+          </div>
+          <div className="col-6 p-0 right-drop-down">
             {this.renderDropdown(end, data.filter((item) => item !== this.state.start), this.onEndPointSelect)}
           </div>
         </div>
-        <div className="button-container">
-          <Button variant="outline-danger" onClick={isCreateMode ? this.onDelete : this.onChangeContentState}>
-            HỦY
-          </Button>
-          <div style={{ width: 5 }}></div>
-          <Button variant={`${isCreateMode ? 'link' : 'success'}`} disabled={!(start && end)} onClick={this.onDone}>
-            {isCreateMode ? 'THÊM' : 'CẬP NHẬT'}
-          </Button>
+
+        <div className="button-container mt-1">
+          <div className={"col-6 p-0 d-flex justify-content-between"}>
+            <Button className={"btn-cancel"} onClick={isCreateMode ? this.onDelete : this.onChangeContentState}>
+              HỦY
+            </Button>
+            <Button className={"btn-update"} variant={`${isCreateMode ? 'link' : 'success'}`} disabled={!(start && end)}
+                    onClick={this.onDone}>
+              {isCreateMode ? 'THÊM' : 'CẬP NHẬT'}
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -143,29 +172,47 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
   @autobind
   renderShowContent(): React.Node {
     const {
-      value: { name, visible }
+      value: {name, visible}
     } = this.props;
     return (
       <div className="content-show">
         <div className="content">
-          <span>
+          <div className={"segment-edit-name col-8"}>
             <p>{name}</p>
-          </span>
-          <Toggle
-            onstyle="success"
-            offstyle="danger"
-            handleClassName="toggle-handler"
-            onClick={this.onVisibleChange}
-            off="HIỆN"
-            on="ẨN"
-            width={40}
-            active={visible}
-          />
-          <div onClick={this.onChangeContentState}>
-            <Icon name={'icEdit'} color={'#757575'} width={15} height={15} />
           </div>
-          <div onClick={this.onDelete}>
-            <Icon name={'icRemove'} color={'#757575'} width={15} height={15} />
+
+          <div className={"segment-edit-controller col-4"}>
+            <Toggle
+              onstyle="success"
+              offstyle="danger"
+              handleClassName="toggle-handler"
+              onClick={this.onVisibleChange}
+              off="HIỆN"
+              on="ẨN"
+              active={visible}
+            />
+
+            <div onClick={this.onChangeContentState}
+                 onMouseMove={this.mouseHoverEdition}
+                 onMouseLeave={this.mouseLeaveEdition}>
+              {
+                this.state.isMouseHoverEdition ?
+                  <Icon name={'icEdit'} color={'#218838'} width={16} height={16}/>
+                  :
+                  <Icon name={'icEdit'} color={'#757575'} width={16} height={16}/>
+              }
+            </div>
+
+            <div onClick={this.onDelete}
+                 onMouseMove={this.mouseHoverDeletion}
+                 onMouseLeave={this.mouseLeaveDeletion}>
+              {
+                this.state.isMouseHoverDeletion ?
+                  <Icon name={'icRemove'} color={'#dc3545'} width={16} height={16}/>
+                  :
+                  <Icon name={'icRemove'} color={'#757575'} width={16} height={16}/>
+              }
+            </div>
           </div>
         </div>
       </div>
@@ -174,7 +221,7 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
 
   @autobind
   renderContent(): React.Node {
-    const { isEditMode } = this.state;
+    const {isEditMode} = this.state;
     if (isEditMode) {
       return this.renderEditContent();
     }
@@ -183,7 +230,7 @@ class SegmentSetting extends React.Component<PropsType, StateType> {
   }
 
   render(): React.Node {
-    const { isEditMode, isCreateMode } = this.state;
+    const {isEditMode, isCreateMode} = this.state;
 
     return (
       <div className="segment-setting">

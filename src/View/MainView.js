@@ -2,14 +2,14 @@ import React from 'react';
 import './css/MainView.scss';
 import { observer } from 'mobx-react';
 import autobind from 'autobind-decorator';
-import { OverlayTrigger, Tooltip, Button } from 'react-bootstrap';
+import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import DataViewModel from '../ViewModel/DataViewModel';
 
-import { InputItem, SegmentSetting, Icon } from './components';
+import { Icon, InputItem, SegmentSetting } from './components';
 import { DrawingPanel } from './components/DrawingPanel';
-import { isVectorSameDirection, calculateVector, calculateDistanceTwoPoints } from '../core/math/Math2D';
-import type { SegmentDataType, DrawingSegmentType } from '../utils/types';
+import { calculateDistanceTwoPoints, calculateVector, isVectorSameDirection } from '../core/math/Math2D';
+import type { DrawingSegmentType, SegmentDataType } from '../utils/types';
 
 @observer
 class MainView extends React.Component {
@@ -173,7 +173,7 @@ class MainView extends React.Component {
       DataViewModel.addNewInput();
     }
 
-    this.setState({ focusIndex: index + 1 });
+    this.setState({focusIndex: index + 1});
   }
 
   @autobind
@@ -182,7 +182,7 @@ class MainView extends React.Component {
     if (index === DataViewModel.RelationsInput.length - 1 && index > 0 && value.length === 0) {
       DataViewModel.removeInput();
       this.inputRefs.pop();
-      this.setState({ focusIndex: index - 1 });
+      this.setState({focusIndex: index - 1});
     }
   }
 
@@ -202,7 +202,7 @@ class MainView extends React.Component {
   }
 
   componentDidUpdate() {
-    const { focusIndex } = this.state;
+    const {focusIndex} = this.state;
     if (this.inputRefs[focusIndex]) {
       this.inputRefs[focusIndex].focus();
     }
@@ -332,7 +332,6 @@ class MainView extends React.Component {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
-                        <div style={{ backgroundColor: 'white', flex: 1 }}>
                           <span>
                             Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
                             squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
@@ -342,12 +341,11 @@ class MainView extends React.Component {
                             lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you
                             probably haven't heard of them accusamus labore sustainable VHS.
                           </span>
-                        </div>
                       </Tooltip>
                     }>
-                    <Button className="bg-transparent icon-container">
-                      <Icon name="icInformation" width={25} height={25} />
-                    </Button>
+                    <div className="bg-transparent icon-container">
+                      <Icon name="icInformation" width={22} height={22}/>
+                    </div>
                   </OverlayTrigger>
                 </div>
                 <div
@@ -381,7 +379,6 @@ class MainView extends React.Component {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
-                        <div style={{ backgroundColor: 'white', flex: 1 }}>
                           <span>
                             Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
                             squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
@@ -391,12 +388,11 @@ class MainView extends React.Component {
                             lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you
                             probably haven't heard of them accusamus labore sustainable VHS.
                           </span>
-                        </div>
                       </Tooltip>
                     }>
-                    <Button className="bg-transparent icon-container">
-                      <Icon name="icInformation" width={25} height={25} />
-                    </Button>
+                    <div className="bg-transparent icon-container">
+                      <Icon name="icInformation" width={22} height={22}/>
+                    </div>
                   </OverlayTrigger>
                 </div>
                 <div id="viewTwo" className="collapse " aria-labelledby="headingOne" data-parent="#accordionExample">
@@ -404,7 +400,7 @@ class MainView extends React.Component {
                     <div>
                       {this.renderSegmentSettings()}
                       <div className={'add-row-container'} onClick={this.addNewSegmentSetting}>
-                        <Icon name={'icAdd'} width={35} height={35} color={'#757575'} />
+                        <Icon name={'icAdd'} width={35} height={35} color={'#757575'}/>
                         <p>Thêm đoạn thẳng</p>
                       </div>
                     </div>
