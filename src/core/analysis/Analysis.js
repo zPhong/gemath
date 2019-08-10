@@ -127,36 +127,39 @@ function createPointsMapByShape(shape: any) {
 
 function getFirstStaticPointInShape(shape: string): string {
   const angles = [];
-  dataViewModel.getData.getRelationsResult.relations.forEach((relation) => {
-    if (!relation.angle) {
-      return;
-    }
-    angles.push(relation.angle[0]);
-  });
+  if (dataViewModel.getData.getRelationsResult.relations) {
+    dataViewModel.getData.getRelationsResult.relations.forEach((relation) => {
+      if (!relation.angle) {
+        return;
+      }
+      angles.push(relation.angle[0]);
+    });
 
-  const shapePointCount = {};
+    const shapePointCount = {};
 
-  angles.forEach((angle: string): void => {
-    angle.split('').forEach((point, index) => {
-      //don't check middle point
-      if (index !== 1) {
-        if (shapePointCount[point]) {
-          shapePointCount[point] += 1;
-        } else {
-          shapePointCount[point] = 1;
+    angles.forEach((angle: string): void => {
+      angle.split('').forEach((point, index) => {
+        //don't check middle point
+        if (index !== 1) {
+          if (shapePointCount[point]) {
+            shapePointCount[point] += 1;
+          } else {
+            shapePointCount[point] = 1;
+          }
         }
+      });
+    });
+
+    let minCountPoint = shape[0];
+    Object.keys(shapePointCount).forEach((point) => {
+      if (shapePointCount[point] < shapePointCount[minCountPoint]) {
+        minCountPoint = point;
       }
     });
-  });
 
-  let minCountPoint = shape[0];
-  Object.keys(shapePointCount).forEach((point) => {
-    if (shapePointCount[point] < shapePointCount[minCountPoint]) {
-      minCountPoint = point;
-    }
-  });
-
-  return minCountPoint;
+    return minCountPoint;
+  }
+  return shape[0];
 }
 
 function createPointsMapByRelation(relation: any) {

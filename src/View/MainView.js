@@ -164,7 +164,7 @@ class MainView extends React.Component {
 
   @autobind
   onValueChange(value: string, index: number) {
-    DataViewModel.RelationsInput[index].value = value;
+    DataViewModel.onInputChange(value, index);
   }
 
   @autobind
@@ -210,25 +210,27 @@ class MainView extends React.Component {
 
   @autobind
   renderRelationInput(): React.Node {
-    return DataViewModel.RelationsInput.map((model, index) => (
-      <InputItem
-        key={`input-${index}`}
-        ref={(ref) => {
-          this.inputRefs[index] = ref;
-        }}
-        onValueChange={(value: string) => {
-          this.onValueChange(value, index);
-        }}
-        onSubmit={() => {
-          this.onSubmit(index);
-        }}
-        onBackspace={() => {
-          this.onBackspace(index);
-        }}
-        value={model.value}
-        status={model.status}
-      />
-    ));
+    return DataViewModel.RelationsInput.map((model, index) => {
+      return (
+        <InputItem
+          key={`input-${index}`}
+          ref={(ref) => {
+            this.inputRefs[index] = ref;
+          }}
+          onValueChange={(value: string) => {
+            this.onValueChange(value, index);
+          }}
+          onSubmit={() => {
+            this.onSubmit(index);
+          }}
+          onBackspace={() => {
+            this.onBackspace(index);
+          }}
+          value={model.value}
+          status={model.status}
+        />
+      );
+    });
   }
 
   @autobind

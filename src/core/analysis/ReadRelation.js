@@ -25,6 +25,7 @@ import {
 
 export function readRelation(relation: mixed, point: string) {
   let equationResults;
+  dataViewModel.executingRelation = relation;
   if (relation.operation) {
     equationResults = analyzeOperationType(relation, point);
   } else if (relation.relation) {
