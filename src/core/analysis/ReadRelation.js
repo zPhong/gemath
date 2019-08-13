@@ -19,6 +19,7 @@ import {
 import {
   generatePointAlignmentInside,
   generatePointAlignmentOutside,
+  generatePointMiddleTwoPoints,
   getRandomPointInEquation,
   getRandomValue
 } from '../math/Generation.js';
@@ -200,6 +201,15 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
       dataViewModel.getNodeInPointsMapById(relation.segment[0][1]).coordinate
     );
   } else if (relationType === 'song song' || relationType === 'vuông góc') {
+    const otherStaticPoint = segmentIncludePoint.replace(point, '');
+
+    if (!dataViewModel.isValidCoordinate(otherStaticPoint)) {
+      const point = generatePointMiddleTwoPoints(
+        dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate,
+        dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[1]).coordinate
+      );
+      dataViewModel.updateCoordinate(otherStaticPoint, point);
+    }
     //undefined point
     for (let i = 0; i < 2; i++) {
       if (!dataViewModel.isValidCoordinate(segmentNotIncludePoint[i])) {
@@ -211,8 +221,6 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
       dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate,
       dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[1]).coordinate
     );
-
-    const otherStaticPoint = segmentIncludePoint.replace(point, '');
 
     if (!dataViewModel.isValidCoordinate(otherStaticPoint)) {
       return;
