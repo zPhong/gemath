@@ -27,7 +27,7 @@ class DrawingPanel extends React.Component<PropsType> {
       pointElements.firstChild.remove();
     }
 
-    const { points, segments } = drawingData;
+    const { points, segments, circles } = drawingData;
     const viewBox = svg.viewBox.baseVal;
     const width = viewBox.width;
     const height = viewBox.height;
@@ -73,6 +73,20 @@ class DrawingPanel extends React.Component<PropsType> {
         scene.segment(segment.name, segment.name[0], segment.name[1]);
       }
     });
+
+    if (circles) {
+      Object.keys(circles).forEach((point) => {
+        console.log(point, circles[point]);
+        scene.point(
+          point,
+          circles[point].center.x * ratio + width / 2 - ratio * anchorX,
+          circles[point].center.y * ratio + height / 2 - ratio * anchorY
+        );
+        scene.circle(`circle-${point}`, point, circles[point].radius * ratio);
+      });
+    }
+
+    console.log(scene);
 
     scene.update();
     renderGeometry(scene, svg);

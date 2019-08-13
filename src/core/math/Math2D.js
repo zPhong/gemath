@@ -1,5 +1,5 @@
 import GConst from '../../utils/values';
-import type { CoordinateType, EquationType, LineType } from '../../utils/types';
+import type { CircleType, CoordinateType, EquationType, LineType } from '../../utils/types';
 import { convertEquationToLineType, convertLinearToEquation, convertLineTypeToEquation } from './Converter';
 
 const MIN = GConst.Number.MIN_RANDOM_NUMBER;
@@ -556,4 +556,45 @@ export function getMiddlePointFromThreePointsInALine(
   if (dis_p1_p2 === max) return p3;
   else if (dis_p1_p3 === max) return p2;
   else return p1;
+}
+
+export function calculateCircumCircleEquation(p1: CoordinateType, p2: CoordinateType, p3: CoordinateType): CircleType {
+  const midperpendicularsLineOne = calculatePerpendicularLineByPointAndLine(
+    calculateMiddlePoint(p1, p2),
+    getLineFromTwoPoints(p1, p2)
+  );
+
+  const midperpendicularsLineTwo = calculatePerpendicularLineByPointAndLine(
+    calculateMiddlePoint(p1, p3),
+    getLineFromTwoPoints(p1, p3)
+  );
+
+  const center = calculateIntersectionByLineAndLine(midperpendicularsLineOne, midperpendicularsLineTwo);
+  const radius = calculateDistanceTwoPoints(center, p1);
+
+  const equation = calculateCircleEquationByCenterPoint(center, radius);
+
+  return { center, radius, equation };
+}
+
+export function calculateInCircleEquation(p1: CoordinateType, p2: CoordinateType, p3: CoordinateType): CircleType {
+  const bisectorLineOne = calculateInternalBisectLineEquation(
+    getLineFromTwoPoints(p1, p3),
+    getLineFromTwoPoints(p1, p2),
+    p2,
+    p3
+  );
+
+  const bisectorLineTwo = calculateInternalBisectLineEquation(
+    getLineFromTwoPoints(p2, p3),
+    getLineFromTwoPoints(p1, p2),
+    p1,
+    p3
+  );
+
+  const center = calculateIntersectionByLineAndLine(bisectorLineOne, bisectorLineTwo);
+  const radius = calculateDistanceFromPointToLine(center, getLineFromTwoPoints(p1, p3));
+
+  const equation = calculateCircleEquationByCenterPoint(center, radius);
+  return { center, radius, equation };
 }

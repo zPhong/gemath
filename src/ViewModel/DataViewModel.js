@@ -20,6 +20,9 @@ const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
 
 class DataViewModel {
   @observable
+  circlesData = {};
+
+  @observable
   relationsInput: Array<RelationInputModel>;
 
   inputData: Array<mixed> = [];
@@ -450,6 +453,7 @@ class DataViewModel {
   }
 
   analyzeInput() {
+    this.circlesData = {};
     const data = this.RelationsInput.map((relationsInput: RelationInputModel): string => relationsInput.value)
       // eslint-disable-next-line no-control-getBasicInformation
       .filter((sentence) => !!sentence)

@@ -76,8 +76,9 @@ class Scene {
     return this.add(new Point(name, x, y));
   }
 
-  circle(name, centerId, boundaryId) {
-    return this.add(new Circle(name, this.get(centerId), this.get(boundaryId)));
+  circle(name, centerId, radius) {
+    console.log(name, radius, this.get(centerId));
+    return this.add(new Circle(name, this.get(centerId), radius));
   }
 
   segment(name, id1, id2) {

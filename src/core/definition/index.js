@@ -34,6 +34,9 @@ function defineInformation(data) {
         if (type === 'segment') {
           value = sortString(value);
         }
+        if (type === 'circle') {
+          value = value[1].toUpperCase();
+        }
         result[type].push(value);
       });
     }

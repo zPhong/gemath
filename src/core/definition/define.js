@@ -25,7 +25,7 @@ const defineSentences = {
     'hình chữ nhật {rectangle}',
     'hình thoi {rhombus}',
     'hình vuông {square}',
-    'đường tròn tâm {circle}'
+    'đường tròn tâm {point type triangle}'
   ]
 };
 
@@ -40,7 +40,7 @@ const objectWithPoint = ['angle', 'segment', 'ray', 'point'];
 const validate = {
   object: {
     define: ['angle', 'segment'],
-    relation: ['ray', 'line', 'segment']
+    relation: ['ray', 'line', 'segment', 'circle']
   },
   point: { length: 1, format: '1' },
   segment: { length: 2, format: '11' },
@@ -58,7 +58,7 @@ const validate = {
     circle: { length: 1, format: '1' }
   },
   shapeType: {
-    triangle: ['', 'vuông', 'cân', 'vuông cân', 'đều'],
+    triangle: ['', 'vuông', 'cân', 'vuông cân', 'đều', 'nội tiếp', 'ngoại tiếp'],
     trapezoid: ['', 'vuông', 'cân']
   }
 };
@@ -98,8 +98,12 @@ const mappingShapeType = {
   vuông: 'right',
   cân: 'isosceles',
   'vuông cân': 'right_isosceles',
-  đều: 'equilateral'
+  đều: 'equilateral',
+  'nội tiếp': 'nội tiếp',
+  'ngoại tiếp': 'ngoại tiếp'
 };
+
+const circleType = ['nội tiếp', 'ngoại tiếp'];
 
 const TwoStaticPointRequireShape = ['triangle', 'rhombus', 'rectangle', 'square'];
 
@@ -112,5 +116,6 @@ export {
   shapeList,
   reversedDependentObjRelation,
   shapeRules,
-  mappingShapeType
+  mappingShapeType,
+  circleType
 };
