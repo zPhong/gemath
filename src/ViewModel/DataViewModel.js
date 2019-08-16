@@ -452,6 +452,14 @@ class DataViewModel {
     return count;
   }
 
+  getCircleEquation(centerId: string): EquationType {
+    return this.circlesData[centerId].equation;
+  }
+
+  getCircleCenterCoordinate(centerId: string): CoordinateType {
+    return this.circlesData[centerId].coordinate;
+  }
+
   analyzeInput() {
     this.circlesData = {};
     const data = this.RelationsInput.map((relationsInput: RelationInputModel): string => relationsInput.value)

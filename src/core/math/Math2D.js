@@ -1,7 +1,7 @@
 import GConst from '../../utils/values';
 import type { CircleType, CoordinateType, EquationType, LineType } from '../../utils/types';
 import { convertEquationToLineType, convertLinearToEquation, convertLineTypeToEquation } from './Converter';
-import { getRandomPointInEquation } from './Generation';
+import { getRandomPointInEquation, getRandomValue } from './Generation';
 
 const MIN = GConst.Number.MIN_RANDOM_NUMBER;
 const MAX = GConst.Number.MAX_RANDOM_NUMBER;
@@ -598,4 +598,41 @@ export function calculateInCircleEquation(p1: CoordinateType, p2: CoordinateType
 
   const equation = calculateCircleEquationByCenterPoint(center, radius);
   return { center, radius, equation };
+}
+
+export function calculateTangentEquation(circle: EquationType, point?: CoordinateType = null): EquationType {
+  const tangentPoint: CoordinateType = point || getRandomPointInEquation(circle);
+
+  const tangentEquation: EquationType = {};
+
+  tangentEquation.a = 0;
+  tangentEquation.b = 0;
+  tangentEquation.c = tangentPoint.x + circle.c / 2;
+  tangentEquation.d = tangentPoint.y + circle.d / 2;
+  tangentEquation.e = circle.e + (circle.c * tangentPoint.x) / 2 + (circle.d * tangentPoint.y) / 2;
+
+  return tangentEquation;
+}
+
+export function calculateTangentEquationByPointOutsideCircle(
+  circle: EquationType,
+  point?: CoordinateType = null,
+  exceptionPoint?: CoordinateType = null
+): EquationType {
+  const center: CoordinateType = { x: -circle.c / 2, y: -circle.d / 2 };
+
+  const tempCircleCenter = calculateMiddlePoint(center, point);
+  const tempCircleRadius = calculateDistanceTwoPoints(center, point) / 2;
+
+  const tempCircleEquation = calculateCircleEquationByCenterPoint(tempCircleCenter, tempCircleRadius);
+
+  let roots = calculateIntersectionTwoCircleEquations(circle, tempCircleEquation);
+
+  if (exceptionPoint) {
+    roots = roots.filter((root: CoordinateType): boolean => JSON.stringify(root) !== JSON.stringify(exceptionPoint));
+  }
+
+  const tangentPoint = roots[getRandomValue(0, roots.length - 1)];
+
+  return calculateTangentEquation(circle, tangentPoint);
 }

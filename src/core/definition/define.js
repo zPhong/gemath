@@ -10,12 +10,15 @@ const defineSentences = {
   relation: [
     '{object} song song {object}',
     '{object} vuông góc {object}',
-    '{object} cắt {object} tại {point}',
+    '{object} cắt {object} tại {arrayPoints}',
     '{object} phân giác {angle}',
     '{arrayPoints} thẳng hàng',
     '{point} trung điểm {segment}',
     '{point} không thuộc {object}',
-    '{point} thuộc {object}'
+    '{point} thuộc {object}',
+    'trung tuyến {segment} của {triangle}',
+    'đường cao {segment} của {triangle}',
+    'tiếp tuyến {segment} của {circle}'
   ],
   shape: [
     'tam giác {type triangle}',

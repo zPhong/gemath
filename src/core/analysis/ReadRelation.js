@@ -295,17 +295,21 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
     }
   }
 
-  const calculatedLineEquationOne = getLineFromTwoPoints(
-    dataViewModel.getNodeInPointsMapById(relation.segment[0][0]).coordinate,
-    dataViewModel.getNodeInPointsMapById(relation.segment[0][1]).coordinate
-  );
-  const calculatedLineEquationTwo = getLineFromTwoPoints(
-    dataViewModel.getNodeInPointsMapById(relation.segment[1][0]).coordinate,
-    dataViewModel.getNodeInPointsMapById(relation.segment[1][1]).coordinate
-  );
+  if (relation.segment.length === 2) {
+    const calculatedLineEquationOne = getLineFromTwoPoints(
+      dataViewModel.getNodeInPointsMapById(relation.segment[0][0]).coordinate,
+      dataViewModel.getNodeInPointsMapById(relation.segment[0][1]).coordinate
+    );
+    const calculatedLineEquationTwo = getLineFromTwoPoints(
+      dataViewModel.getNodeInPointsMapById(relation.segment[1][0]).coordinate,
+      dataViewModel.getNodeInPointsMapById(relation.segment[1][1]).coordinate
+    );
 
-  const calculatedPoint = calculateIntersectionByLineAndLine(calculatedLineEquationOne, calculatedLineEquationTwo);
-  dataViewModel.updateCoordinate(point, calculatedPoint);
+    const calculatedPoint = calculateIntersectionByLineAndLine(calculatedLineEquationOne, calculatedLineEquationTwo);
+    dataViewModel.updateCoordinate(relation.point[0], calculatedPoint);
+  } else if (relation.circle.length === 2) {
+  } else {
+  }
 }
 
 //chỉ xử lý : = , *
