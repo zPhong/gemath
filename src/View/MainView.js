@@ -19,12 +19,12 @@ class MainView extends React.Component {
     this.state = {
       focusIndex: 0,
       points: [
-        {id: 'A', coordinate: {x: 0, y: 0, z: 0}},
-        {id: 'B', coordinate: {y: 5, x: -7}},
-        {id: 'C', coordinate: {x: -9, y: 4.0901353661613005}},
-        {id: 'H', coordinate: {x: -3.0849364905389067, y: 6.781088913245535}},
-        {id: 'D', coordinate: {x: -5.250000000000003, y: 3.7500000000000018}},
-        {id: 'E', coordinate: {x: -8, y: 9.794855240493977}}
+        { id: 'A', coordinate: { x: 0, y: 0, z: 0 } },
+        { id: 'B', coordinate: { y: 5, x: -7 } },
+        { id: 'C', coordinate: { x: -9, y: 4.0901353661613005 } },
+        { id: 'H', coordinate: { x: -3.0849364905389067, y: 6.781088913245535 } },
+        { id: 'D', coordinate: { x: -5.250000000000003, y: 3.7500000000000018 } },
+        { id: 'E', coordinate: { x: -8, y: 9.794855240493977 } }
       ],
       segments: [
         'AB',
@@ -70,9 +70,9 @@ class MainView extends React.Component {
   }
 
   componentWillMount() {
-    const {points, segments} = this.state;
+    const { points, segments } = this.state;
     this.setState({
-      drawingSegments: this.trimDrawingData({points, segments}).map((segment: string): DrawingSegmentType => ({
+      drawingSegments: this.trimDrawingData({ points, segments }).map((segment: string): DrawingSegmentType => ({
         name: segment,
         visible: true
       }))
@@ -90,7 +90,7 @@ class MainView extends React.Component {
 
   @autobind
   trimDrawingData(data) {
-    const {points, segments} = data;
+    const { points, segments } = data;
 
     //change to DataViewModel.getNodeInPointsMapById.coordinate when refactor done
     const pointData = {};
@@ -165,6 +165,7 @@ class MainView extends React.Component {
   @autobind
   onValueChange(value: string, index: number) {
     DataViewModel.RelationsInput[index].value = value;
+    this.setState({ focusIndex: index });
   }
 
   @autobind
@@ -173,7 +174,7 @@ class MainView extends React.Component {
       DataViewModel.addNewInput();
     }
 
-    this.setState({focusIndex: index + 1});
+    this.setState({ focusIndex: index + 1 });
   }
 
   @autobind
@@ -182,7 +183,7 @@ class MainView extends React.Component {
     if (index === DataViewModel.RelationsInput.length - 1 && index > 0 && value.length === 0) {
       DataViewModel.removeInput();
       this.inputRefs.pop();
-      this.setState({focusIndex: index - 1});
+      this.setState({ focusIndex: index - 1 });
     }
   }
 
@@ -202,7 +203,7 @@ class MainView extends React.Component {
   }
 
   componentDidUpdate() {
-    const {focusIndex} = this.state;
+    const { focusIndex } = this.state;
     if (this.inputRefs[focusIndex]) {
       this.inputRefs[focusIndex].focus();
     }
@@ -233,14 +234,14 @@ class MainView extends React.Component {
 
   @autobind
   onDoneSegmentSetting(data: DrawingSegmentType, index: number) {
-    const {drawingSegments} = this.state;
+    const { drawingSegments } = this.state;
     if (JSON.stringify(data) === JSON.stringify(drawingSegments[index])) {
       return;
     }
 
     drawingSegments[index] = data;
 
-    this.setState({drawingSegments}, () => {
+    this.setState({ drawingSegments }, () => {
       if (drawingSegments.map((segment: SegmentDataType): string => segment.name).includes(data.name)) {
         this.onDeleteSegmentSetting(index);
       }
@@ -249,19 +250,19 @@ class MainView extends React.Component {
 
   @autobind
   onChangeSegmentSetting(data: DrawingSegmentType, index: number) {
-    const {drawingSegments} = this.state;
+    const { drawingSegments } = this.state;
 
     drawingSegments[index] = data;
 
-    this.setState({drawingSegments});
+    this.setState({ drawingSegments });
   }
 
   @autobind
   onDeleteSegmentSetting(index: number) {
-    const {drawingSegments} = this.state;
+    const { drawingSegments } = this.state;
 
     drawingSegments.splice(index, 1);
-    this.setState({drawingSegments});
+    this.setState({ drawingSegments });
   }
 
   @autobind
@@ -277,7 +278,7 @@ class MainView extends React.Component {
 
   @autobind
   renderSegmentSettings(): React.Node {
-    const {drawingSegments} = this.state;
+    const { drawingSegments } = this.state;
     const points = this.state.points.map((point: NodeType): number => point.id);
 
     return drawingSegments.map((segment: DrawingSegmentType, index: number): React.Node => {
@@ -295,14 +296,14 @@ class MainView extends React.Component {
           onDelete={() => {
             this.onDeleteSegmentSetting(index);
           }}
-          style={index === 0 ? {marginTop: "1rem"} : {}}
+          style={index === 0 ? { marginTop: '1rem' } : {}}
         />
       );
     });
   }
 
   render() {
-    const {points, drawingSegments} = this.state;
+    const { points, drawingSegments } = this.state;
     return (
       <div className={'container-fluid'}>
         <div className={'app-header'}>
@@ -345,7 +346,7 @@ class MainView extends React.Component {
                       </Tooltip>
                     }>
                     <div className="bg-transparent icon-container">
-                      <Icon name="icInformation" width={22} height={22}/>
+                      <Icon name="icInformation" width={22} height={22} />
                     </div>
                   </OverlayTrigger>
                 </div>
@@ -392,7 +393,7 @@ class MainView extends React.Component {
                       </Tooltip>
                     }>
                     <div className="bg-transparent icon-container">
-                      <Icon name="icInformation" width={22} height={22}/>
+                      <Icon name="icInformation" width={22} height={22} />
                     </div>
                   </OverlayTrigger>
                 </div>
@@ -401,7 +402,7 @@ class MainView extends React.Component {
                     <div>
                       {this.renderSegmentSettings()}
                       <div className={'add-row-container'} onClick={this.addNewSegmentSetting}>
-                        <Icon name={'icAdd'} width={35} height={35} color={'#757575'}/>
+                        <Icon name={'icAdd'} width={35} height={35} color={'#757575'} />
                         <p>Thêm đoạn thẳng</p>
                       </div>
                     </div>
@@ -412,7 +413,7 @@ class MainView extends React.Component {
           </div>
 
           <div className={'app-drawing-panel'}>
-            <DrawingPanel drawingData={{points, segments: drawingSegments}}/>
+            <DrawingPanel drawingData={{ points, segments: drawingSegments }} />
           </div>
         </div>
 
