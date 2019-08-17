@@ -34,9 +34,13 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = [new RelationInputModel('tam giác ABC'),
-    new RelationInputModel('đường tròn tâm O ngoại tiếp ABC'),
-    new RelationInputModel('D thuộc (O)')];
+    this.relationsInput = [
+      new RelationInputModel('tam giác ABC'),
+      new RelationInputModel('đường tròn tâm O ngoại tiếp ABC'),
+      new RelationInputModel('B trung điểm CD'),
+      new RelationInputModel('DH vuông góc BC'),
+      new RelationInputModel('HC cắt (O) tại F')
+    ];
   }
 
   @computed
@@ -99,8 +103,14 @@ class DataViewModel {
 
   updateCoordinate = (nodeId: string, coordinate: CoordinateType): void => {
     const index = this.getIndexOfNodeInPointsMapById(nodeId);
+    const _coordinate = {};
+    Object.keys(coordinate)
+      .sort()
+      .forEach((key: string) => {
+        _coordinate[key] = coordinate[key];
+      });
     if (index !== NOT_FOUND) {
-      this.data.getPointsMap[index].coordinate = coordinate;
+      this.data.getPointsMap[index].coordinate = _coordinate;
     }
   };
 
@@ -381,7 +391,7 @@ class DataViewModel {
     const type = preProgress.outputType;
 
     const result = defineInformation(preProgress);
-    console.log(result)
+    console.log(result);
     if (result.Error || !result.outputType) {
       ErrorService.showError('300');
       return;

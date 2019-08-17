@@ -212,13 +212,14 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
     );
   } else if (relationType === 'song song' || relationType === 'vuông góc') {
     const otherStaticPoint = segmentIncludePoint.replace(point, '');
-
-    if (!dataViewModel.isValidCoordinate(otherStaticPoint)) {
+    if (!dataViewModel.isValidCoordinate(otherStaticPoint) && !dataViewModel.isValidCoordinate(point)) {
       const point = generatePointMiddleTwoPoints(
         dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate,
         dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[1]).coordinate
       );
-      dataViewModel.updateCoordinate(otherStaticPoint, point);
+      if (point) {
+        dataViewModel.updateCoordinate(otherStaticPoint, point);
+      }
     }
     //undefined point
     for (let i = 0; i < 2; i++) {
@@ -331,14 +332,19 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
       }
     });
   } else {
-    const roots = calculateIntersectionTwoCircleEquations(
-      getLineFromTwoPoints(
-        dataViewModel.getNodeInPointsMapById(relation.segment[0][0]).coordinate,
-        dataViewModel.getNodeInPointsMapById(relation.segment[0][1]).coordinate
-      ),
-      dataViewModel.getCircleEquation(relation.circle[1])
+    const pointOne = dataViewModel.getNodeInPointsMapById(relation.segment[0][0]).coordinate;
+    const pointTwo = dataViewModel.getNodeInPointsMapById(relation.segment[0][1]).coordinate;
+    let roots = calculateIntersectionTwoCircleEquations(
+      getLineFromTwoPoints(pointOne, pointTwo),
+      dataViewModel.getCircleEquation(relation.circle[0])
     );
 
+    roots = roots.filter(
+      (root: CoordinateType): boolean =>
+        JSON.stringify(root) !== JSON.stringify(pointOne) && JSON.stringify(root) !== JSON.stringify(pointTwo)
+    );
+
+    console.log(roots);
     roots.forEach((root: CoordinateType, index: number) => {
       if (!relation.point[index]) {
         ErrorService.showError('500');

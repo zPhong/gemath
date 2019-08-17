@@ -19,6 +19,12 @@ export function getRandomValue(min: number, max: number): number {
 }
 
 export function getRandomPointInEquation(equation: EquationType): CoordinateType {
+  if (!equation.a) {
+    equation.a = 0;
+  }
+  if (!equation.b) {
+    equation.b = 0;
+  }
   if (equation.a === 0 && equation.b === 0) {
     if (equation.d !== 0) {
       const tempX = getRandomValue(MIN, MAX);

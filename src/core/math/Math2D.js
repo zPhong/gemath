@@ -273,7 +273,7 @@ export function calculateSetOfEquationTypes(d1: EquationType, d2: EquationType) 
 
   if (d1.d === 0) {
     const tempX = -d1.e / d1.c;
-    return { y: (-d2.e - tempX * d2.c) / d2.d, x: tempX };
+    return { x: tempX, y: (-d2.e - tempX * d2.c) / d2.d };
   }
 
   if (d2.c === 0) {
@@ -283,7 +283,7 @@ export function calculateSetOfEquationTypes(d1: EquationType, d2: EquationType) 
 
   if (d2.d === 0) {
     const tempX = -d2.e / d2.c;
-    return { y: (-d1.e - tempX * d1.c) / d1.d, x: tempX };
+    return { x: tempX, y: (-d1.e - tempX * d1.c) / d1.d };
   }
 
   const tempY = (d1.e * d2.c - d1.c * d2.e) / (d1.d * d2.c + d1.c * d2.d);
@@ -461,22 +461,18 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
       if (roots === IMPOSSIBLE) {
         return roots;
       } else if (typeof roots === 'number') {
-        results.push({
-          x: (-c - b * roots) / a,
-          y: roots
-        });
+        results.push(
+          makeRoundCoordinate({
+            x: (-c - b * roots) / a,
+            y: roots
+          })
+        );
       } else {
         const r1 = roots.firstRoot;
         const r2 = roots.secondRoot;
         results.push(
-          {
-            x: (-c - b * roots.firstRoot) / a,
-            y: r1
-          },
-          {
-            x: (-c - b * roots.secondRoot) / a,
-            y: r2
-          }
+          makeRoundCoordinate({ x: (-c - b * roots.firstRoot) / a, y: r1 }),
+          makeRoundCoordinate({ x: (-c - b * roots.secondRoot) / a, y: r2 })
         );
       }
     }
