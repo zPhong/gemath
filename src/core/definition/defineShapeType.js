@@ -1,8 +1,6 @@
 export function defineShapeType(data) {
   let result = {};
 
-  console.log(data);
-
   Object.keys(data).forEach((key) => {
     if (key.includes('type')) {
       const splitter = data[key].toString().split(' ');
@@ -29,6 +27,5 @@ export function defineShapeType(data) {
     }
   });
 
-  console.log(result);
   return result;
 }

@@ -116,10 +116,17 @@ function createPointsMapByShape(shape: any) {
     points = [shouldStaticPoint].concat(points.filter((point) => point !== shouldStaticPoint));
   }
 
-  const objectPointsMap = points.map((point: string, index: number) => {
-    return index !== 0 ? createNode(point, [{ id: points[0], relation: shape }]) : createNode(point);
-  });
-
+  let objectPointsMap;
+  // đường tròn ngoại tiếp, nội tiếp
+  if (shape.point) {
+    objectPointsMap = points.map((point: string) => {
+      return createNode(shape.point[0], [{ id: point, relation: shape }]);
+    });
+  } else {
+    objectPointsMap = points.map((point: string, index: number) => {
+      return index !== 0 ? createNode(point, [{ id: points[0], relation: shape }]) : createNode(point);
+    });
+  }
   objectPointsMap.forEach((node: NodeType) => {
     updateMap(node, dataViewModel.getData.getPointsMap);
   });

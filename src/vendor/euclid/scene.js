@@ -77,7 +77,6 @@ class Scene {
   }
 
   circle(name, centerId, radius) {
-    console.log(name, radius, this.get(centerId));
     return this.add(new Circle(name, this.get(centerId), radius));
   }
 
@@ -120,7 +119,6 @@ class Scene {
     // if an object of the same name but different type or an object that is
     // geometrically equivalent already exists in the scene, do nothing.
     else if (existing || (existing = this.find(object))) {
-      console.log('Tried to add ' + object + ' but ' + existing + ' is already in scene.');
       return this;
     }
     // add a new object to the scene.

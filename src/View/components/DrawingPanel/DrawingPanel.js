@@ -76,7 +76,6 @@ class DrawingPanel extends React.Component<PropsType> {
 
     if (circles) {
       Object.keys(circles).forEach((point) => {
-        console.log(point, circles[point]);
         scene.point(
           point,
           circles[point].center.x * ratio + width / 2 - ratio * anchorX,
@@ -85,8 +84,6 @@ class DrawingPanel extends React.Component<PropsType> {
         scene.circle(`circle-${point}`, point, circles[point].radius * ratio);
       });
     }
-
-    console.log(scene);
 
     scene.update();
     renderGeometry(scene, svg);

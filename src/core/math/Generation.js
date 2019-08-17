@@ -99,6 +99,5 @@ export function generatePointMiddleTwoPoints(p1: CoordinateType, p2: CoordinateT
   const randomPoint = generatePointAlignmentInside(p1, p2);
 
   const randomLine = calculatePerpendicularLineByPointAndLine(randomPoint, line);
-  console.log(randomLine, randomPoint, line, p1, p2);
   return getRandomPointInEquation(randomLine);
 }

@@ -38,7 +38,7 @@ const reversedDependentObjRelation = ['vuông góc', 'cắt'];
 
 const RankingObjectContain = [['point'], ['segment', 'ray'], ['angle']];
 
-const objectWithPoint = ['angle', 'segment', 'ray', 'point'];
+const objectWithPoint = ['angle', 'segment', 'ray', 'point', 'circle'];
 
 const validate = {
   object: {

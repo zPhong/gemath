@@ -14,7 +14,8 @@ import {
   getAngleFromTwoLines,
   getLineFromTwoPoints,
   getMiddlePointFromThreePointsInALine,
-  isIn
+  isIn,
+  calculateIntersectionTwoCircleEquations
 } from '../math/Math2D';
 import {
   generatePointAlignmentInside,
@@ -23,6 +24,7 @@ import {
   getRandomPointInEquation,
   getRandomValue
 } from '../math/Generation.js';
+import ErrorService from '../../utils/ErrorHandleService';
 
 export function readRelation(relation: mixed, point: string) {
   let equationResults;
@@ -31,6 +33,7 @@ export function readRelation(relation: mixed, point: string) {
     equationResults = analyzeOperationType(relation, point);
   } else if (relation.relation) {
     const relationType = relation.relation;
+
     switch (relationType) {
       case 'trung điểm':
       case 'thuộc':
@@ -118,6 +121,7 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
 
   //points = [...new Set(points)].filter((point: string): boolean => !nonStaticPoints.includes(point));
   const relationType = relation.relation;
+  console.log(relationType);
 
   if (
     relationType === 'trung điểm' ||
@@ -126,6 +130,12 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
     relationType === 'thẳng hàng'
   ) {
     let calculatedPoint;
+    if (relation.circle) {
+      calculatedPoint = getRandomPointInEquation(dataViewModel.getCircleEquation(relation.circle[0]));
+      console.log(dataViewModel.getCircleEquation(relation.circle[0]), calculatedPoint);
+      dataViewModel.updateCoordinate(relation.point[0], calculatedPoint);
+      return dataViewModel.getCircleEquation(relation.circle[0]);
+    }
     if (segmentIncludePoint) {
       const otherStaticPoint = relation.point[0];
       const otherStaticNodeInSegment = dataViewModel.getNodeInPointsMapById(segmentIncludePoint.replace(point, ''));
@@ -308,7 +318,34 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
     const calculatedPoint = calculateIntersectionByLineAndLine(calculatedLineEquationOne, calculatedLineEquationTwo);
     dataViewModel.updateCoordinate(relation.point[0], calculatedPoint);
   } else if (relation.circle.length === 2) {
+    const roots = calculateIntersectionTwoCircleEquations(
+      dataViewModel.getCircleEquation(relation.circle[0]),
+      dataViewModel.getCircleEquation(relation.circle[1])
+    );
+
+    roots.forEach((root: CoordinateType, index: number) => {
+      if (!relation.point[index]) {
+        ErrorService.showError('500');
+      } else {
+        dataViewModel.updateCoordinate(relation.point[index], root);
+      }
+    });
   } else {
+    const roots = calculateIntersectionTwoCircleEquations(
+      getLineFromTwoPoints(
+        dataViewModel.getNodeInPointsMapById(relation.segment[0][0]).coordinate,
+        dataViewModel.getNodeInPointsMapById(relation.segment[0][1]).coordinate
+      ),
+      dataViewModel.getCircleEquation(relation.circle[1])
+    );
+
+    roots.forEach((root: CoordinateType, index: number) => {
+      if (!relation.point[index]) {
+        ErrorService.showError('500');
+      } else {
+        dataViewModel.updateCoordinate(relation.point[index], root);
+      }
+    });
   }
 }
 

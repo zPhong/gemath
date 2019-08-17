@@ -34,7 +34,9 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = [new RelationInputModel()];
+    this.relationsInput = [new RelationInputModel('tam giác ABC'),
+    new RelationInputModel('đường tròn tâm O ngoại tiếp ABC'),
+    new RelationInputModel('D thuộc (O)')];
   }
 
   @computed
@@ -379,6 +381,7 @@ class DataViewModel {
     const type = preProgress.outputType;
 
     const result = defineInformation(preProgress);
+    console.log(result)
     if (result.Error || !result.outputType) {
       ErrorService.showError('300');
       return;

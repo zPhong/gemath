@@ -26,11 +26,10 @@ export function defineObject(value) {
   }
 
   if (value.length === 3) {
+    if (value.includes('(') && value.includes(')')) {
+      return 'circle';
+    }
     return 'angle';
-  }
-
-  if (value.includes('(') && value.includes(')') && value.length === 3) {
-    return 'circle';
   }
 
   const formatObj = checkFormatString(value);

@@ -20,6 +20,8 @@ import appData from '../../Model/AppData.js';
 
 export function readPointsMap(): Array | {} {
   dataViewModel.createPointDetails();
+  console.table(dataViewModel.getData.getPointsMap);
+
   while (!dataViewModel.isPointsMapStatic()) {
     //get node to calculate
     const executingNode = dataViewModel.getNextExecuteNode();
@@ -57,6 +59,7 @@ export function readPointsMap(): Array | {} {
           }
           if (data) {
             dataViewModel.circlesData[relation.point[0]] = data;
+            dataViewModel.updateCoordinate(relation.point[0], data.center);
           } else {
             ErrorService.ErrorMessage('400');
           }
@@ -66,7 +69,6 @@ export function readPointsMap(): Array | {} {
           setPointsDirection(relation[shapeName]);
         }
       }
-
       relationEquation = readRelation(relation, executingNode.id);
       if (relationEquation) {
         if (Array.isArray(relationEquation)) {
@@ -137,7 +139,6 @@ export function readPointsMap(): Array | {} {
     //update static Node
     dataViewModel.updateStaticNode();
   }
-  console.table(dataViewModel.getData.getPointsMap);
 
   return dataViewModel.getData.getPointsMap.map((node) => ({
     id: node.id,
