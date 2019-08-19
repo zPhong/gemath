@@ -395,7 +395,7 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
     } else {
       const r1 = root.firstRoot;
       const r2 = root.secondRoot;
-      results.push({ x: (-C - B * root.firstRoot) / A, y: r1 }, { x: (-C - B * root.secondRoot) / A, y: r2 });
+      results.push(makeRoundCoordinate({ x: (-C - B * root.firstRoot) / A, y: r1 }), makeRoundCoordinate({ x: (-C - B * root.secondRoot) / A, y: r2 }));
     }
   } else {
     u = q.a * l.d * l.d;
@@ -406,11 +406,11 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
     const root = calculateQuadraticEquation(u, v, w);
 
     if (typeof root === 'number') {
-      results.push({ x: root, y: -l.e / l.d });
+      results.push(makeRoundCoordinate({ x: root, y: -l.e / l.d }));
     } else if (root === IMPOSSIBLE) {
       return root;
     } else {
-      results.push({ x: root.firstRoot, y: -l.e / l.d }, { x: root.secondRoot, y: -l.e / l.d });
+      results.push(makeRoundCoordinate({ x: root.firstRoot, y: -l.e / l.d }), makeRoundCoordinate({ x: root.secondRoot, y: -l.e / l.d }));
     }
   }
 
@@ -432,7 +432,7 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
       return calculateIntersectionEquationTypeWithCircleEquation(q2, q1);
     }
   } else if (q1.a === 0 && q1.b === 0 && q2.a === 0 && q2.b === 0) {
-    results.push(calculateSetOfEquationTypes(q1, q2));
+    results.push(makeRoundCoordinate(calculateSetOfEquationTypes(q1, q2)));
   } else {
     // a x2 + b y2 + Ax + By + C = 0
     // a'x2 + b'y2 + Dx + Ey + G = 0
@@ -517,6 +517,9 @@ export function calculateLinesByAnotherLineAndAngle(d: EquationType, p: Coordina
 }
 
 export function makeRoundCoordinate(point: CoordinateType) {
+  if(typeof point === 'string'){
+    return point;
+  }
   return {
     x: _makeRound(point.x),
     y: _makeRound(point.y)

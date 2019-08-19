@@ -18,7 +18,7 @@ const defineSentences = {
     '{point} thuộc {object}',
     'trung tuyến {segment} của {triangle}',
     'đường cao {segment} của {triangle}',
-    'tiếp tuyến {segment} của {circle}'
+    '{segment} tiếp tuyến {circle}'
   ],
   shape: [
     'tam giác {type triangle}',

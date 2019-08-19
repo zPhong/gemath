@@ -15,7 +15,9 @@ import {
   getLineFromTwoPoints,
   getMiddlePointFromThreePointsInALine,
   isIn,
-  calculateIntersectionTwoCircleEquations
+  calculateIntersectionTwoCircleEquations,
+  calculateTangentEquation,
+  calculateTangentEquationByPointOutsideCircle
 } from '../math/Math2D';
 import {
   generatePointAlignmentInside,
@@ -47,6 +49,8 @@ export function readRelation(relation: mixed, point: string) {
       case 'cắt':
         equationResults = analyzeIntersectRelation(relation, point);
         break;
+      case 'tiếp tuyến':
+        equationResults = analyzeTangentRelation(relation, point);
       default:
         break;
     }
@@ -529,4 +533,24 @@ function analyzeOperationType(relation: mixed, point: string): any {
       return null;
     }
   }
+}
+
+function analyzeTangentRelation(relation: mixed, point: string): any {
+  const otherPointInSegment = relation.segment[0].replace(point, '');
+  if (!dataViewModel.isStaticNodeById(otherPointInSegment)) {
+    return;
+  }
+
+  const tangentPointCoordinate = dataViewModel.getNodeInPointsMapById(otherPointInSegment).coordinate;
+  const circleEquation = dataViewModel.getCircleEquation(relation.circle[0]);
+  let tangentEquation;
+  if (isIn(tangentPointCoordinate, circleEquation)) {
+    tangentEquation = calculateTangentEquation(circleEquation, tangentPointCoordinate);
+    dataViewModel.updateCoordinate(point,getRandomPointInEquation(tangentEquation))
+  } else {
+    tangentEquation = calculateTangentEquationByPointOutsideCircle(circleEquation, tangentPointCoordinate);
+    dataViewModel.updateCoordinate(point,getRandomPointInEquation(tangentEquation))
+  }
+
+  return tangentEquation;
 }

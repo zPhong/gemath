@@ -39,7 +39,9 @@ class DataViewModel {
       new RelationInputModel('đường tròn tâm O ngoại tiếp ABC'),
       new RelationInputModel('B trung điểm CD'),
       new RelationInputModel('DH vuông góc BC'),
-      new RelationInputModel('HC cắt (O) tại F')
+      new RelationInputModel('HC cắt (O) tại F'),
+      new RelationInputModel('AG tiếp tuyến (O)'),
+      new RelationInputModel('HE tiếp tuyến (O)')
     ];
   }
 

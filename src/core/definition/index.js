@@ -40,6 +40,11 @@ function defineInformation(data) {
         result[type].push(value);
       });
     }
+    if (key === 'circle') {
+      result[key].forEach((value: string, index: number) => {
+        result[key][index] = result[key][index][1];
+      });
+    }
   });
 
   if (data.outputType === 'shape') {
