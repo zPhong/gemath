@@ -475,6 +475,22 @@ class DataViewModel {
     return this.circlesData[centerId].coordinate;
   }
 
+  isCoordinateDuplicated(coordinate: CoordinateType): boolean {
+    const stringifyCoordinate = JSON.stringify(coordinate);
+    let result = false;
+    this.getData.pointsMap.forEach((node: NodeType) => {
+      const key = node.id;
+      if (result) {
+        return;
+      }
+      if (JSON.stringify(stringifyCoordinate) === JSON.stringify(this.getNodeInPointsMapById(key).coordinate)) {
+        result = true;
+      }
+    });
+
+    return result;
+  }
+
   analyzeInput() {
     this.circlesData = {};
     const data = this.RelationsInput.map((relationsInput: RelationInputModel): string => relationsInput.value)

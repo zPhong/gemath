@@ -395,7 +395,10 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
     } else {
       const r1 = root.firstRoot;
       const r2 = root.secondRoot;
-      results.push(makeRoundCoordinate({ x: (-C - B * root.firstRoot) / A, y: r1 }), makeRoundCoordinate({ x: (-C - B * root.secondRoot) / A, y: r2 }));
+      results.push(
+        makeRoundCoordinate({ x: (-C - B * root.firstRoot) / A, y: r1 }),
+        makeRoundCoordinate({ x: (-C - B * root.secondRoot) / A, y: r2 })
+      );
     }
   } else {
     u = q.a * l.d * l.d;
@@ -410,7 +413,10 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
     } else if (root === IMPOSSIBLE) {
       return root;
     } else {
-      results.push(makeRoundCoordinate({ x: root.firstRoot, y: -l.e / l.d }), makeRoundCoordinate({ x: root.secondRoot, y: -l.e / l.d }));
+      results.push(
+        makeRoundCoordinate({ x: root.firstRoot, y: -l.e / l.d }),
+        makeRoundCoordinate({ x: root.secondRoot, y: -l.e / l.d })
+      );
     }
   }
 
@@ -517,7 +523,7 @@ export function calculateLinesByAnotherLineAndAngle(d: EquationType, p: Coordina
 }
 
 export function makeRoundCoordinate(point: CoordinateType) {
-  if(typeof point === 'string'){
+  if (typeof point === 'string') {
     return point;
   }
   return {
@@ -613,7 +619,7 @@ export function calculateTangentEquation(circle: EquationType, point?: Coordinat
   return tangentEquation;
 }
 
-export function calculateTangentEquationByPointOutsideCircle(
+export function calculateTangentIntersectPointsByPointOutsideCircle(
   circle: EquationType,
   point?: CoordinateType = null,
   exceptionPoint?: CoordinateType = null
@@ -631,7 +637,5 @@ export function calculateTangentEquationByPointOutsideCircle(
     roots = roots.filter((root: CoordinateType): boolean => JSON.stringify(root) !== JSON.stringify(exceptionPoint));
   }
 
-  const tangentPoint = roots[getRandomValue(0, roots.length - 1)];
-
-  return calculateTangentEquation(circle, tangentPoint);
+  return roots;
 }

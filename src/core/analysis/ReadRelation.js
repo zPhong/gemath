@@ -17,7 +17,7 @@ import {
   isIn,
   calculateIntersectionTwoCircleEquations,
   calculateTangentEquation,
-  calculateTangentEquationByPointOutsideCircle
+  calculateTangentIntersectPointsByPointOutsideCircle
 } from '../math/Math2D';
 import {
   generatePointAlignmentInside,
@@ -546,11 +546,27 @@ function analyzeTangentRelation(relation: mixed, point: string): any {
   let tangentEquation;
   if (isIn(tangentPointCoordinate, circleEquation)) {
     tangentEquation = calculateTangentEquation(circleEquation, tangentPointCoordinate);
-    dataViewModel.updateCoordinate(point,getRandomPointInEquation(tangentEquation))
+    dataViewModel.updateCoordinate(point, getRandomPointInEquation(tangentEquation));
   } else {
-    tangentEquation = calculateTangentEquationByPointOutsideCircle(circleEquation, tangentPointCoordinate);
-    dataViewModel.updateCoordinate(point,getRandomPointInEquation(tangentEquation))
+    const roots = calculateTangentIntersectPointsByPointOutsideCircle(circleEquation, tangentPointCoordinate);
+    const result = filterTangentPoint(roots, circleEquation);
+    tangentEquation = result.tangentEquation;
+    dataViewModel.updateCoordinate(point, result.point);
   }
 
   return tangentEquation;
+}
+
+function filterTangentPoint(
+  roots: Array<CoordinateType>,
+  circleEquation: EquationType
+): { equation: EquationType, point: CoordinateType } {
+  const filterRoots = roots.filter((root: CoordinateType): boolean => !dataViewModel.isCoordinateDuplicated(root));
+
+  return filterRoots.map((root: CoordinateType): { equation: EquationType, point: CoordinateType } => {
+    return {
+      equation: calculateTangentEquation(circleEquation, root),
+      point: root
+    };
+  })[getRandomValue(0, filterRoots.length - 1)];
 }
