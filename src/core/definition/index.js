@@ -34,7 +34,15 @@ function defineInformation(data) {
         if (type === 'segment') {
           value = sortString(value);
         }
+        if (type === 'circle') {
+          value = value[1].toUpperCase();
+        }
         result[type].push(value);
+      });
+    }
+    if (key === 'circle') {
+      result[key].forEach((value: string, index: number) => {
+        result[key][index] = result[key][index][1];
       });
     }
   });

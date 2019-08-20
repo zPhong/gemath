@@ -10,12 +10,15 @@ const defineSentences = {
   relation: [
     '{object} song song {object}',
     '{object} vuông góc {object}',
-    '{object} cắt {object} tại {point}',
+    '{object} cắt {object} tại {arrayPoints}',
     '{object} phân giác {angle}',
     '{arrayPoints} thẳng hàng',
     '{point} trung điểm {segment}',
     '{point} không thuộc {object}',
-    '{point} thuộc {object}'
+    '{point} thuộc {object}',
+    'trung tuyến {segment} của {triangle}',
+    'đường cao {segment} của {triangle}',
+    '{segment} tiếp tuyến {circle}'
   ],
   shape: [
     'tam giác {type triangle}',
@@ -25,7 +28,7 @@ const defineSentences = {
     'hình chữ nhật {rectangle}',
     'hình thoi {rhombus}',
     'hình vuông {square}',
-    'đường tròn tâm {circle}'
+    'đường tròn tâm {point type triangle}'
   ]
 };
 
@@ -35,12 +38,12 @@ const reversedDependentObjRelation = ['vuông góc', 'cắt'];
 
 const RankingObjectContain = [['point'], ['segment', 'ray'], ['angle']];
 
-const objectWithPoint = ['angle', 'segment', 'ray', 'point'];
+const objectWithPoint = ['angle', 'segment', 'ray', 'point', 'circle'];
 
 const validate = {
   object: {
     define: ['angle', 'segment'],
-    relation: ['ray', 'line', 'segment']
+    relation: ['ray', 'line', 'segment', 'circle']
   },
   point: { length: 1, format: '1' },
   segment: { length: 2, format: '11' },
@@ -58,7 +61,7 @@ const validate = {
     circle: { length: 1, format: '1' }
   },
   shapeType: {
-    triangle: ['', 'vuông', 'cân', 'vuông cân', 'đều'],
+    triangle: ['', 'vuông', 'cân', 'vuông cân', 'đều', 'nội tiếp', 'ngoại tiếp'],
     trapezoid: ['', 'vuông', 'cân']
   }
 };
@@ -98,8 +101,12 @@ const mappingShapeType = {
   vuông: 'right',
   cân: 'isosceles',
   'vuông cân': 'right_isosceles',
-  đều: 'equilateral'
+  đều: 'equilateral',
+  'nội tiếp': 'nội tiếp',
+  'ngoại tiếp': 'ngoại tiếp'
 };
+
+const circleType = ['nội tiếp', 'ngoại tiếp'];
 
 const TwoStaticPointRequireShape = ['triangle', 'rhombus', 'rectangle', 'square'];
 
@@ -112,5 +119,6 @@ export {
   shapeList,
   reversedDependentObjRelation,
   shapeRules,
-  mappingShapeType
+  mappingShapeType,
+  circleType
 };

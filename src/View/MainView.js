@@ -10,7 +10,7 @@ import { Icon, InputItem, SegmentSetting } from './components';
 import { DrawingPanel } from './components/DrawingPanel';
 import { calculateDistanceTwoPoints, calculateVector, isVectorSameDirection } from '../core/math/Math2D';
 import type { DrawingSegmentType, SegmentDataType } from '../utils/types';
-
+import appData from '../Model/AppData';
 @observer
 class MainView extends React.Component {
   constructor(props) {
@@ -420,7 +420,7 @@ class MainView extends React.Component {
           </div>
 
           <div className={'app-drawing-panel'}>
-            <DrawingPanel drawingData={{ points, segments: drawingSegments }} />
+            <DrawingPanel drawingData={{ points, segments: drawingSegments, circles: DataViewModel.circlesData }} />
           </div>
         </div>
 

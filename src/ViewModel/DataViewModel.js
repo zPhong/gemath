@@ -20,6 +20,9 @@ const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
 
 class DataViewModel {
   @observable
+  circlesData = {};
+
+  @observable
   relationsInput: Array<RelationInputModel>;
 
   inputData: Array<mixed> = [];
@@ -31,7 +34,9 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = [new RelationInputModel()];
+    this.relationsInput = [
+      new RelationInputModel()
+    ];
   }
 
   @computed
@@ -110,8 +115,14 @@ class DataViewModel {
 
   updateCoordinate = (nodeId: string, coordinate: CoordinateType): void => {
     const index = this.getIndexOfNodeInPointsMapById(nodeId);
+    const _coordinate = {};
+    Object.keys(coordinate)
+      .sort()
+      .forEach((key: string) => {
+        _coordinate[key] = coordinate[key];
+      });
     if (index !== NOT_FOUND) {
-      this.data.getPointsMap[index].coordinate = coordinate;
+      this.data.getPointsMap[index].coordinate = _coordinate;
     }
   };
 
@@ -392,6 +403,7 @@ class DataViewModel {
     const type = preProgress.outputType;
 
     const result = defineInformation(preProgress);
+    console.log(result);
     if (result.Error || !result.outputType) {
       ErrorService.showError('300');
       return;
@@ -465,7 +477,32 @@ class DataViewModel {
     return count;
   }
 
+  getCircleEquation(centerId: string): EquationType {
+    return this.circlesData[centerId].equation;
+  }
+
+  getCircleCenterCoordinate(centerId: string): CoordinateType {
+    return this.circlesData[centerId].coordinate;
+  }
+
+  isCoordinateDuplicated(coordinate: CoordinateType): boolean {
+    const stringifyCoordinate = JSON.stringify(coordinate);
+    let result = false;
+    this.getData.pointsMap.forEach((node: NodeType) => {
+      const key = node.id;
+      if (result) {
+        return;
+      }
+      if (JSON.stringify(stringifyCoordinate) === JSON.stringify(this.getNodeInPointsMapById(key).coordinate)) {
+        result = true;
+      }
+    });
+
+    return result;
+  }
+
   analyzeInput() {
+    this.circlesData = {};
     const data = this.RelationsInput.map((relationsInput: RelationInputModel): string => relationsInput.value)
       // eslint-disable-next-line no-control-getBasicInformation
       .filter((sentence) => !!sentence)

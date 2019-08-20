@@ -7,16 +7,21 @@ import {
   calculateIntersectionTwoCircleEquations,
   calculateParallelLineByPointAndLine,
   calculatePerpendicularLineByPointAndLine,
-  getLineFromTwoPoints
+  getLineFromTwoPoints,
+  calculateInCircleEquation,
+  calculateCircumCircleEquation
 } from '../math/Math2D';
 import { getRandomValue } from '../math/Generation';
-import { mappingShapeType, shapeRules, TwoStaticPointRequireShape } from '../definition/define';
+import { mappingShapeType, shapeRules, TwoStaticPointRequireShape, circleType } from '../definition/define';
 import { generateGeometry } from '../math/GenerateGeometry';
 import { readRelation } from './ReadRelation';
 import ErrorService from '../../utils/ErrorHandleService.js';
+import appData from '../../Model/AppData.js';
 
 export function readPointsMap(): Array | {} {
   dataViewModel.createPointDetails();
+  console.table(dataViewModel.getData.getPointsMap);
+
   while (!dataViewModel.isPointsMapStatic()) {
     //get node to calculate
     const executingNode = dataViewModel.getNextExecuteNode();
@@ -27,17 +32,44 @@ export function readPointsMap(): Array | {} {
     let shape, shapeName, shapeType;
 
     executingNodeRelations.forEach((relation) => {
+      let relationEquation;
       if (relation.outputType === 'shape') {
         shapeName = Object.keys(relation).filter((key) => key !== 'type')[0];
         shapeType = mappingShapeType[relation.type] || 'normal';
         shape = relation[shapeName];
-        if (!dataViewModel.isExecutedRelation(relation)) {
+        if (circleType.includes(shapeType)) {
+          let data = null;
+          switch (shapeType) {
+            case 'nội tiếp':
+              data = calculateInCircleEquation(
+                dataViewModel.getNodeInPointsMapById(shape[0]).coordinate,
+                dataViewModel.getNodeInPointsMapById(shape[1]).coordinate,
+                dataViewModel.getNodeInPointsMapById(shape[2]).coordinate
+              );
+              break;
+            case 'ngoại tiếp':
+              data = calculateCircumCircleEquation(
+                dataViewModel.getNodeInPointsMapById(shape[0]).coordinate,
+                dataViewModel.getNodeInPointsMapById(shape[1]).coordinate,
+                dataViewModel.getNodeInPointsMapById(shape[2]).coordinate
+              );
+              break;
+            default:
+              break;
+          }
+          if (data) {
+            dataViewModel.circlesData[relation.point[0]] = data;
+            dataViewModel.updateCoordinate(relation.point[0], data.center);
+          } else {
+            ErrorService.ErrorMessage('400');
+          }
+          return;
+        } else if (!dataViewModel.isExecutedRelation(relation)) {
           generateGeometry(relation[shapeName], shapeName, relation.type);
           setPointsDirection(relation[shapeName]);
         }
       }
-
-      let relationEquation = readRelation(relation, executingNode.id);
+      relationEquation = readRelation(relation, executingNode.id);
       if (relationEquation) {
         if (Array.isArray(relationEquation)) {
           relationEquation = relationEquation[getRandomValue(0, relationEquation.length)];
@@ -107,7 +139,6 @@ export function readPointsMap(): Array | {} {
     //update static Node
     dataViewModel.updateStaticNode();
   }
-  console.table(dataViewModel.getData.getPointsMap);
 
   return dataViewModel.getData.getPointsMap.map((node) => ({
     id: node.id,

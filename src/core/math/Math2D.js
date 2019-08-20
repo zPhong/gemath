@@ -1,6 +1,7 @@
 import GConst from '../../utils/values';
-import type { CoordinateType, EquationType, LineType } from '../../utils/types';
+import type { CircleType, CoordinateType, EquationType, LineType } from '../../utils/types';
 import { convertEquationToLineType, convertLinearToEquation, convertLineTypeToEquation } from './Converter';
+import { getRandomPointInEquation, getRandomValue } from './Generation';
 
 const MIN = GConst.Number.MIN_RANDOM_NUMBER;
 const MAX = GConst.Number.MAX_RANDOM_NUMBER;
@@ -272,7 +273,7 @@ export function calculateSetOfEquationTypes(d1: EquationType, d2: EquationType) 
 
   if (d1.d === 0) {
     const tempX = -d1.e / d1.c;
-    return { y: (-d2.e - tempX * d2.c) / d2.d, x: tempX };
+    return { x: tempX, y: (-d2.e - tempX * d2.c) / d2.d };
   }
 
   if (d2.c === 0) {
@@ -282,7 +283,7 @@ export function calculateSetOfEquationTypes(d1: EquationType, d2: EquationType) 
 
   if (d2.d === 0) {
     const tempX = -d2.e / d2.c;
-    return { y: (-d1.e - tempX * d1.c) / d1.d, x: tempX };
+    return { x: tempX, y: (-d1.e - tempX * d1.c) / d1.d };
   }
 
   const tempY = (d1.e * d2.c - d1.c * d2.e) / (d1.d * d2.c + d1.c * d2.d);
@@ -394,7 +395,10 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
     } else {
       const r1 = root.firstRoot;
       const r2 = root.secondRoot;
-      results.push({ x: (-C - B * root.firstRoot) / A, y: r1 }, { x: (-C - B * root.secondRoot) / A, y: r2 });
+      results.push(
+        makeRoundCoordinate({ x: (-C - B * root.firstRoot) / A, y: r1 }),
+        makeRoundCoordinate({ x: (-C - B * root.secondRoot) / A, y: r2 })
+      );
     }
   } else {
     u = q.a * l.d * l.d;
@@ -405,11 +409,14 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
     const root = calculateQuadraticEquation(u, v, w);
 
     if (typeof root === 'number') {
-      results.push({ x: root, y: -l.e / l.d });
+      results.push(makeRoundCoordinate({ x: root, y: -l.e / l.d }));
     } else if (root === IMPOSSIBLE) {
       return root;
     } else {
-      results.push({ x: root.firstRoot, y: -l.e / l.d }, { x: root.secondRoot, y: -l.e / l.d });
+      results.push(
+        makeRoundCoordinate({ x: root.firstRoot, y: -l.e / l.d }),
+        makeRoundCoordinate({ x: root.secondRoot, y: -l.e / l.d })
+      );
     }
   }
 
@@ -431,7 +438,7 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
       return calculateIntersectionEquationTypeWithCircleEquation(q2, q1);
     }
   } else if (q1.a === 0 && q1.b === 0 && q2.a === 0 && q2.b === 0) {
-    results.push(calculateSetOfEquationTypes(q1, q2));
+    results.push(makeRoundCoordinate(calculateSetOfEquationTypes(q1, q2)));
   } else {
     // a x2 + b y2 + Ax + By + C = 0
     // a'x2 + b'y2 + Dx + Ey + G = 0
@@ -460,22 +467,18 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
       if (roots === IMPOSSIBLE) {
         return roots;
       } else if (typeof roots === 'number') {
-        results.push({
-          x: (-c - b * roots) / a,
-          y: roots
-        });
+        results.push(
+          makeRoundCoordinate({
+            x: (-c - b * roots) / a,
+            y: roots
+          })
+        );
       } else {
         const r1 = roots.firstRoot;
         const r2 = roots.secondRoot;
         results.push(
-          {
-            x: (-c - b * roots.firstRoot) / a,
-            y: r1
-          },
-          {
-            x: (-c - b * roots.secondRoot) / a,
-            y: r2
-          }
+          makeRoundCoordinate({ x: (-c - b * roots.firstRoot) / a, y: r1 }),
+          makeRoundCoordinate({ x: (-c - b * roots.secondRoot) / a, y: r2 })
         );
       }
     }
@@ -520,6 +523,9 @@ export function calculateLinesByAnotherLineAndAngle(d: EquationType, p: Coordina
 }
 
 export function makeRoundCoordinate(point: CoordinateType) {
+  if (typeof point === 'string') {
+    return point;
+  }
   return {
     x: _makeRound(point.x),
     y: _makeRound(point.y)
@@ -556,4 +562,80 @@ export function getMiddlePointFromThreePointsInALine(
   if (dis_p1_p2 === max) return p3;
   else if (dis_p1_p3 === max) return p2;
   else return p1;
+}
+
+export function calculateCircumCircleEquation(p1: CoordinateType, p2: CoordinateType, p3: CoordinateType): CircleType {
+  const midperpendicularsLineOne = calculatePerpendicularLineByPointAndLine(
+    calculateMiddlePoint(p1, p2),
+    getLineFromTwoPoints(p1, p2)
+  );
+
+  const midperpendicularsLineTwo = calculatePerpendicularLineByPointAndLine(
+    calculateMiddlePoint(p1, p3),
+    getLineFromTwoPoints(p1, p3)
+  );
+
+  const center = calculateIntersectionByLineAndLine(midperpendicularsLineOne, midperpendicularsLineTwo);
+  const radius = calculateDistanceTwoPoints(center, p1);
+
+  const equation = calculateCircleEquationByCenterPoint(center, radius);
+
+  return { center, radius, equation };
+}
+
+export function calculateInCircleEquation(p1: CoordinateType, p2: CoordinateType, p3: CoordinateType): CircleType {
+  const bisectorLineOne = calculateInternalBisectLineEquation(
+    getLineFromTwoPoints(p1, p3),
+    getLineFromTwoPoints(p1, p2),
+    p2,
+    p3
+  );
+
+  const bisectorLineTwo = calculateInternalBisectLineEquation(
+    getLineFromTwoPoints(p2, p3),
+    getLineFromTwoPoints(p1, p2),
+    p1,
+    p3
+  );
+
+  const center = calculateIntersectionByLineAndLine(bisectorLineOne, bisectorLineTwo);
+  const radius = calculateDistanceFromPointToLine(center, getLineFromTwoPoints(p1, p3));
+
+  const equation = calculateCircleEquationByCenterPoint(center, radius);
+  return { center, radius, equation };
+}
+
+export function calculateTangentEquation(circle: EquationType, point?: CoordinateType = null): EquationType {
+  const tangentPoint: CoordinateType = point || getRandomPointInEquation(circle);
+
+  const tangentEquation: EquationType = {};
+
+  tangentEquation.a = 0;
+  tangentEquation.b = 0;
+  tangentEquation.c = tangentPoint.x + circle.c / 2;
+  tangentEquation.d = tangentPoint.y + circle.d / 2;
+  tangentEquation.e = circle.e + (circle.c * tangentPoint.x) / 2 + (circle.d * tangentPoint.y) / 2;
+
+  return tangentEquation;
+}
+
+export function calculateTangentIntersectPointsByPointOutsideCircle(
+  circle: EquationType,
+  point?: CoordinateType = null,
+  exceptionPoint?: CoordinateType = null
+): EquationType {
+  const center: CoordinateType = { x: -circle.c / 2, y: -circle.d / 2 };
+
+  const tempCircleCenter = calculateMiddlePoint(center, point);
+  const tempCircleRadius = calculateDistanceTwoPoints(center, point) / 2;
+
+  const tempCircleEquation = calculateCircleEquationByCenterPoint(tempCircleCenter, tempCircleRadius);
+
+  let roots = calculateIntersectionTwoCircleEquations(circle, tempCircleEquation);
+
+  if (exceptionPoint) {
+    roots = roots.filter((root: CoordinateType): boolean => JSON.stringify(root) !== JSON.stringify(exceptionPoint));
+  }
+
+  return roots;
 }

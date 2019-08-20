@@ -8,4 +8,8 @@ export default class RelationInputModel {
 
   @observable
   status: string = GConst.InputStatus.NORMAL;
+
+  constructor(value: string) {
+    this.value = value;
+  }
 }
