@@ -61,10 +61,7 @@ class InputItem extends React.Component<PropsType> {
         onSubmit();
       }
     } else if (e.keyCode === KEYCODE.BACKSPACE) {
-      if (!value) {
-        this.setState({ shouldRemove: true });
-      }
-      if (this.state.shouldRemove && onBackspace) {
+      if (onBackspace && value.length === 0) {
         onBackspace();
       }
     }
