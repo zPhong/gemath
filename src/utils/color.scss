@@ -1,0 +1,10 @@
+// variables.scss
+$success-input-status-color: #28a745;
+$error-input-status-color: #dc3545;
+$normal-input-status-color: #6c757d;
+
+:export {
+  inputSuccess: $success-input-status-color;
+  inputError: $error-input-status-color;
+  inputNormal: $normal-input-status-color;
+}
