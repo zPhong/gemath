@@ -61,13 +61,14 @@ class InputItem extends React.Component<PropsType> {
         onSubmit();
       }
     } else if (e.keyCode === KEYCODE.BACKSPACE) {
-      if (onBackspace && value.length === 0) {
+      if (onBackspace) {
         onBackspace();
       }
     }
   }
+
   render(): React.Node {
-    const { status } = this.props;
+    const { status, value } = this.props;
     return (
       <div className="input-item">
         <div className="input-group input-container">
@@ -81,6 +82,7 @@ class InputItem extends React.Component<PropsType> {
             ref={this.inputRef}
             onChange={this.onChange}
             onKeyUp={this.onKeyUp}
+            value={value}
             className={`form-control ${status.toLowerCase()}`}
             aria-describedby="basic-addon1"
           />

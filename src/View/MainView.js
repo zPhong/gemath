@@ -180,9 +180,9 @@ class MainView extends React.Component {
   @autobind
   onBackspace(index: number) {
     const value = DataViewModel.RelationsInput[index].value;
-    if (index === DataViewModel.RelationsInput.length - 1 && index > 0 && value.length === 0) {
-      DataViewModel.removeInput();
-      this.inputRefs.pop();
+    if (value.length === 0 && this.inputRefs.length > 1) {
+      DataViewModel.removeInput(index);
+      this.inputRefs.splice(index, 1);
       this.setState({ focusIndex: index - 1 });
     }
   }
@@ -190,6 +190,11 @@ class MainView extends React.Component {
   @autobind
   onClickDrawing() {
     const data = DataViewModel.analyzeInput();
+    if (data.points.length === 0 && data.segments.length === 0) {
+      DataViewModel.resetInputsStatus();
+      return;
+    }
+
     this.setState({
       points: data.points,
       segments: data.segments,
@@ -305,7 +310,7 @@ class MainView extends React.Component {
   }
 
   render() {
-    const { points, drawingSegments } = this.state;
+    const { points, drawingSegments, segments } = this.state;
     return (
       <div className={'container-fluid'}>
         <div className={'app-header'}>
@@ -340,10 +345,6 @@ class MainView extends React.Component {
                           Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
                           squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
                           nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
-                          single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer
-                          labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo.
-                          Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably
-                          haven't heard of them accusamus labore sustainable VHS.
                         </span>
                       </Tooltip>
                     }>
@@ -360,7 +361,11 @@ class MainView extends React.Component {
                   <div className="card-body">
                     <div>
                       {this.renderRelationInput()}
-                      <Button type="button" className="btn btn-success w-100" onClick={this.onClickDrawing}>
+                      <Button
+                        type="button"
+                        className="btn btn-success w-100"
+                        onClick={this.onClickDrawing}
+                        disabled={DataViewModel.isInputEmpty}>
                         Vẽ hình
                       </Button>
                     </div>

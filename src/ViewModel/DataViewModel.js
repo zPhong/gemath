@@ -39,11 +39,27 @@ class DataViewModel {
     return this.relationsInput;
   }
 
+  @computed
+  get isInputEmpty(): boolean {
+    if (this.relationsInput.length === 1 && !this.relationsInput[0].value) {
+      return true;
+    }
+    return false;
+  }
+
+  @action
+  resetInputsStatus() {
+    this.relationsInput.forEach((input: RelationInputModel) => {
+      input.status = GConst.InputStatus.NORMAL;
+    });
+  }
+
   @action
   onInputChange(value: string, index: number) {
     const newRelationInput = { ...this.relationsInput[index] };
     newRelationInput.value = value;
     this.relationsInput[index] = newRelationInput;
+    this.resetInputsStatus();
   }
 
   @action
@@ -52,8 +68,8 @@ class DataViewModel {
   }
 
   @action
-  removeInput() {
-    this.relationsInput.pop();
+  removeInput(index: number) {
+    this.relationsInput.splice(index, 1);
   }
 
   clear() {
