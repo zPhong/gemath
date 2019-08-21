@@ -39,7 +39,7 @@ class ErrorHandleService {
     }
 
     alert(ErrorCode[code]);
-    throw ErrorCode[code];
+    throw console.error('error', ErrorCode[code]);
   }
 }
 

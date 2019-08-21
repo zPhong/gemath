@@ -34,7 +34,16 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = [new RelationInputModel('')];
+    this.relationsInput = [
+      new RelationInputModel('hình bình hành ABCD'),
+      new RelationInputModel('AB = 5'),
+      new RelationInputModel('AD = 7'),
+      new RelationInputModel('AC cắt BD tại O'),
+      new RelationInputModel('M trung điểm CD'),
+      new RelationInputModel('MI vuông góc BD'),
+      new RelationInputModel('MO cắt AB tại N'),
+      new RelationInputModel('NK vuông góc AC')
+    ];
   }
 
   @computed
@@ -120,7 +129,7 @@ class DataViewModel {
         _coordinate[key] = coordinate[key];
       });
     if (index !== NOT_FOUND) {
-      this.data.getPointsMap[index].coordinate = _coordinate;
+      this.data.getPointsMap[index].coordinate = makeRoundCoordinate(_coordinate);
     }
   };
 

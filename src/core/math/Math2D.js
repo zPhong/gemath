@@ -10,7 +10,11 @@ const IMPOSSIBLE = GConst.String.IMPOSSIBLE;
 const NOT_BE_IN_LINE = GConst.String.NOT_BE_IN_LINE;
 
 function _makeRound(num: number, f: number = 3): number {
+  if (isNaN(num)) {
+    throw console.error('error', num);
+  }
   const myF = Math.pow(10, f);
+  // console.log(num, Math.round(num * myF) / myF);
   return Math.round(num * myF) / myF;
 }
 
@@ -285,8 +289,7 @@ export function calculateSetOfEquationTypes(d1: EquationType, d2: EquationType) 
     const tempX = -d2.e / d2.c;
     return { x: tempX, y: (-d1.e - tempX * d1.c) / d1.d };
   }
-
-  const tempY = (d1.e * d2.c - d1.c * d2.e) / (d1.d * d2.c + d1.c * d2.d);
+  const tempY = (d1.e * d2.c - d1.c * d2.e) / (d1.d * d2.c - d1.c * d2.d);
   return { x: (-d1.e - d1.d * tempY) / d1.c, y: tempY };
 }
 
@@ -438,6 +441,7 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
       return calculateIntersectionEquationTypeWithCircleEquation(q2, q1);
     }
   } else if (q1.a === 0 && q1.b === 0 && q2.a === 0 && q2.b === 0) {
+    console.log(q1, q2, calculateSetOfEquationTypes(q1, q2));
     results.push(makeRoundCoordinate(calculateSetOfEquationTypes(q1, q2)));
   } else {
     // a x2 + b y2 + Ax + By + C = 0

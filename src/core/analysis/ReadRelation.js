@@ -255,6 +255,7 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
       const calculatedPoint = isInStaticLine
         ? getRandomPointInEquation(calculatedLineEquation)
         : calculateIntersectionByLineAndLine(calculatedLineEquation, staticLineEquation);
+
       dataViewModel.updateCoordinate(point, calculatedPoint);
     }
     if (relationType === 'song song') {
