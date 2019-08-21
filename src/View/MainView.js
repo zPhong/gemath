@@ -180,7 +180,7 @@ class MainView extends React.Component {
   @autobind
   onBackspace(index: number) {
     const value = DataViewModel.RelationsInput[index].value;
-    if (value.length === 0 && this.inputRefs.length > 1) {
+    if (value.length === 0 && DataViewModel.RelationsInput.length > 1) {
       DataViewModel.removeInput(index);
       this.inputRefs.splice(index, 1);
       this.setState({ focusIndex: index - 1 });

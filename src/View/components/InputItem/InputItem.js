@@ -26,7 +26,8 @@ class InputItem extends React.Component<PropsType> {
   constructor(props: PropsType) {
     super(props);
     this.state = {
-      shouldRemove: true
+      shouldRemove: true,
+      isEmpty: true
     };
   }
   inputRef: ReactRefs = React.createRef();
@@ -41,6 +42,17 @@ class InputItem extends React.Component<PropsType> {
   onChange(e: React.FormEvent<HTMLInputElement>) {
     const value = e.currentTarget.value;
     const { onValueChange } = this.props;
+
+    if (value.length === 0) {
+      if (!this.state.isEmpty) {
+        this.setState({ isEmpty: true });
+      }
+    } else {
+      this.setState({
+        isEmpty: false,
+        shouldRemove: false
+      });
+    }
     if (onValueChange) {
       onValueChange(value);
     }
@@ -50,17 +62,17 @@ class InputItem extends React.Component<PropsType> {
   onKeyUp(e: React.KeyboardEvent<FormControl>) {
     const { onBackspace, onSubmit, value } = this.props;
 
-    if (value) {
-      this.setState({
-        shouldRemove: false
-      });
-    }
-
     if (e.keyCode === KEYCODE.ENTER) {
       if (onSubmit) {
         onSubmit();
       }
     } else if (e.keyCode === KEYCODE.BACKSPACE) {
+      if (this.state.isEmpty && !this.state.shouldRemove) {
+        this.setState({
+          shouldRemove: true
+        });
+        return;
+      }
       if (onBackspace) {
         onBackspace();
       }
