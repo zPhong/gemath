@@ -34,9 +34,7 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = [
-      new RelationInputModel()
-    ];
+    this.relationsInput = [new RelationInputModel('')];
   }
 
   @computed
@@ -69,7 +67,7 @@ class DataViewModel {
 
   @action
   addNewInput() {
-    this.relationsInput.push(new RelationInputModel());
+    this.relationsInput.push(new RelationInputModel(''));
   }
 
   @action
