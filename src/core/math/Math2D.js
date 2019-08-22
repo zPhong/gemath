@@ -26,7 +26,7 @@ export function calculateVector(firstPoint: CoordinateType, secondPoint: Coordin
 }
 
 export function isVectorSameDirection(firstVector: CoordinateType, secondVector: CoordinateType): boolean {
-  return _makeRound(firstVector.x / secondVector.x) === _makeRound(firstVector.y / secondVector.y);
+  return _makeRound(firstVector.x * secondVector.y) === _makeRound(firstVector.y * secondVector.x);
 }
 
 export function calculateMiddlePoint(firstPoint: CoordinateType, secondPoint: CoordinateType): CoordinateType {

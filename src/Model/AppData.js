@@ -23,6 +23,10 @@ class AppData {
     this.relationsResult = value;
   }
 
+  pushAdditionSegment(segment: string) {
+    this.additionSegment.push(segment);
+  }
+
   get getAdditionSegment() {
     return this.additionSegment;
   }

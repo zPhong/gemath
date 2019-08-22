@@ -256,6 +256,11 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
         ? getRandomPointInEquation(calculatedLineEquation)
         : calculateIntersectionByLineAndLine(calculatedLineEquation, staticLineEquation);
 
+      if (!isInStaticLine) {
+        dataViewModel.getData.pushAdditionSegment(`${point}${segmentNotIncludePoint[1]}`);
+        dataViewModel.getData.pushAdditionSegment(`${point}${segmentNotIncludePoint[0]}`);
+      }
+
       dataViewModel.updateCoordinate(point, calculatedPoint);
     }
     if (relationType === 'song song') {
@@ -320,6 +325,12 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
       dataViewModel.getNodeInPointsMapById(relation.segment[1][0]).coordinate,
       dataViewModel.getNodeInPointsMapById(relation.segment[1][1]).coordinate
     );
+
+    relation.segment.forEach((segment: string) => {
+      console.log(segment);
+      dataViewModel.getData.pushAdditionSegment(`${relation.point[0]}${segment[0]}`);
+      dataViewModel.getData.pushAdditionSegment(`${relation.point[0]}${segment[1]}`);
+    });
 
     const calculatedPoint = calculateIntersectionByLineAndLine(calculatedLineEquationOne, calculatedLineEquationTwo);
     dataViewModel.updateCoordinate(relation.point[0], calculatedPoint);
