@@ -70,6 +70,7 @@ export function readPointsMap(): Array | {} {
         }
       }
       relationEquation = readRelation(relation, executingNode.id);
+      console.log(executingNode.id, relation, relationEquation);
       if (relationEquation) {
         if (Array.isArray(relationEquation)) {
           relationEquation = relationEquation[getRandomValue(0, relationEquation.length)];
@@ -180,7 +181,7 @@ export function _makeUniqueNodeRelation(dependentNodes: Array<NodeRelationType>)
 }
 
 function makeCorrectShape(shape: string, shapeName: string, rules: string, nonStaticPoint: string) {
-  const staticPointCountRequire = TwoStaticPointRequireShape.includes(shapeName) ? 2 : 1;
+  const staticPointCountRequire = TwoStaticPointRequireShape.includes(shapeName) ? 3 : 1;
   let staticPoints = shape.replace(nonStaticPoint, '').split('');
   // check other points are static
   let count = 0;
@@ -189,6 +190,7 @@ function makeCorrectShape(shape: string, shapeName: string, rules: string, nonSt
       count++;
     }
   }
+
   if (count < staticPointCountRequire) {
     return;
   }

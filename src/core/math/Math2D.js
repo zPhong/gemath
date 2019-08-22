@@ -441,7 +441,6 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
       return calculateIntersectionEquationTypeWithCircleEquation(q2, q1);
     }
   } else if (q1.a === 0 && q1.b === 0 && q2.a === 0 && q2.b === 0) {
-    console.log(q1, q2, calculateSetOfEquationTypes(q1, q2));
     results.push(makeRoundCoordinate(calculateSetOfEquationTypes(q1, q2)));
   } else {
     // a x2 + b y2 + Ax + By + C = 0

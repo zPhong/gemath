@@ -34,16 +34,7 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = [
-      new RelationInputModel('hình bình hành ABCD'),
-      new RelationInputModel('AB = 5'),
-      new RelationInputModel('AD = 7'),
-      new RelationInputModel('AC cắt BD tại O'),
-      new RelationInputModel('M trung điểm CD'),
-      new RelationInputModel('MI vuông góc BD'),
-      new RelationInputModel('MO cắt AB tại N'),
-      new RelationInputModel('NK vuông góc AC')
-    ];
+    this.relationsInput = [new RelationInputModel('hình chữ nhật ABCD'), new RelationInputModel('AD = 5')];
   }
 
   @computed

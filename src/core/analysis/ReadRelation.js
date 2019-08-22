@@ -75,17 +75,24 @@ export function readRelation(relation: mixed, point: string) {
               count++;
             }
           });
-          const limit = shapeType === 'rectangle' || shapeType === 'square' ? 1 : 2;
+          const limit = 2;
           if (count > limit) {
             return;
           }
         }
         let index = relation[shapeType].indexOf(point);
-        index = index === 0 ? relation[shapeType].length - 1 : index - 1;
-        equationResults = getLineFromTwoPoints(
-          dataViewModel.getNodeInPointsMapById(relation[shapeType][index]).coordinate,
-          dataViewModel.getNodeInPointsMapById(point).coordinate
-        );
+        if (index === relation[shapeType].length - 1) {
+          equationResults = getLineFromTwoPoints(
+            dataViewModel.getNodeInPointsMapById(relation[shapeType][index]).coordinate,
+            dataViewModel.getNodeInPointsMapById(relation[shapeType][0]).coordinate
+          );
+        } else {
+          index = index === 0 ? relation[shapeType].length - 1 : index - 1;
+          equationResults = getLineFromTwoPoints(
+            dataViewModel.getNodeInPointsMapById(relation[shapeType][index]).coordinate,
+            dataViewModel.getNodeInPointsMapById(point).coordinate
+          );
+        }
         break;
       default:
         break;
