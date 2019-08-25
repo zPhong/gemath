@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/gemath/static/css/main.1e11cea4.chunk.css",
-    "main.js": "/gemath/static/js/main.66e781de.chunk.js",
-    "main.js.map": "/gemath/static/js/main.66e781de.chunk.js.map",
+    "main.js": "/gemath/static/js/main.61c0ac43.chunk.js",
+    "main.js.map": "/gemath/static/js/main.61c0ac43.chunk.js.map",
     "runtime~main.js": "/gemath/static/js/runtime~main.2912cca0.js",
     "runtime~main.js.map": "/gemath/static/js/runtime~main.2912cca0.js.map",
     "static/js/2.0074ec14.chunk.js": "/gemath/static/js/2.0074ec14.chunk.js",
     "static/js/2.0074ec14.chunk.js.map": "/gemath/static/js/2.0074ec14.chunk.js.map",
     "index.html": "/gemath/index.html",
-    "precache-manifest.cf2405f9e198995f1a70e0b224690968.js": "/gemath/precache-manifest.cf2405f9e198995f1a70e0b224690968.js",
+    "precache-manifest.2cf9ac39d145bee85013da910567bc86.js": "/gemath/precache-manifest.2cf9ac39d145bee85013da910567bc86.js",
     "service-worker.js": "/gemath/service-worker.js",
     "static/css/main.1e11cea4.chunk.css.map": "/gemath/static/css/main.1e11cea4.chunk.css.map",
     "static/media/MainView.scss": "/gemath/static/media/HelveticaNeue-Light.35321a78.otf",
