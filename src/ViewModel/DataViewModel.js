@@ -14,6 +14,8 @@ import { observable, action, computed } from 'mobx';
 import ErrorService from '../utils/ErrorHandleService';
 import { observer } from 'mobx-react';
 import autobind from 'autobind-decorator';
+import { isTwoEquationEqual } from '../core/math/Math2D';
+import { getRandomValue } from '../core/math/Generation';
 
 const NOT_FOUND = GConst.Number.NOT_FOUND;
 const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
@@ -34,7 +36,11 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = [new RelationInputModel('')];
+    this.relationsInput = [
+      new RelationInputModel('hình thoi ABCD'),
+      new RelationInputModel('AD = 5'),
+      new RelationInputModel('ADC = 60')
+    ];
   }
 
   @computed
@@ -111,7 +117,7 @@ class DataViewModel {
     return false;
   };
 
-  updateCoordinate = (nodeId: string, coordinate: CoordinateType): void => {
+  updateCoordinate = (nodeId: string, coordinate: CoordinateType, f: number = 3): void => {
     const index = this.getIndexOfNodeInPointsMapById(nodeId);
     const _coordinate = {};
     Object.keys(coordinate)
@@ -120,7 +126,7 @@ class DataViewModel {
         _coordinate[key] = coordinate[key];
       });
     if (index !== NOT_FOUND) {
-      this.data.getPointsMap[index].coordinate = _coordinate;
+      this.data.getPointsMap[index].coordinate = makeRoundCoordinate(_coordinate, f);
     }
   };
 
@@ -298,6 +304,69 @@ class DataViewModel {
     } else return NOT_ENOUGH_SET;
   };
 
+  replaceSetOfEquation(pointId: string, searchEquation: EquationType, replaceEquation: EquationType) {
+    const pointDetail = this.data.getPointDetails.get(pointId);
+    const setOfEquation = pointDetail.setOfEquation;
+    let isReplaceComplete = false;
+    setOfEquation.forEach((equation: EquationType, index: numer) => {
+      if (isTwoEquationEqual(equation, searchEquation)) {
+        setOfEquation[index] = replaceEquation;
+        isReplaceComplete = true;
+      }
+    });
+    if (!isReplaceComplete) {
+      setOfEquation.push(replaceEquation);
+    }
+
+    const roots = this._calculateSet(setOfEquation);
+    this.data.getPointDetails.set(pointId, {
+      ...pointDetail,
+      setOfEquation,
+      roots
+    });
+
+    if (roots.length > 0) {
+      let coordinate;
+      if (dataViewModel.isNeedRandomCoordinate(pointId)) {
+        coordinate = roots[getRandomValue(0, roots.length)];
+      } else {
+        const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[pointId];
+        const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
+        if (roots.length > 1 && typeof roots !== 'string') {
+          const rootsDirection = roots.map((root) => ({
+            coordinate: root,
+            isRight: root.x > staticPointCoordinate.x,
+            isUp: root.y < staticPointCoordinate.y
+          }));
+
+          const coordinateMatch = rootsDirection
+            .map((directionInfo) => {
+              let matchCount = 0;
+              if (directionInfo.isRight === nodeDirectionInfo.isRight) {
+                matchCount++;
+              }
+              if (directionInfo.isUp === nodeDirectionInfo.isUp) {
+                matchCount++;
+              }
+              return {
+                coordinate: directionInfo.coordinate,
+                matchCount
+              };
+            })
+            .sort((a, b) => b.matchCount - a.matchCount)[0];
+
+          coordinate = coordinateMatch.coordinate;
+        } else {
+          if (typeof roots === 'string') {
+            return;
+          }
+          coordinate = roots[0];
+        }
+      }
+      dataViewModel.updateCoordinate(pointId, coordinate);
+    }
+  }
+
   _updatePointDetails(pointId: string, pointDetails: PointDetailsType) {
     this.data.getPointDetails.set(pointId, {
       setOfEquation: pointDetails.setOfEquation,
@@ -366,7 +435,6 @@ class DataViewModel {
       ErrorService.showError('500');
       return;
     }
-
     temp = temp.filter((root) => {
       return isIn(root, equation);
     });
@@ -401,7 +469,6 @@ class DataViewModel {
     const type = preProgress.outputType;
 
     const result = defineInformation(preProgress);
-    console.log(result);
     if (result.Error || !result.outputType) {
       ErrorService.showError('300');
       return;

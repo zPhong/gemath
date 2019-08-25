@@ -16,6 +16,8 @@ import {
   getMiddlePointFromThreePointsInALine,
   isIn,
   calculateIntersectionTwoCircleEquations,
+  isVectorInSameLine,
+  calculateVector,
   calculateTangentEquation,
   calculateTangentIntersectPointsByPointOutsideCircle
 } from '../math/Math2D';
@@ -27,9 +29,11 @@ import {
   getRandomValue
 } from '../math/Generation.js';
 import ErrorService from '../../utils/ErrorHandleService';
+import { ShapeAffectBySegmentChange } from '../definition/define';
 
 export function readRelation(relation: mixed, point: string) {
   let equationResults;
+
   dataViewModel.executingRelation = relation;
   if (relation.operation) {
     equationResults = analyzeOperationType(relation, point);
@@ -51,8 +55,9 @@ export function readRelation(relation: mixed, point: string) {
         break;
       case 'tiếp tuyến':
         equationResults = analyzeTangentRelation(relation, point);
-      default:
         break;
+      default:
+        equationResults = null;
     }
   } else if (relation.outputType === 'shape') {
     const shapeType = Object.keys(relation).filter((key) => key !== 'type')[0];
@@ -66,6 +71,7 @@ export function readRelation(relation: mixed, point: string) {
       case 'quadrilateral':
       case 'rectangle':
       case 'square':
+      case 'rhombus':
       case 'trapezoid':
       case 'parallelogram':
         if (shapeType !== 'quadrilateral') {
@@ -75,17 +81,24 @@ export function readRelation(relation: mixed, point: string) {
               count++;
             }
           });
-          const limit = shapeType === 'rectangle' || shapeType === 'square' ? 1 : 2;
+          const limit = 2;
           if (count > limit) {
             return;
           }
         }
         let index = relation[shapeType].indexOf(point);
-        index = index === 0 ? relation[shapeType].length - 1 : index - 1;
-        equationResults = getLineFromTwoPoints(
-          dataViewModel.getNodeInPointsMapById(relation[shapeType][index]).coordinate,
-          dataViewModel.getNodeInPointsMapById(point).coordinate
-        );
+        if (index === relation[shapeType].length - 1) {
+          equationResults = getLineFromTwoPoints(
+            dataViewModel.getNodeInPointsMapById(relation[shapeType][index]).coordinate,
+            dataViewModel.getNodeInPointsMapById(relation[shapeType][0]).coordinate
+          );
+        } else {
+          index = index === 0 ? relation[shapeType].length - 1 : index - 1;
+          equationResults = getLineFromTwoPoints(
+            dataViewModel.getNodeInPointsMapById(relation[shapeType][index]).coordinate,
+            dataViewModel.getNodeInPointsMapById(point).coordinate
+          );
+        }
         break;
       default:
         break;
@@ -125,7 +138,6 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
 
   //points = [...new Set(points)].filter((point: string): boolean => !nonStaticPoints.includes(point));
   const relationType = relation.relation;
-  console.log(relationType);
 
   if (
     relationType === 'trung điểm' ||
@@ -136,7 +148,6 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
     let calculatedPoint;
     if (relation.circle) {
       calculatedPoint = getRandomPointInEquation(dataViewModel.getCircleEquation(relation.circle[0]));
-      console.log(dataViewModel.getCircleEquation(relation.circle[0]), calculatedPoint);
       dataViewModel.updateCoordinate(relation.point[0], calculatedPoint);
       return dataViewModel.getCircleEquation(relation.circle[0]);
     }
@@ -255,6 +266,12 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
       const calculatedPoint = isInStaticLine
         ? getRandomPointInEquation(calculatedLineEquation)
         : calculateIntersectionByLineAndLine(calculatedLineEquation, staticLineEquation);
+
+      if (!isInStaticLine) {
+        dataViewModel.getData.pushAdditionSegment(`${point}${segmentNotIncludePoint[1]}`);
+        dataViewModel.getData.pushAdditionSegment(`${point}${segmentNotIncludePoint[0]}`);
+      }
+
       dataViewModel.updateCoordinate(point, calculatedPoint);
     }
     if (relationType === 'song song') {
@@ -320,6 +337,11 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
       dataViewModel.getNodeInPointsMapById(relation.segment[1][1]).coordinate
     );
 
+    relation.segment.forEach((segment: string) => {
+      dataViewModel.getData.pushAdditionSegment(`${relation.point[0]}${segment[0]}`);
+      dataViewModel.getData.pushAdditionSegment(`${relation.point[0]}${segment[1]}`);
+    });
+
     const calculatedPoint = calculateIntersectionByLineAndLine(calculatedLineEquationOne, calculatedLineEquationTwo);
     dataViewModel.updateCoordinate(relation.point[0], calculatedPoint);
   } else if (relation.circle.length === 2) {
@@ -348,7 +370,6 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
         JSON.stringify(root) !== JSON.stringify(pointOne) && JSON.stringify(root) !== JSON.stringify(pointTwo)
     );
 
-    console.log(roots);
     roots.forEach((root: CoordinateType, index: number) => {
       if (!relation.point[index]) {
         ErrorService.showError('500');
@@ -417,16 +438,8 @@ function analyzeOperationType(relation: mixed, point: string): any {
         staticValue
       );
     }
-    const staticLineInAngle = getLineFromTwoPoints(
-      dataViewModel.getNodeInPointsMapById(objectsIncludePoint[0].replace(point, '')[0]).coordinate,
-      dataViewModel.getNodeInPointsMapById(objectsIncludePoint[0].replace(point, '')[1]).coordinate
-    );
 
-    return calculateLinesByAnotherLineAndAngle(
-      staticLineInAngle,
-      dataViewModel.getNodeInPointsMapById(objectsIncludePoint[0].replace(point, '')[1]).coordinate,
-      staticValue
-    );
+    return calculateLineEquationByAngleRelation(objectsIncludePoint[0], staticValue);
   }
   if (objectsIncludePoint.length === 2) {
     if (objectType === 'segment') {
@@ -533,6 +546,88 @@ function analyzeOperationType(relation: mixed, point: string): any {
       return null;
     }
   }
+}
+
+function calculateLineEquationByAngleRelation(angleName: string, angleValue: number): EquationType {
+  const modifiedAngleName = renameAngle(angleName);
+  const staticPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[0]).coordinate;
+  const rootPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[1]).coordinate;
+  const changedPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[2]).coordinate;
+  const calculatedEquation = calculateLinesByAnotherLineAndAngle(rootPoint, staticPoint, changedPoint, angleValue);
+  if (modifiedAngleName === angleName) {
+    return calculatedEquation;
+  }
+  const transitionVector = calculateVector(
+    rootPoint,
+    calculateIntersectionByLineAndLine(getLineFromTwoPoints(rootPoint, staticPoint), calculatedEquation),
+    false
+  );
+
+  dataViewModel.updateCoordinate(modifiedAngleName[0], {
+    x: staticPoint.x + transitionVector.x,
+    y: staticPoint.y + transitionVector.y
+  });
+
+  dataViewModel.replaceSetOfEquation(
+    modifiedAngleName[1],
+    getLineFromTwoPoints(rootPoint, changedPoint),
+    calculatedEquation
+  );
+
+  return null;
+}
+
+function getShapeAffectList(): Array<string> {
+  const shapeList = [];
+
+  //get list of shape name
+  dataViewModel.getData.relationsResult.shapes.forEach((shapeData: Object): boolean => {
+    const shapeType = Object.keys(shapeData).filter((key: string): boolean => key !== 'outputType')[0];
+    if (ShapeAffectBySegmentChange.includes(shapeType)) {
+      shapeList.push(shapeData[shapeType]);
+    }
+  });
+
+  return shapeList;
+}
+
+function renameAngle(angle: string): string {
+  const shapeList = getShapeAffectList();
+
+  const secondLine = `${angle[1]}${angle[2]}`;
+
+  for (let i = 0; i < shapeList.length; i++) {
+    const shape = shapeList[i];
+    const secondLineVector = calculateVector(
+      dataViewModel.getNodeInPointsMapById(secondLine[0]).coordinate,
+      dataViewModel.getNodeInPointsMapById(secondLine[1]).coordinate
+    );
+    if (
+      isVectorInSameLine(
+        calculateVector(
+          dataViewModel.getNodeInPointsMapById(shape[0]).coordinate,
+          dataViewModel.getNodeInPointsMapById(shape[1]).coordinate
+        ),
+        secondLineVector
+      ) ||
+      isVectorInSameLine(
+        calculateVector(
+          dataViewModel.getNodeInPointsMapById(shape[2]).coordinate,
+          dataViewModel.getNodeInPointsMapById(shape[3]).coordinate
+        ),
+        secondLineVector
+      )
+    ) {
+      const index = shape.indexOf(angle[1]);
+      const changeIndex = 0;
+
+      return angle
+        .split('')
+        .reverse()
+        .join('');
+    }
+  }
+  return angle;
 }
 
 function analyzeTangentRelation(relation: mixed, point: string): any {
