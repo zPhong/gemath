@@ -71,6 +71,7 @@ export function readRelation(relation: mixed, point: string) {
       case 'quadrilateral':
       case 'rectangle':
       case 'square':
+      case 'rhombus':
       case 'trapezoid':
       case 'parallelogram':
         if (shapeType !== 'quadrilateral') {
@@ -553,10 +554,19 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
   const rootPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[1]).coordinate;
   const changedPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[2]).coordinate;
   const calculatedEquation = calculateLinesByAnotherLineAndAngle(rootPoint, staticPoint, changedPoint, angleValue);
-  console.log(modifiedAngleName);
   if (modifiedAngleName === angleName) {
     return calculatedEquation;
   }
+  const transitionVector = calculateVector(
+    rootPoint,
+    calculateIntersectionByLineAndLine(getLineFromTwoPoints(rootPoint, staticPoint), calculatedEquation),
+    false
+  );
+
+  dataViewModel.updateCoordinate(modifiedAngleName[0], {
+    x: staticPoint.x + transitionVector.x,
+    y: staticPoint.y + transitionVector.y
+  });
 
   dataViewModel.replaceSetOfEquation(
     modifiedAngleName[1],

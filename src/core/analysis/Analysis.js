@@ -4,6 +4,7 @@ import { objectWithPoint } from '../definition/define.js';
 import type { DrawingDataType, NodeRelationType, NodeType } from '../../utils/types.js';
 import dataViewModel from '../../ViewModel/DataViewModel';
 import { readPointsMap } from './ReadPointsMap';
+import { makeRoundCoordinate } from '../math/Math2D.js';
 
 let RelationPointsMap: Array<NodeType> = [];
 
@@ -28,7 +29,7 @@ export function analyzeResult(validatedResult): DrawingDataType {
   readPointsMap();
   result.points = dataViewModel.getData.getPointsMap.map((node: NodeType) => ({
     id: node.id,
-    coordinate: node.coordinate
+    coordinate: makeRoundCoordinate(node.coordinate, 3)
   }));
 
   result.segments = [...getArraySegments(validatedResult), ...dataViewModel.getData.getAdditionSegment];

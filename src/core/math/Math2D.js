@@ -584,13 +584,13 @@ export function _calculateLinesByAnotherLineAndAngle(d: EquationType, p: Coordin
   return results;
 }
 
-export function makeRoundCoordinate(point: CoordinateType) {
+export function makeRoundCoordinate(point: CoordinateType, f: number = 3) {
   if (typeof point === 'string') {
     return point;
   }
   return {
-    x: _makeRound(point.x),
-    y: _makeRound(point.y)
+    x: _makeRound(point.x,f),
+    y: _makeRound(point.y,f)
   };
 }
 

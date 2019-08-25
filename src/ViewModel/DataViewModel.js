@@ -37,7 +37,7 @@ class DataViewModel {
   constructor(appData) {
     this.data = appData;
     this.relationsInput = [
-      new RelationInputModel('hình bình hành ABCD'),
+      new RelationInputModel('hình thoi ABCD'),
       new RelationInputModel('AD = 5'),
       new RelationInputModel('ADC = 60')
     ];
@@ -117,7 +117,7 @@ class DataViewModel {
     return false;
   };
 
-  updateCoordinate = (nodeId: string, coordinate: CoordinateType): void => {
+  updateCoordinate = (nodeId: string, coordinate: CoordinateType, f: number = 3): void => {
     const index = this.getIndexOfNodeInPointsMapById(nodeId);
     const _coordinate = {};
     Object.keys(coordinate)
@@ -126,7 +126,7 @@ class DataViewModel {
         _coordinate[key] = coordinate[key];
       });
     if (index !== NOT_FOUND) {
-      this.data.getPointsMap[index].coordinate = makeRoundCoordinate(_coordinate);
+      this.data.getPointsMap[index].coordinate = makeRoundCoordinate(_coordinate, f);
     }
   };
 
@@ -307,14 +307,18 @@ class DataViewModel {
   replaceSetOfEquation(pointId: string, searchEquation: EquationType, replaceEquation: EquationType) {
     const pointDetail = this.data.getPointDetails.get(pointId);
     const setOfEquation = pointDetail.setOfEquation;
+    let isReplaceComplete = false;
     setOfEquation.forEach((equation: EquationType, index: numer) => {
       if (isTwoEquationEqual(equation, searchEquation)) {
         setOfEquation[index] = replaceEquation;
+        isReplaceComplete = true;
       }
     });
+    if (!isReplaceComplete) {
+      setOfEquation.push(replaceEquation);
+    }
 
     const roots = this._calculateSet(setOfEquation);
-
     this.data.getPointDetails.set(pointId, {
       ...pointDetail,
       setOfEquation,
@@ -328,7 +332,7 @@ class DataViewModel {
       } else {
         const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[pointId];
         const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
-        if (roots.length > 1) {
+        if (roots.length > 1 && typeof roots !== 'string') {
           const rootsDirection = roots.map((root) => ({
             coordinate: root,
             isRight: root.x > staticPointCoordinate.x,
@@ -353,6 +357,9 @@ class DataViewModel {
 
           coordinate = coordinateMatch.coordinate;
         } else {
+          if (typeof roots === 'string') {
+            return;
+          }
           coordinate = roots[0];
         }
       }

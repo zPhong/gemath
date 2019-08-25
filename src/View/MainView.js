@@ -246,11 +246,14 @@ class MainView extends React.Component {
       return;
     }
 
+    const isAddSegment = !!drawingSegments[index];
     drawingSegments[index] = data;
 
     this.setState({ drawingSegments }, () => {
-      if (drawingSegments.map((segment: SegmentDataType): string => segment.name).includes(data.name)) {
-        this.onDeleteSegmentSetting(index);
+      if (isAddSegment) {
+        if (drawingSegments.map((segment: SegmentDataType): string => segment.name).includes(data.name)) {
+          this.onDeleteSegmentSetting(index);
+        }
       }
     });
   }
