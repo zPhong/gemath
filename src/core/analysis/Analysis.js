@@ -199,32 +199,35 @@ function createPointsMapByRelation(relation: any) {
     return index2 - index1;
   });
 
-  if (relation.operation === '=' && relation.value) {
-    const lastNodeDependentLength = RelationPointsMap[RelationPointsMap.length - 1].dependentNodes.length;
-    if (RelationPointsMap[RelationPointsMap.length - 1].dependentNodes[lastNodeDependentLength - 1]) {
-      RelationPointsMap[RelationPointsMap.length - 1].dependentNodes[lastNodeDependentLength - 1].relation = relation;
-    }
+  let lastObjectPoints;
+
+  if (relation.angle && relation.outputType === 'define' && !!relation.value) {
+    const index1 = findIndexByNodeId(relation.angle[0][0], dataViewModel.getData.getPointsMap);
+    const index2 = findIndexByNodeId(relation.angle[0][2], dataViewModel.getData.getPointsMap);
+    lastObjectPoints = [index1 > index2 ? relation.angle[0][0] : relation.angle[0][2]];
   } else {
-    let lastObjectPoints = getDependentObject();
-    if (lastObjectPoints.length === RelationPointsMap.length) {
-      lastObjectPoints = [lastObjectPoints[0]];
-    }
-    lastObjectPoints.forEach((point) => {
-      const index = findIndexByNodeId(point, RelationPointsMap);
-      const currentNode = RelationPointsMap[index];
-      RelationPointsMap.forEach((node) => {
-        if (node.id !== point) {
-          RelationPointsMap[index] = {
-            ...currentNode,
-            dependentNodes: [
-              ...currentNode.dependentNodes,
-              ...createDependentNodeOfRelation(node.id, relation, lastObjectPoints)
-            ]
-          };
-        }
-      });
-    });
+    lastObjectPoints = getDependentObject();
   }
+  if (lastObjectPoints.length === RelationPointsMap.length) {
+    lastObjectPoints = [lastObjectPoints[0]];
+  }
+
+  lastObjectPoints.forEach((point) => {
+    const index = findIndexByNodeId(point, RelationPointsMap);
+    const currentNode = RelationPointsMap[index];
+    RelationPointsMap.forEach((node) => {
+      if (node.id !== point) {
+        RelationPointsMap[index] = {
+          ...currentNode,
+          dependentNodes: [
+            ...currentNode.dependentNodes,
+            ...createDependentNodeOfRelation(node.id, relation, lastObjectPoints)
+          ]
+        };
+      }
+    });
+  });
+
   return RelationPointsMap;
 }
 

@@ -9,7 +9,8 @@ import {
   calculatePerpendicularLineByPointAndLine,
   getLineFromTwoPoints,
   calculateInCircleEquation,
-  calculateCircumCircleEquation
+  calculateCircumCircleEquation,
+  getAngleFromTwoLines
 } from '../math/Math2D';
 import { getRandomValue } from '../math/Generation';
 import { mappingShapeType, shapeRules, TwoStaticPointRequireShape, circleType } from '../definition/define';
@@ -17,6 +18,8 @@ import { generateGeometry } from '../math/GenerateGeometry';
 import { readRelation } from './ReadRelation';
 import ErrorService from '../../utils/ErrorHandleService.js';
 import appData from '../../Model/AppData.js';
+
+let shape, shapeName, shapeType;
 
 export function readPointsMap(): Array | {} {
   dataViewModel.createPointDetails();
@@ -28,65 +31,8 @@ export function readPointsMap(): Array | {} {
 
     if (!executingNode) break;
 
-    const executingNodeRelations = _makeUniqueNodeRelation(executingNode.dependentNodes);
-    let shape, shapeName, shapeType;
+    executeRelations(executingNode);
 
-    executingNodeRelations.forEach((relation) => {
-      let relationEquation;
-      if (relation.outputType === 'shape') {
-        shapeName = Object.keys(relation).filter((key) => key !== 'type')[0];
-        shapeType = mappingShapeType[relation.type] || 'normal';
-        shape = relation[shapeName];
-        if (circleType.includes(shapeType)) {
-          let data = null;
-          switch (shapeType) {
-            case 'nội tiếp':
-              data = calculateInCircleEquation(
-                dataViewModel.getNodeInPointsMapById(shape[0]).coordinate,
-                dataViewModel.getNodeInPointsMapById(shape[1]).coordinate,
-                dataViewModel.getNodeInPointsMapById(shape[2]).coordinate
-              );
-              break;
-            case 'ngoại tiếp':
-              data = calculateCircumCircleEquation(
-                dataViewModel.getNodeInPointsMapById(shape[0]).coordinate,
-                dataViewModel.getNodeInPointsMapById(shape[1]).coordinate,
-                dataViewModel.getNodeInPointsMapById(shape[2]).coordinate
-              );
-              break;
-            default:
-              break;
-          }
-          if (data) {
-            dataViewModel.circlesData[relation.point[0]] = data;
-            dataViewModel.updateCoordinate(relation.point[0], data.center);
-          } else {
-            ErrorService.ErrorMessage('400');
-          }
-          return;
-        } else if (!dataViewModel.isExecutedRelation(relation)) {
-          generateGeometry(relation[shapeName], shapeName, relation.type);
-          setPointsDirection(relation[shapeName]);
-        }
-      }
-      relationEquation = readRelation(relation, executingNode.id);
-      console.log(executingNode.id, relation, relationEquation);
-      if (relationEquation) {
-        if (Array.isArray(relationEquation)) {
-          relationEquation = relationEquation[getRandomValue(0, relationEquation.length)];
-        }
-        dataViewModel.executePointDetails(executingNode.id, relationEquation);
-      }
-
-      if (!dataViewModel.isExecutedRelation(relation)) {
-        //
-        dataViewModel.getData.getExecutedRelations.push(relation);
-      }
-    });
-
-    if (shapeRules[shapeName] && shapeRules[shapeName][shapeType]) {
-      makeCorrectShape(shape, shapeName, shapeRules[shapeName][shapeType], executingNode.id);
-    }
 
     //Update calculated value to pointsMap
     if (dataViewModel.getData.getPointDetails.has(executingNode.id)) {
@@ -133,7 +79,9 @@ export function readPointsMap(): Array | {} {
         dataViewModel.updateCoordinate(executingNode.id, coordinate);
       }
     }
-
+    if (shapeRules[shapeName] && shapeRules[shapeName][shapeType]) {
+      makeCorrectShape(shape, shapeName, shapeRules[shapeName][shapeType], executingNode.id);
+    }
     //appModel.updatePointsMap(executingNode);
     dataViewModel.getData.getExecutedNode.push(executingNode.id);
 
@@ -141,10 +89,122 @@ export function readPointsMap(): Array | {} {
     dataViewModel.updateStaticNode();
   }
 
+  dataViewModel.getData.getPointsMap.forEach((node: NodeType) => {
+    //Update calculated value to pointsMap
+    if (dataViewModel.getData.getPointDetails.has(node.id)) {
+      const roots = dataViewModel.getData.getPointDetails.get(node.id).roots;
+      if (typeof roots === 'string') {
+        ErrorService.showError('400');
+        return;
+      }
+      if (roots.length > 0) {
+        let coordinate;
+        if (dataViewModel.isNeedRandomCoordinate(node.id)) {
+          coordinate = roots[getRandomValue(0, roots.length)];
+        } else {
+          const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[node.id];
+          const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
+          if (roots.length > 1) {
+            const rootsDirection = roots.map((root) => ({
+              coordinate: root,
+              isRight: root.x > staticPointCoordinate.x,
+              isUp: root.y < staticPointCoordinate.y
+            }));
+
+            const coordinateMatch = rootsDirection
+              .map((directionInfo) => {
+                let matchCount = 0;
+                if (directionInfo.isRight === nodeDirectionInfo.isRight) {
+                  matchCount++;
+                }
+                if (directionInfo.isUp === nodeDirectionInfo.isUp) {
+                  matchCount++;
+                }
+                return {
+                  coordinate: directionInfo.coordinate,
+                  matchCount
+                };
+              })
+              .sort((a, b) => b.matchCount - a.matchCount)[0];
+
+            coordinate = coordinateMatch.coordinate;
+          } else {
+            coordinate = roots[0];
+          }
+        }
+
+        dataViewModel.updateCoordinate(node.id, coordinate);
+      }
+    }
+    // temp
+    if (shapeRules[shapeName] && shapeRules[shapeName][shapeType]) {
+      makeCorrectShape(shape, shapeName, shapeRules[shapeName][shapeType], node.id);
+    }
+  });
+
+
   return dataViewModel.getData.getPointsMap.map((node) => ({
     id: node.id,
     coordinate: node.coordinate
   }));
+}
+
+function executeRelations(node: NodeType) {
+  const executingNodeRelations = _makeUniqueNodeRelation(node.dependentNodes);
+
+  executingNodeRelations.forEach((relation) => {
+    let relationEquation;
+    if (relation.outputType === 'shape') {
+      shapeName = Object.keys(relation).filter((key) => key !== 'type')[0];
+      shapeType = mappingShapeType[relation.type] || 'normal';
+      shape = relation[shapeName];
+      if (circleType.includes(shapeType)) {
+        let data = null;
+        switch (shapeType) {
+          case 'nội tiếp':
+            data = calculateInCircleEquation(
+              dataViewModel.getNodeInPointsMapById(shape[0]).coordinate,
+              dataViewModel.getNodeInPointsMapById(shape[1]).coordinate,
+              dataViewModel.getNodeInPointsMapById(shape[2]).coordinate
+            );
+            break;
+          case 'ngoại tiếp':
+            data = calculateCircumCircleEquation(
+              dataViewModel.getNodeInPointsMapById(shape[0]).coordinate,
+              dataViewModel.getNodeInPointsMapById(shape[1]).coordinate,
+              dataViewModel.getNodeInPointsMapById(shape[2]).coordinate
+            );
+            break;
+          default:
+            break;
+        }
+        if (data) {
+          dataViewModel.circlesData[relation.point[0]] = data;
+          dataViewModel.updateCoordinate(relation.point[0], data.center);
+        } else {
+          ErrorService.ErrorMessage('400');
+        }
+        return;
+      } else if (!dataViewModel.isExecutedRelation(relation)) {
+        generateGeometry(relation[shapeName], shapeName, relation.type);
+        setPointsDirection(relation[shapeName]);
+      }
+      if (shapeRules[shapeName] && shapeRules[shapeName][shapeType]) {
+        makeCorrectShape(shape, shapeName, shapeRules[shapeName][shapeType], node.id);
+      }
+    }
+    relationEquation = readRelation(relation, node.id);
+    if (relationEquation) {
+      if (Array.isArray(relationEquation)) {
+        relationEquation = relationEquation[getRandomValue(0, relationEquation.length)];
+      }
+      dataViewModel.executePointDetails(node.id, relationEquation);
+    }
+
+    if (!dataViewModel.isExecutedRelation(relation)) {
+      dataViewModel.getData.getExecutedRelations.push(relation);
+    }
+  });
 }
 
 function setPointsDirection(shape: string) {
@@ -181,7 +241,7 @@ export function _makeUniqueNodeRelation(dependentNodes: Array<NodeRelationType>)
 }
 
 function makeCorrectShape(shape: string, shapeName: string, rules: string, nonStaticPoint: string) {
-  const staticPointCountRequire = TwoStaticPointRequireShape.includes(shapeName) ? 3 : 1;
+  const staticPointCountRequire = TwoStaticPointRequireShape.includes(shapeName) ? 2 : 1;
   let staticPoints = shape.replace(nonStaticPoint, '').split('');
   // check other points are static
   let count = 0;
@@ -342,28 +402,4 @@ function getLinearPerpendicularByParallelRule(rule: string, shape: string, nonSt
       )
     ];
   }
-}
-
-function _calculatePointCoordinate(node: NodeType): CoordinateType {
-  if (node.isStatic) {
-    return node.coordinate;
-  }
-
-  const executingNodeRelation = _makeUniqueNodeRelation(node.dependentNodes);
-  for (let i = 0; i < executingNodeRelation; i++) {
-    // TODO: calculate point
-    if (executingNodeRelation[i].relation.outputType === 'shape') {
-      if (!dataViewModel.isExecutedRelation(executingNodeRelation[i].relation)) {
-        // generate point
-        // ...
-        dataViewModel.getData.getExecutedRelations.push(executingNodeRelation[i].relation);
-      }
-    }
-
-    if (node.dependentNodes[i].relation.outputType === 'define') {
-    }
-  }
-
-  node.isStatic = true;
-  return node;
 }

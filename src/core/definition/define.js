@@ -108,7 +108,9 @@ const mappingShapeType = {
 
 const circleType = ['nội tiếp', 'ngoại tiếp'];
 
-const TwoStaticPointRequireShape = ['triangle', 'rhombus', 'rectangle', 'square'];
+const TwoStaticPointRequireShape = ['triangle', 'trapezoid', 'parallelogram', 'rhombus', 'rectangle', 'square'];
+
+const ShapeAffectBySegmentChange = ['rhombus', 'trapezoid', 'parallelogram'];
 
 export {
   validate,
@@ -120,5 +122,6 @@ export {
   reversedDependentObjRelation,
   shapeRules,
   mappingShapeType,
-  circleType
+  circleType,
+  ShapeAffectBySegmentChange
 };

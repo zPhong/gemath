@@ -1,5 +1,6 @@
 import { RankingObjectContain, validate } from '../definition/define.js';
 import { checkFormatString } from '../definition/defineObjType';
+import ErrorService from '../../utils/ErrorHandleService.js';
 
 export function validateValue(value, type) {
   if (!_validateName(value.value)) return false;
@@ -102,6 +103,9 @@ export function validateInformation(info) {
   } else {
     delete info.outputType;
     let keys = Object.keys(info);
+    if (keys.includes('undefined')) {
+      return false;
+    }
     for (let i = 0; i < keys.length; i++) {
       let array = info[keys[i]];
       let key = keys[i];
