@@ -17,9 +17,12 @@ import {
   isIn,
   calculateIntersectionTwoCircleEquations,
   isVectorInSameLine,
+  isVectorSameDirection,
   calculateVector,
   calculateTangentEquation,
-  calculateTangentIntersectPointsByPointOutsideCircle
+  calculateTangentIntersectPointsByPointOutsideCircle,
+  calculateAngleTwoVector,
+  calculateDistanceFromPointToLine
 } from '../math/Math2D';
 import {
   generatePointAlignmentInside,
@@ -29,7 +32,7 @@ import {
   getRandomValue
 } from '../math/Generation.js';
 import ErrorService from '../../utils/ErrorHandleService';
-import { ShapeAffectBySegmentChange } from '../definition/define';
+import { ShapeAffectBySegmentChange, TwoStaticPointRequireShape } from '../definition/define';
 
 export function readRelation(relation: mixed, point: string) {
   let equationResults;
@@ -81,7 +84,7 @@ export function readRelation(relation: mixed, point: string) {
               count++;
             }
           });
-          const limit = 2;
+          const limit = TwoStaticPointRequireShape.includes(shapeType) ? 1 : 2;
           if (count > limit) {
             return;
           }
@@ -554,24 +557,53 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
   const rootPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[1]).coordinate;
   const changedPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[2]).coordinate;
   const calculatedEquation = calculateLinesByAnotherLineAndAngle(rootPoint, staticPoint, changedPoint, angleValue);
-  if (modifiedAngleName === angleName) {
-    return calculatedEquation;
-  }
-  const transitionVector = calculateVector(
-    rootPoint,
-    calculateIntersectionByLineAndLine(getLineFromTwoPoints(rootPoint, staticPoint), calculatedEquation),
-    false
+
+  const intersectPoint = calculateIntersectionByLineAndLine(
+    calculatedEquation,
+    getLineFromTwoPoints(staticPoint, rootPoint)
+  );
+  const newRootPoint = calculateIntersectionTwoCircleEquations(
+    calculatedEquation,
+    calculateCircleEquationByCenterPoint(changedPoint, calculateDistanceTwoPoints(changedPoint, rootPoint))
+  ).sort((rootOne: CoordinateType, rootTwo: CoordinateType): number => {
+    return calculateDistanceTwoPoints(intersectPoint, rootOne) - calculateDistanceTwoPoints(intersectPoint, rootTwo);
+  })[0];
+
+  //move newRoot to oldRoot
+  const transitionVector = calculateVector(newRootPoint, rootPoint, false);
+
+  console.log(
+    calculateAngleTwoVector(calculateVector(staticPoint, rootPoint), calculateVector(changedPoint, newRootPoint))
   );
 
+  if (modifiedAngleName === angleName) {
+    dataViewModel.updateCoordinate(modifiedAngleName[2], {
+      x: changedPoint.x + transitionVector.x,
+      y: changedPoint.y + transitionVector.y
+    });
+
+    dataViewModel.replaceSetOfEquation(
+      modifiedAngleName[2],
+      getLineFromTwoPoints(rootPoint, changedPoint),
+      calculateParallelLineByPointAndLine(rootPoint, calculatedEquation)
+    );
+
+    console.log(modifiedAngleName[2], changedPoint, {
+      x: changedPoint.x + transitionVector.x,
+      y: changedPoint.y + transitionVector.y
+    });
+    return;
+  }
+
   dataViewModel.updateCoordinate(modifiedAngleName[0], {
-    x: staticPoint.x + transitionVector.x,
-    y: staticPoint.y + transitionVector.y
+    x: staticPoint.x - transitionVector.x,
+    y: staticPoint.y - transitionVector.y
   });
 
   dataViewModel.replaceSetOfEquation(
     modifiedAngleName[1],
     getLineFromTwoPoints(rootPoint, changedPoint),
-    calculatedEquation
+    calculateParallelLineByPointAndLine(rootPoint, calculatedEquation)
   );
 
   return null;
@@ -602,6 +634,7 @@ function renameAngle(angle: string): string {
       dataViewModel.getNodeInPointsMapById(secondLine[0]).coordinate,
       dataViewModel.getNodeInPointsMapById(secondLine[1]).coordinate
     );
+
     if (
       isVectorInSameLine(
         calculateVector(
@@ -609,18 +642,8 @@ function renameAngle(angle: string): string {
           dataViewModel.getNodeInPointsMapById(shape[1]).coordinate
         ),
         secondLineVector
-      ) ||
-      isVectorInSameLine(
-        calculateVector(
-          dataViewModel.getNodeInPointsMapById(shape[2]).coordinate,
-          dataViewModel.getNodeInPointsMapById(shape[3]).coordinate
-        ),
-        secondLineVector
       )
     ) {
-      const index = shape.indexOf(angle[1]);
-      const changeIndex = 0;
-
       return angle
         .split('')
         .reverse()
