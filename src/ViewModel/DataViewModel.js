@@ -37,9 +37,9 @@ class DataViewModel {
   constructor(appData) {
     this.data = appData;
     this.relationsInput = [
-      new RelationInputModel('hình thoi ABCD'),
-      new RelationInputModel('AD = 5'),
-      new RelationInputModel('ADC = 60')
+      new RelationInputModel('hình bình hành ABCD'),
+      new RelationInputModel('AB = 5'),
+      new RelationInputModel('BC = 6')
     ];
   }
 
@@ -317,8 +317,11 @@ class DataViewModel {
     if (!isReplaceComplete) {
       setOfEquation.push(replaceEquation);
     }
-
+    if (setOfEquation.length === 1) {
+      return;
+    }
     const roots = this._calculateSet(setOfEquation);
+
     this.data.getPointDetails.set(pointId, {
       ...pointDetail,
       setOfEquation,
@@ -406,6 +409,7 @@ class DataViewModel {
       });
       isFirst = true;
     }
+    console.log(pointId, equation, this.data.getPointDetails.get(pointId).setOfEquation);
 
     if (this.data.getPointDetails.get(pointId).setOfEquation.length === 2) {
       if (isQuadraticEquation(equation) && !isFirst) {

@@ -38,7 +38,6 @@ export function readPointsMap(): Array | {} {
     //Update calculated value to pointsMap
     if (dataViewModel.getData.getPointDetails.has(executingNode.id)) {
       const roots = dataViewModel.getData.getPointDetails.get(executingNode.id).roots;
-
       if (typeof roots === 'string') {
         ErrorService.showError('400');
         return;
@@ -137,13 +136,8 @@ export function readPointsMap(): Array | {} {
             coordinate = roots[0];
           }
         }
-
         dataViewModel.updateCoordinate(node.id, coordinate);
       }
-    }
-    // temp
-    if (shapeRules[shapeName] && shapeRules[shapeName][shapeType]) {
-      makeCorrectShape(shape, shapeName, shapeRules[shapeName][shapeType], node.id);
     }
   });
 
@@ -275,8 +269,7 @@ function makeCorrectShape(shape: string, shapeName: string, rules: string, execu
             equation = getLinearEquationByParallelRule(rule, shape, executePointIndex);
             break;
           case '^':
-            const count = rule.split('^').filter((line: string): boolean => line.includes(executePointIndex)).length;
-            if (count === 2) {
+            if (rule[1] === rule[3]) {
               equation = getLinearEquationByPerpendicularRule(rule, shape, executePointIndex);
             } else {
               updateCoordinateBySpecialPerpendicularRule(rule, shape, executePointIndex);
@@ -292,13 +285,13 @@ function makeCorrectShape(shape: string, shapeName: string, rules: string, execu
       }
     });
 
+    nodeSetEquations.forEach((equation) => {
+      dataViewModel.executePointDetails(executePoint, equation);
+    });
     if (nodeSetEquations.length > 1) {
       const coordinate = calculateIntersectionByLineAndLine(nodeSetEquations[0], nodeSetEquations[1]);
       dataViewModel.updateCoordinate(executePoint, coordinate);
     }
-    nodeSetEquations.forEach((equation) => {
-      dataViewModel.executePointDetails(executePoint, equation);
-    });
   }
 }
 
@@ -330,10 +323,10 @@ function updateCoordinateBySpecialPerpendicularRule(rule: string, shape: string,
     const staticPointIndex = nonStaticLine.split('').filter((pointIndex: string): boolean => {
       return dataViewModel.isStaticNodeById(shape[pointIndex]);
     })[0];
-
-    const calculatedCoordinate = calculateSymmetricalPoint(shapePoints[staticPointIndex], intersectPoint);
-
-    dataViewModel.updateCoordinate(shapePoints[nonIncludeLine.replace(staticPointIndex, '')], calculatedCoordinate);
+    if (shape[nonIncludeLine.replace(staticPointIndex, '')]) {
+      const calculatedCoordinate = calculateSymmetricalPoint(shapePoints[staticPointIndex], intersectPoint);
+      dataViewModel.updateCoordinate(shape[nonIncludeLine.replace(staticPointIndex, '')], calculatedCoordinate);
+    }
   } else if (staticLines.length === 0) {
     //line perpendicular with line include 1 static point
     const intersectPoint = calculateIntersectionByLineAndLine(
@@ -353,10 +346,10 @@ function updateCoordinateBySpecialPerpendicularRule(rule: string, shape: string,
       calculatedCoordinate = calculateSymmetricalPoint(shapePoints[otherPointInIncludeLine], intersectPoint);
       dataViewModel.updateCoordinate(shape[executePointIndex], calculatedCoordinate);
     }
-
     const nonStaticPointIndex = nonIncludeLine.split('').filter((pointIndex: string): boolean => {
       return !dataViewModel.isStaticNodeById(shape[pointIndex]);
     })[0];
+
     calculatedCoordinate = calculateSymmetricalPoint(
       shapePoints[nonIncludeLine.replace(nonStaticPointIndex, '')],
       intersectPoint
@@ -369,21 +362,27 @@ function updateCoordinateBySpecialPerpendicularRule(rule: string, shape: string,
 function getLinearEquationsByEqualRule(rule: string, shape: string, executePointIndex: number): Array<EquationType> {
   const lines = rule.split('=');
   let staticLine;
-  let nonStaticLines = [];
+  let nonStaticLine;
   // points with non-static point;
-  let staticPoints = [];
   lines.forEach((line) => {
-    if (line.includes(executePointIndex)) {
-      nonStaticLines.push(line);
-      staticPoints.push(line.replace(executePointIndex, ''));
-    } else {
+    const count = line.split('').filter((point: string): boolean => dataViewModel.isStaticNodeById(shape[point]))
+      .length;
+    if (count === 2) {
       staticLine = line;
+    } else {
+      nonStaticLine = line;
     }
   });
 
   if (staticLine) {
+    const count = staticLine.split('').filter((point: string): boolean => dataViewModel.isStaticNodeById(shape[point]))
+      .length;
+
+    if (count < 2) {
+      //return [];
+    }
     //1 circle equation
-    if (staticLine.includes(nonStaticLines[0].replace(executePointIndex, ''))) {
+    if (staticLine.includes(nonStaticLine.replace(executePointIndex, ''))) {
       const radius = calculateDistanceTwoPoints(
         dataViewModel.getNodeInPointsMapById(shape[staticLine[0]]).coordinate,
         dataViewModel.getNodeInPointsMapById(shape[staticLine[1]]).coordinate
@@ -391,7 +390,7 @@ function getLinearEquationsByEqualRule(rule: string, shape: string, executePoint
 
       return [
         calculateCircleEquationByCenterPoint(
-          dataViewModel.getNodeInPointsMapById(shape[nonStaticLines[0].replace(executePointIndex, '')]).coordinate,
+          dataViewModel.getNodeInPointsMapById(shape[nonStaticLine.replace(executePointIndex, '')]).coordinate,
           radius
         )
       ];
@@ -422,48 +421,57 @@ function getLinearEquationsByEqualRule(rule: string, shape: string, executePoint
 
 function getLinearEquationByParallelRule(rule: string, shape: string, executePointIndex: number): EquationType {
   const lines = rule.split('|');
-  let staticLine, nonStaticLine;
+  let staticLine;
+  let nonStaticLine;
+  // points with non-static point;
   lines.forEach((line) => {
-    if (line.includes(executePointIndex)) {
-      nonStaticLine = line;
-    } else {
+    const count = line.split('').filter((point: string): boolean => dataViewModel.isStaticNodeById(shape[point]))
+      .length;
+    if (count === 2 && !staticLine) {
       staticLine = line;
+    } else {
+      nonStaticLine = line;
     }
   });
-
-  return [
-    calculateParallelLineByPointAndLine(
-      //point
-      dataViewModel.getNodeInPointsMapById(shape[nonStaticLine.replace(executePointIndex, '')]).coordinate,
-      //line
-      getLineFromTwoPoints(
-        dataViewModel.getNodeInPointsMapById(shape[staticLine[0]]).coordinate,
-        dataViewModel.getNodeInPointsMapById(shape[staticLine[1]]).coordinate
+  if (
+    staticLine &&
+    nonStaticLine.includes(executePointIndex) &&
+    dataViewModel.isStaticNodeById(shape[nonStaticLine.replace(executePointIndex, '')])
+  ) {
+    return [
+      calculateParallelLineByPointAndLine(
+        //point
+        dataViewModel.getNodeInPointsMapById(shape[nonStaticLine.replace(executePointIndex, '')]).coordinate,
+        //line
+        getLineFromTwoPoints(
+          dataViewModel.getNodeInPointsMapById(shape[staticLine[0]]).coordinate,
+          dataViewModel.getNodeInPointsMapById(shape[staticLine[1]]).coordinate
+        )
       )
-    )
-  ];
+    ];
+  }
 }
 
 function getLinearEquationByPerpendicularRule(rule: string, shape: string, executePointIndex: number) {
   const lines = rule.split('^');
   let staticLine;
-  let nonStaticLines = [];
+  let nonStaticLine;
   // points with non-static point;
-  let staticPoints = [];
   lines.forEach((line) => {
-    if (line.includes(executePointIndex)) {
-      nonStaticLines.push(line);
-      staticPoints.push(line.replace(executePointIndex, ''));
-    } else {
+    const count = line.split('').filter((point: string): boolean => dataViewModel.isStaticNodeById(shape[point]))
+      .length;
+    if (count === 2 && !staticLine) {
       staticLine = line;
+    } else {
+      nonStaticLine = line;
     }
   });
 
-  if (staticLine) {
+  if (staticLine && nonStaticLine.includes(executePointIndex) && !staticLine.includes(executePointIndex)) {
     return [
       calculatePerpendicularLineByPointAndLine(
-        //point
-        dataViewModel.getNodeInPointsMapById(shape[nonStaticLines[0].replace(executePointIndex, '')]).coordinate,
+        //Common point
+        dataViewModel.getNodeInPointsMapById(shape[rule[1]]).coordinate,
         //line
         getLineFromTwoPoints(
           dataViewModel.getNodeInPointsMapById(shape[staticLine[0]]).coordinate,

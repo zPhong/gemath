@@ -36,11 +36,51 @@ export function calculateVector(
 }
 
 export function isVectorSameDirection(firstVector: CoordinateType, secondVector: CoordinateType): boolean {
-  return _makeRound(firstVector.x * secondVector.y) === _makeRound(firstVector.y * secondVector.x);
+  if (firstVector.x === 0) {
+    return (
+      secondVector.x === 0 && firstVector.y / Math.abs(firstVector.y) === secondVector.y / Math.abs(secondVector.y)
+    );
+  }
+
+  if (firstVector.y === 0) {
+    return (
+      secondVector.y === 0 && firstVector.x / Math.abs(firstVector.x) === secondVector.x / Math.abs(secondVector.x)
+    );
+  }
+
+  if (secondVector.x === 0) {
+    return firstVector.x === 0 && firstVector.y / Math.abs(firstVector.y) === secondVector.y / Math.abs(secondVector.y);
+  }
+
+  if (secondVector.y === 0) {
+    return firstVector.y === 0 && firstVector.x / Math.abs(firstVector.x) === secondVector.x / Math.abs(secondVector.x);
+  }
+
+  return (
+    firstVector.x / Math.abs(firstVector.x) === secondVector.x / Math.abs(secondVector.x) &&
+    firstVector.y / Math.abs(firstVector.y) === secondVector.y / Math.abs(secondVector.y) &&
+    _makeRound(firstVector.x * secondVector.y) === _makeRound(firstVector.y * secondVector.x)
+  );
 }
 
 export function isVectorInSameLine(firstVector: CoordinateType, secondVector: CoordinateType): boolean {
-  return Math.abs(_makeRound(firstVector.x * secondVector.y)) === Math.abs(_makeRound(firstVector.y * secondVector.x));
+  if (firstVector.x === 0) {
+    return secondVector.x === 0;
+  }
+
+  if (firstVector.y === 0) {
+    return secondVector.y === 0;
+  }
+
+  if (secondVector.x === 0) {
+    return firstVector.x === 0;
+  }
+
+  if (secondVector.y === 0) {
+    return firstVector.y === 0;
+  }
+
+  return _makeRound(firstVector.x * secondVector.y) === _makeRound(firstVector.y * secondVector.x);
 }
 
 export function calculateMiddlePoint(firstPoint: CoordinateType, secondPoint: CoordinateType): CoordinateType {
@@ -537,7 +577,7 @@ function calculateVectorLength(vector: CoordinateType): number {
   return Math.sqrt(vector.x * vector.x + vector.y * vector.y);
 }
 
-function calculateAngleTwoVector(vectorOne: CoordinateType, vectorTwo: CoordinateType): number {
+export function calculateAngleTwoVector(vectorOne: CoordinateType, vectorTwo: CoordinateType): number {
   return _makeRound(
     (Math.acos(
       calculateIntegratedDirection(vectorOne, vectorTwo) /
@@ -589,8 +629,8 @@ export function makeRoundCoordinate(point: CoordinateType, f: number = 3) {
     return point;
   }
   return {
-    x: _makeRound(point.x,f),
-    y: _makeRound(point.y,f)
+    x: _makeRound(point.x, f),
+    y: _makeRound(point.y, f)
   };
 }
 

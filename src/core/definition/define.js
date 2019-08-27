@@ -87,7 +87,7 @@ const shapeRules = {
     normal: '01|23&03|12'
   },
   rectangle: {
-    normal: '01|23&03|12&01^12&12^23&23^03'
+    normal: '01^12&12^23&23^30&30^01'
   },
   rhombus: {
     normal: '02^13'
@@ -108,7 +108,7 @@ const mappingShapeType = {
 
 const circleType = ['nội tiếp', 'ngoại tiếp'];
 
-const TwoStaticPointRequireShape = ['triangle', 'trapezoid', 'parallelogram', 'rectangle', 'square'];
+const TwoStaticPointRequireShape = ['triangle', 'trapezoid', 'rectangle', 'square'];
 
 const ShapeAffectBySegmentChange = ['rhombus', 'trapezoid', 'parallelogram'];
 
