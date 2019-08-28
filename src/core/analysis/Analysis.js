@@ -212,7 +212,6 @@ function createPointsMapByRelation(relation: any) {
   if (lastObjectPoints.length === RelationPointsMap.length) {
     lastObjectPoints = [lastObjectPoints[0]];
   }
-
   lastObjectPoints.forEach((point) => {
     const index = findIndexByNodeId(point, RelationPointsMap);
     const currentNode = RelationPointsMap[index];

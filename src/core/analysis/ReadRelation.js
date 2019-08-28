@@ -42,7 +42,6 @@ export function readRelation(relation: mixed, point: string) {
     equationResults = analyzeOperationType(relation, point);
   } else if (relation.relation) {
     const relationType = relation.relation;
-
     switch (relationType) {
       case 'trung điểm':
       case 'thuộc':
@@ -151,6 +150,7 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
     let calculatedPoint;
     if (relation.circle) {
       calculatedPoint = getRandomPointInEquation(dataViewModel.getCircleEquation(relation.circle[0]));
+      console.log(calculatedPoint)
       dataViewModel.updateCoordinate(relation.point[0], calculatedPoint);
       return dataViewModel.getCircleEquation(relation.circle[0]);
     }
@@ -346,6 +346,7 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
     });
 
     const calculatedPoint = calculateIntersectionByLineAndLine(calculatedLineEquationOne, calculatedLineEquationTwo);
+
     dataViewModel.updateCoordinate(relation.point[0], calculatedPoint);
   } else if (relation.circle.length === 2) {
     const roots = calculateIntersectionTwoCircleEquations(
@@ -372,14 +373,17 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
       (root: CoordinateType): boolean =>
         JSON.stringify(root) !== JSON.stringify(pointOne) && JSON.stringify(root) !== JSON.stringify(pointTwo)
     );
-
-    roots.forEach((root: CoordinateType, index: number) => {
-      if (!relation.point[index]) {
-        ErrorService.showError('500');
-      } else {
-        dataViewModel.updateCoordinate(relation.point[index], root);
-      }
-    });
+    if (relation.point.length === 2) {
+      roots.forEach((root: CoordinateType, index: number) => {
+        if (!relation.point[index]) {
+          ErrorService.showError('200');
+        } else {
+          dataViewModel.updateCoordinate(relation.point[index], root);
+        }
+      });
+    } else {
+      dataViewModel.updateCoordinate(relation.point[0], roots[getRandomValue(0, roots.length - 1)]);
+    }
   }
 }
 
@@ -572,10 +576,6 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
   //move newRoot to oldRoot
   const transitionVector = calculateVector(newRootPoint, rootPoint, false);
 
-  console.log(
-    calculateAngleTwoVector(calculateVector(staticPoint, rootPoint), calculateVector(changedPoint, newRootPoint))
-  );
-
   if (modifiedAngleName === angleName) {
     dataViewModel.updateCoordinate(modifiedAngleName[2], {
       x: changedPoint.x + transitionVector.x,
@@ -588,10 +588,6 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
       calculateParallelLineByPointAndLine(rootPoint, calculatedEquation)
     );
 
-    console.log(modifiedAngleName[2], changedPoint, {
-      x: changedPoint.x + transitionVector.x,
-      y: changedPoint.y + transitionVector.y
-    });
     return;
   }
 

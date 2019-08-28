@@ -225,12 +225,13 @@ export function calculateCircleEquationByCenterPoint(
   centerPoint: CoordinateType,
   radius: number
 ): TwoVariableQuadraticEquation {
+  const roundedRadius = _makeRound(radius, 6);
   return {
     a: 1,
     b: 1,
     c: -2 * centerPoint.x,
     d: -2 * centerPoint.y,
-    e: centerPoint.x * centerPoint.x + centerPoint.y * centerPoint.y - radius * radius
+    e: centerPoint.x * centerPoint.x + centerPoint.y * centerPoint.y - roundedRadius * roundedRadius
   };
 }
 

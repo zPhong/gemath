@@ -30,7 +30,6 @@ export function readPointsMap(): Array | {} {
   while (!dataViewModel.isPointsMapStatic()) {
     //get node to calculate
     const executingNode = dataViewModel.getNextExecuteNode();
-
     if (!executingNode) break;
 
     executeRelations(executingNode);
@@ -182,7 +181,6 @@ function executeRelations(node: NodeType) {
         } else {
           ErrorService.ErrorMessage('400');
         }
-        return;
       } else if (!dataViewModel.isExecutedRelation(relation)) {
         generateGeometry(relation[shapeName], shapeName, relation.type);
         setPointsDirection(relation[shapeName]);
