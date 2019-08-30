@@ -38,10 +38,10 @@ class DataViewModel {
     this.data = appData;
     this.relationsInput = [
       new RelationInputModel('tam giác ABC'),
-      new RelationInputModel('đường tròn tâm O ngoại tiếp ABC'),
-      new RelationInputModel('F thuộc (O)'),
-      new RelationInputModel('CF cắt AB tại D'),
-      new RelationInputModel('DO cắt (O) tại G,H')
+      new RelationInputModel('AB = 5'),
+      new RelationInputModel('AC = 5'),
+      new RelationInputModel('BC = 5'),
+      new RelationInputModel('BF vuông góc AC')
     ];
   }
 
@@ -417,6 +417,8 @@ class DataViewModel {
       });
       isFirst = true;
     }
+
+    if (pointId === 'C') console.log(equation);
 
     if (this.data.getPointDetails.get(pointId).setOfEquation.length === 2) {
       if (isQuadraticEquation(equation) && !isFirst) {

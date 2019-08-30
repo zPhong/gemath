@@ -31,7 +31,6 @@ export function readPointsMap(): Array | {} {
     //get node to calculate
     const executingNode = dataViewModel.getNextExecuteNode();
     if (!executingNode) break;
-
     executeRelations(executingNode);
 
     //Update calculated value to pointsMap
@@ -95,6 +94,7 @@ export function readPointsMap(): Array | {} {
   dataViewModel.getData.getPointsMap.forEach((node: NodeType) => {
     //Update calculated value to pointsMap
     if (dataViewModel.getData.getPointDetails.has(node.id)) {
+      console.log(dataViewModel.getData.getPointDetails.get(node.id));
       const roots = dataViewModel.getData.getPointDetails.get(node.id).roots;
       if (typeof roots === 'string') {
         ErrorService.showError('400');
@@ -196,7 +196,6 @@ function executeRelations(node: NodeType) {
       }
       dataViewModel.executePointDetails(node.id, relationEquation);
     }
-
     if (!dataViewModel.isExecutedRelation(relation)) {
       dataViewModel.getData.getExecutedRelations.push(relation);
     }

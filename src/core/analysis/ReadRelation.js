@@ -150,7 +150,6 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
     let calculatedPoint;
     if (relation.circle) {
       calculatedPoint = getRandomPointInEquation(dataViewModel.getCircleEquation(relation.circle[0]));
-      console.log(calculatedPoint)
       dataViewModel.updateCoordinate(relation.point[0], calculatedPoint);
       return dataViewModel.getCircleEquation(relation.circle[0]);
     }
@@ -229,6 +228,9 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
       dataViewModel.getNodeInPointsMapById(relation.segment[0][1]).coordinate
     );
   } else if (relationType === 'song song' || relationType === 'vuông góc') {
+    if (!segmentNotIncludePoint) {
+      return;
+    }
     const otherStaticPoint = segmentIncludePoint.replace(point, '');
     if (!dataViewModel.isValidCoordinate(otherStaticPoint) && !dataViewModel.isValidCoordinate(point)) {
       const point = generatePointMiddleTwoPoints(
@@ -329,7 +331,6 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
       }
     }
   }
-
   if (relation.segment.length === 2) {
     const calculatedLineEquationOne = getLineFromTwoPoints(
       dataViewModel.getNodeInPointsMapById(relation.segment[0][0]).coordinate,
