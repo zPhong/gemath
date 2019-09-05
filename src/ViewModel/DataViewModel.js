@@ -37,11 +37,10 @@ class DataViewModel {
   constructor(appData) {
     this.data = appData;
     this.relationsInput = [
-      new RelationInputModel('tam giác ABC'),
+      new RelationInputModel('tam giác đều ABC'),
       new RelationInputModel('AB = 5'),
-      new RelationInputModel('AC = 5'),
-      new RelationInputModel('BC = 5'),
-      new RelationInputModel('BF vuông góc AC')
+      new RelationInputModel('BF vuông góc AC'),
+      new RelationInputModel('(O) nội tiếp ABC')
     ];
   }
 
@@ -418,8 +417,6 @@ class DataViewModel {
       isFirst = true;
     }
 
-    if (pointId === 'C') console.log(equation);
-
     if (this.data.getPointDetails.get(pointId).setOfEquation.length === 2) {
       if (isQuadraticEquation(equation) && !isFirst) {
         for (let i = 0; i < 2; i++) {
@@ -442,23 +439,62 @@ class DataViewModel {
     }
 
     let temp = this.data.getPointDetails.get(pointId).roots;
-    const tempLength = temp.length;
 
     if (typeof temp === 'string') {
       ErrorService.showError('500');
       return;
     }
+
     temp = temp.filter((root) => {
       return isIn(root, equation);
     });
 
-    if (temp.length < tempLength) {
+    if (temp.length > 0) {
       // TODO: Add exception
       this._updatePointDetails(pointId, {
         setOfEquation: this.data.getPointDetails.get(pointId).setOfEquation,
         roots: temp,
         exceptedCoordinates: this.data.getPointDetails.get(pointId).exceptedCoordinates
       });
+
+      if (temp.length > 0) {
+        let coordinate;
+        if (dataViewModel.isNeedRandomCoordinate(pointId)) {
+          coordinate = temp[getRandomValue(0, temp.length)];
+        } else {
+          const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[pointId];
+          const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
+          if (temp.length > 1) {
+            const rootsDirection = temp.map((root) => ({
+              coordinate: root,
+              isRight: root.x > staticPointCoordinate.x,
+              isUp: root.y < staticPointCoordinate.y
+            }));
+
+            const coordinateMatch = rootsDirection
+              .map((directionInfo) => {
+                let matchCount = 0;
+                if (directionInfo.isRight === nodeDirectionInfo.isRight) {
+                  matchCount++;
+                }
+                if (directionInfo.isUp === nodeDirectionInfo.isUp) {
+                  matchCount++;
+                }
+                return {
+                  coordinate: directionInfo.coordinate,
+                  matchCount
+                };
+              })
+              .sort((a, b) => b.matchCount - a.matchCount)[0];
+
+            coordinate = coordinateMatch.coordinate;
+          } else {
+            coordinate = temp[0];
+          }
+        }
+        console.log(coordinate);
+        dataViewModel.updateCoordinate(pointId, coordinate);
+      }
     }
   }
 

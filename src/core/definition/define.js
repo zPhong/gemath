@@ -11,6 +11,8 @@ const defineSentences = {
     '{object} song song {object}',
     '{object} vuông góc {object}',
     '{object} cắt {object} tại {arrayPoints}',
+    '{object} phân giác ngoài {angle}',
+    '{object} phân giác trong {angle}',
     '{object} phân giác {angle}',
     '{arrayPoints} thẳng hàng',
     '{point} trung điểm {segment}',
@@ -28,7 +30,7 @@ const defineSentences = {
     'hình chữ nhật {rectangle}',
     'hình thoi {rhombus}',
     'hình vuông {square}',
-    'đường tròn tâm {point type triangle}'
+    '{object type triangle}'
   ]
 };
 
@@ -76,7 +78,7 @@ const shapeRules = {
     right: '01^02', // Ex: AB vuong goc AC
     isosceles: '01=02',
     right_isosceles: '01^02&01=02',
-    equilateral: '01=02&01=12'
+    equilateral: '01=02&01=12&02=12'
   },
   trapezoid: {
     normal: '01|23',
@@ -93,7 +95,7 @@ const shapeRules = {
     normal: '02^13'
   },
   square: {
-    normal: '01|23&03|12&01^12&12^23&23^03&01=03&&01=12&12=23'
+    normal: '01|23&03|12&01^12&12^23&23^03&01=03&&01=12&12=23&&23=03'
   }
 };
 

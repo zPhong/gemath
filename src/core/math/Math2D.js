@@ -260,6 +260,26 @@ export function calculateInternalBisectLineEquation(
   return _getInternalBisectLineEquation(firstLine, secondLine, pointOne, pointTwo);
 }
 
+export function calculateExternalBisectLineEquation(
+  lineOne: EquationType,
+  lineTwo: EquationType,
+  pointOne: CoordinateType,
+  pointTwo: CoordinateType
+): EquationType {
+  let results = _calculateBisectLineEquation(lineOne, lineTwo);
+  const firstLine: EquationType = results[0];
+  const secondLine: EquationType = results[1];
+
+  if (getAngleFromTwoLines(lineOne, lineTwo) === 0) {
+    throw new Map().set('error', 'không hỗ trợ trường hợp này');
+  }
+
+  const internalLine = _getInternalBisectLineEquation(firstLine, secondLine, pointOne, pointTwo);
+
+  results = results.filter((line: EquationType): boolean => JSON.stringify(line) !== JSON.stringify(internalLine));
+  return results[0];
+}
+
 function _calculateBisectLineEquation(lineOne: EquationType, lineTwo: EquationType): [EquationType, EquationType] {
   let resultOne: EquationType = {};
   let resultTwo: EquationType = {};
@@ -533,7 +553,6 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
       }
     }
   }
-
   return results;
 }
 

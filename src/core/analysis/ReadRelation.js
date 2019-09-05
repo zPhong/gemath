@@ -17,12 +17,10 @@ import {
   isIn,
   calculateIntersectionTwoCircleEquations,
   isVectorInSameLine,
-  isVectorSameDirection,
+  calculateExternalBisectLineEquation,
   calculateVector,
   calculateTangentEquation,
-  calculateTangentIntersectPointsByPointOutsideCircle,
-  calculateAngleTwoVector,
-  calculateDistanceFromPointToLine
+  calculateTangentIntersectPointsByPointOutsideCircle
 } from '../math/Math2D';
 import {
   generatePointAlignmentInside,
@@ -49,6 +47,8 @@ export function readRelation(relation: mixed, point: string) {
       case 'song song':
       case 'vuông góc':
       case 'phân giác':
+      case 'phân giác ngoài':
+      case 'phân giác trong':
       case 'thẳng hàng':
         equationResults = analyzeRelationType(relation, point);
         break;
@@ -290,7 +290,9 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
       dataViewModel.updateCoordinate(point, calculatedPoint);
     }
     return calculatedLineEquation;
-  } else if (relationType === 'phân giác') {
+  } else if (relationType.includes('phân giác')) {
+    const isExternal = relationType === 'phân giác ngoài';
+
     if (relation.angle) {
       const angle = relation.angle[0];
       if (angle.includes(point)) {
@@ -301,22 +303,40 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
         dataViewModel.getNodeInPointsMapById(angle[0]).coordinate,
         dataViewModel.getNodeInPointsMapById(angle[2]).coordinate
       );
-
-      const calculatedLineEquation = calculateInternalBisectLineEquation(
-        getLineFromTwoPoints(
+      let calculatedLineEquation;
+      if (isExternal) {
+        calculatedLineEquation = calculateExternalBisectLineEquation(
+          getLineFromTwoPoints(
+            dataViewModel.getNodeInPointsMapById(angle[0]).coordinate,
+            dataViewModel.getNodeInPointsMapById(angle[1]).coordinate
+          ),
+          getLineFromTwoPoints(
+            dataViewModel.getNodeInPointsMapById(angle[1]).coordinate,
+            dataViewModel.getNodeInPointsMapById(angle[2]).coordinate
+          ),
           dataViewModel.getNodeInPointsMapById(angle[0]).coordinate,
-          dataViewModel.getNodeInPointsMapById(angle[1]).coordinate
-        ),
-        getLineFromTwoPoints(
-          dataViewModel.getNodeInPointsMapById(angle[1]).coordinate,
           dataViewModel.getNodeInPointsMapById(angle[2]).coordinate
-        ),
-        dataViewModel.getNodeInPointsMapById(angle[0]).coordinate,
-        dataViewModel.getNodeInPointsMapById(angle[2]).coordinate
-      );
+        );
 
-      const calculatedPoint = calculateIntersectionByLineAndLine(calculatedLineEquation, staticLineEquation);
-      dataViewModel.updateCoordinate(point, calculatedPoint);
+        const calculatedPoint = getRandomPointInEquation(calculatedLineEquation);
+        dataViewModel.updateCoordinate(point, calculatedPoint);
+      } else {
+        calculatedLineEquation = calculateInternalBisectLineEquation(
+          getLineFromTwoPoints(
+            dataViewModel.getNodeInPointsMapById(angle[0]).coordinate,
+            dataViewModel.getNodeInPointsMapById(angle[1]).coordinate
+          ),
+          getLineFromTwoPoints(
+            dataViewModel.getNodeInPointsMapById(angle[1]).coordinate,
+            dataViewModel.getNodeInPointsMapById(angle[2]).coordinate
+          ),
+          dataViewModel.getNodeInPointsMapById(angle[0]).coordinate,
+          dataViewModel.getNodeInPointsMapById(angle[2]).coordinate
+        );
+
+        const calculatedPoint = calculateIntersectionByLineAndLine(calculatedLineEquation, staticLineEquation);
+        dataViewModel.updateCoordinate(point, calculatedPoint);
+      }
 
       return calculatedLineEquation;
     }
