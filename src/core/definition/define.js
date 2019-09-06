@@ -30,6 +30,7 @@ const defineSentences = {
     'hình chữ nhật {rectangle}',
     'hình thoi {rhombus}',
     'hình vuông {square}',
+    '{object type triangle} tại {escribedPoint}',
     '{object type triangle}'
   ]
 };
@@ -63,7 +64,7 @@ const validate = {
     circle: { length: 1, format: '1' }
   },
   shapeType: {
-    triangle: ['', 'vuông', 'cân', 'vuông cân', 'đều', 'nội tiếp', 'ngoại tiếp'],
+    triangle: ['', 'vuông', 'cân', 'vuông cân', 'đều', 'nội tiếp', 'ngoại tiếp', 'bàng tiếp'],
     trapezoid: ['', 'vuông', 'cân']
   }
 };
@@ -105,10 +106,11 @@ const mappingShapeType = {
   'vuông cân': 'right_isosceles',
   đều: 'equilateral',
   'nội tiếp': 'nội tiếp',
-  'ngoại tiếp': 'ngoại tiếp'
+  'ngoại tiếp': 'ngoại tiếp',
+  'bàng tiếp': 'bàng tiếp'
 };
 
-const circleType = ['nội tiếp', 'ngoại tiếp'];
+const circleType = ['nội tiếp', 'ngoại tiếp', 'bàng tiếp'];
 
 const TwoStaticPointRequireShape = ['triangle', 'trapezoid', 'rectangle', 'square'];
 

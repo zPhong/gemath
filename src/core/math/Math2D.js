@@ -731,6 +731,43 @@ export function calculateInCircleEquation(p1: CoordinateType, p2: CoordinateType
   return { center, radius, equation };
 }
 
+export function calculateEscribedCirclesEquation(
+  p1: CoordinateType,
+  p2: CoordinateType,
+  p3: CoordinateType,
+  escribedPoint: CoordinateType
+): CircleType {
+  const otherPoints = [p1, p2, p3].filter(
+    (point: CoordinateType): boolean => JSON.stringify(point) !== JSON.stringify(escribedPoint)
+  );
+  console.log(otherPoints);
+
+  if (otherPoints.length !== 2) {
+    ErrorService.showError('300');
+    return;
+  }
+
+  const bisectorLineOne = calculateInternalBisectLineEquation(
+    getLineFromTwoPoints(escribedPoint, otherPoints[0]),
+    getLineFromTwoPoints(escribedPoint, otherPoints[1]),
+    otherPoints[0],
+    otherPoints[1]
+  );
+
+  const bisectorLineTwo = calculateExternalBisectLineEquation(
+    getLineFromTwoPoints(escribedPoint, otherPoints[0]),
+    getLineFromTwoPoints(otherPoints[1], otherPoints[0]),
+    escribedPoint,
+    otherPoints[1]
+  );
+
+  const center = calculateIntersectionByLineAndLine(bisectorLineOne, bisectorLineTwo);
+  const radius = calculateDistanceFromPointToLine(center, getLineFromTwoPoints(otherPoints[1], otherPoints[0]));
+
+  const equation = calculateCircleEquationByCenterPoint(center, radius);
+  return { center, radius, equation };
+}
+
 export function calculateTangentEquation(circle: EquationType, point?: CoordinateType = null): EquationType {
   const tangentPoint: CoordinateType = point || getRandomPointInEquation(circle);
 

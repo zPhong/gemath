@@ -36,12 +36,7 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = [
-      new RelationInputModel('tam giác đều ABC'),
-      new RelationInputModel('AB = 5'),
-      new RelationInputModel('BF vuông góc AC'),
-      new RelationInputModel('(O) nội tiếp ABC')
-    ];
+    this.relationsInput = [new RelationInputModel('tam giác ABC'), new RelationInputModel('(O) bàng tiếp ABC tại A')];
   }
 
   @computed

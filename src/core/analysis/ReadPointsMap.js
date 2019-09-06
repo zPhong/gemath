@@ -12,7 +12,8 @@ import {
   calculateCircumCircleEquation,
   getAngleFromTwoLines,
   calculateMiddlePoint,
-  calculateSymmetricalPoint
+  calculateSymmetricalPoint,
+  calculateEscribedCirclesEquation
 } from '../math/Math2D';
 import { getRandomValue } from '../math/Generation';
 import { mappingShapeType, shapeRules, TwoStaticPointRequireShape, circleType } from '../definition/define';
@@ -159,11 +160,6 @@ function executeRelations(node: NodeType) {
       shape = relation[shapeName];
       if (circleType.includes(shapeType)) {
         let data = null;
-        console.log(
-          dataViewModel.getNodeInPointsMapById(shape[0]).coordinate,
-          dataViewModel.getNodeInPointsMapById(shape[1]).coordinate,
-          dataViewModel.getNodeInPointsMapById(shape[2]).coordinate
-        );
         switch (shapeType) {
           case 'nội tiếp':
             data = calculateInCircleEquation(
@@ -177,6 +173,14 @@ function executeRelations(node: NodeType) {
               dataViewModel.getNodeInPointsMapById(shape[0]).coordinate,
               dataViewModel.getNodeInPointsMapById(shape[1]).coordinate,
               dataViewModel.getNodeInPointsMapById(shape[2]).coordinate
+            );
+            break;
+          case 'bàng tiếp':
+            data = calculateEscribedCirclesEquation(
+              dataViewModel.getNodeInPointsMapById(shape[0]).coordinate,
+              dataViewModel.getNodeInPointsMapById(shape[1]).coordinate,
+              dataViewModel.getNodeInPointsMapById(shape[2]).coordinate,
+              dataViewModel.getNodeInPointsMapById(relation.escribedPoint[0]).coordinate
             );
             break;
           default:
