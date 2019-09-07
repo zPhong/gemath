@@ -1,12 +1,15 @@
 import { RankingObjectContain, validate } from '../definition/define.js';
 import { checkFormatString } from '../definition/defineObjType';
+import ErrorService from '../../utils/ErrorHandleService.js';
 
 export function validateValue(value, type) {
   if (!_validateName(value.value)) return false;
 
   const validateGeometryType = validate.object[type];
   let validateType;
-  if (value.key === 'value' || value.key === 'relation' || value.key === 'undefined') return true;
+
+  if (value.key === 'value' || value.key === 'relation' || value.key === 'undefined' || value.key === 'circle')
+    return true;
   if (value.key === 'angle') if (!validateAngle(value.value)) return false;
 
   if (validateGeometryType.includes(value.key) || value.key !== 'object') {
@@ -100,6 +103,9 @@ export function validateInformation(info) {
   } else {
     delete info.outputType;
     let keys = Object.keys(info);
+    if (keys.includes('undefined')) {
+      return false;
+    }
     for (let i = 0; i < keys.length; i++) {
       let array = info[keys[i]];
       let key = keys[i];

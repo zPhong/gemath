@@ -4,6 +4,7 @@ import GConst from './values';
 import dataViewModel from '../ViewModel/DataViewModel';
 
 const ErrorCode = {
+  200: GConst.Errors.UNDEFINED_ERROR,
   300: GConst.Errors.WRONG_FORMAT,
   301: GConst.Errors.MAXIMUM_POINT_ERROR,
   400: GConst.String.IMPOSSIBLE,
@@ -39,7 +40,7 @@ class ErrorHandleService {
     }
 
     alert(ErrorCode[code]);
-    throw ErrorCode[code];
+    throw console.error('error', ErrorCode[code]);
   }
 }
 
