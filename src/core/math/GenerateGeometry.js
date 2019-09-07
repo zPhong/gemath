@@ -1,8 +1,8 @@
-import dataViewModel from "../../ViewModel/DataViewModel";
+import dataViewModel from '../../ViewModel/DataViewModel';
 import type { CoordinateType } from '../../utils/types';
-import { calculateDistanceTwoPoints, getLineFromTwoPoints, } from "./Math2D";
+import { calculateDistanceTwoPoints, getLineFromTwoPoints } from './Math2D';
 import { getRandomValue } from './Generation.js';
-import GConst from "../../utils/values";
+import GConst from '../../utils/values';
 
 const MIN = GConst.Number.MIN_RANDOM_GENERATION;
 const MAX = GConst.Number.MAX_RANDOM_GENERATION;
@@ -27,7 +27,7 @@ export function generateGeometry(name: string, shape: string, type?: string) {
 
 function generateTriangle(name: string, type: string) {
   if (name.length === 3) {
-    let p1: CoordinateType = {x: 0, y: 0, z: 0};
+    let p1: CoordinateType = { x: 0, y: 0, z: 0 };
     let p2: CoordinateType = {};
     let p3: CoordinateType = {};
 
@@ -112,7 +112,7 @@ function generateTriangle(name: string, type: string) {
 function generateQuadrilateral(name: string) {
   if (name.length === 4) {
     // p1 represents point A
-    const p1: CoordinateType = {x: 0, y: 0, z: 0};
+    const p1: CoordinateType = { x: 0, y: 0, z: 0 };
     dataViewModel.updateCoordinate(name[0], p1);
 
     // p2 represents point B
@@ -135,7 +135,7 @@ function generateQuadrilateral(name: string) {
     // p4 represents point D
     const p4: CoordinateType = {
       x: getRandomValue(p1.x - MAX, p3.x),
-      y: undefined,
+      y: undefined
     };
 
     // prevents p1, p2, p4 are straight
@@ -152,7 +152,7 @@ function generateQuadrilateral(name: string) {
 function generateTrapezoid(name: string, type: string) {
   if (name.length === 4) {
     // p1 represents point A
-    const p1: CoordinateType = {x: 0, y: 0, z: 0};
+    const p1: CoordinateType = { x: 0, y: 0, z: 0 };
     dataViewModel.updateCoordinate(name[0], p1);
 
     switch (type) {
@@ -222,7 +222,7 @@ function generateTrapezoid(name: string, type: string) {
 function generateParallelogram(name: string) {
   if (name.length === 4) {
     // p1 represents point A
-    const p1: CoordinateType = {x: 0, y: 0, z: 0};
+    const p1: CoordinateType = { x: 0, y: 0, z: 0 };
     dataViewModel.updateCoordinate(name[0], p1);
 
     // p2 represents point B
@@ -251,7 +251,7 @@ function generateParallelogram(name: string) {
 function generateRectangle(name: string) {
   if (name.length === 4) {
     // p1 represents point A
-    const p1: CoordinateType = {x: 0, y: 0, z: 0};
+    const p1: CoordinateType = { x: 0, y: 0, z: 0 };
     dataViewModel.updateCoordinate(name[0], p1);
 
     // p2 represents point B
@@ -281,7 +281,7 @@ function generateRectangle(name: string) {
 function generateRhombus(name: string) {
   if (name.length === 4) {
     // p1 represents point A
-    const p1: CoordinateType = {x: 0, y: 0, z: 0};
+    const p1: CoordinateType = { x: 0, y: 0, z: 0 };
     dataViewModel.updateCoordinate(name[0], p1);
 
     // p2 represents point B
@@ -310,7 +310,7 @@ function generateRhombus(name: string) {
 function generateSquare(name: string) {
   if (name.length === 4) {
     // p1 represents point A
-    const p1: CoordinateType = {x: 0, y: 0, z: 0};
+    const p1: CoordinateType = { x: 0, y: 0, z: 0 };
     dataViewModel.updateCoordinate(name[0], p1);
 
     // p2 represents point B
@@ -336,5 +336,4 @@ function generateSquare(name: string) {
   }
 }
 
-function generateCircle(name: string) {
-}
+function generateCircle(name: string) {}

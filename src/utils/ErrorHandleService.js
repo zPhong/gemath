@@ -2,9 +2,9 @@
 
 import GConst from './values';
 import dataViewModel from '../ViewModel/DataViewModel';
-import RelationInputModel from '../Model/RelationInputModel';
 
 const ErrorCode = {
+  200: GConst.Errors.UNDEFINED_ERROR,
   300: GConst.Errors.WRONG_FORMAT,
   301: GConst.Errors.MAXIMUM_POINT_ERROR,
   400: GConst.String.IMPOSSIBLE,
@@ -26,14 +26,21 @@ class ErrorHandleService {
     if (errorRelation) {
       index = dataViewModel.inputData.filter((data: mixed): boolean => data === errorRelation)[0];
     } else {
-      index = dataViewModel.executedInputIndex;
+      switch (code) {
+        case 300:
+        case 301:
+          index = dataViewModel.executedInputIndex;
+          break;
+        default:
+          index = dataViewModel.inputData.filter((data: mixed): boolean => data === dataViewModel.executingRelation)[0];
+      }
     }
     if (index >= 0) {
       dataViewModel.RelationsInput[index].status = GConst.InputStatus.ERROR;
     }
 
     alert(ErrorCode[code]);
-    throw ErrorCode[code];
+    throw console.error('error', ErrorCode[code]);
   }
 }
 

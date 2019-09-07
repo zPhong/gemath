@@ -1,3 +1,5 @@
+import { circleType } from '../core/definition/define';
+
 export type CoordinateType = {
   x: number,
   y: number
@@ -31,9 +33,16 @@ export type DrawingSegmentType = {
   visible: boolean
 };
 
+export type CircleType = {
+  center: CoordinateType,
+  radius: number,
+  equation: EquationType
+};
+
 export type DrawingDataType = {
   points: Array<NodeType>,
-  segment: Array<string>
+  segment: Array<string>,
+  circles: CircleType
 };
 
 // ax - y + b = 0

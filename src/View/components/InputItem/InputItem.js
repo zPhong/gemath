@@ -13,12 +13,23 @@ type PropsType = {
   onBackspace: void
 };
 
+type StateType = {
+  shouldRemove: boolean
+};
+
 const KEYCODE = Object.freeze({
   BACKSPACE: 8,
-  ENTER: 13,
+  ENTER: 13
 });
 
 class InputItem extends React.Component<PropsType> {
+  constructor(props: PropsType) {
+    super(props);
+    this.state = {
+      shouldRemove: true,
+      isEmpty: true
+    };
+  }
   inputRef: ReactRefs = React.createRef();
 
   focus() {
@@ -31,6 +42,17 @@ class InputItem extends React.Component<PropsType> {
   onChange(e: React.FormEvent<HTMLInputElement>) {
     const value = e.currentTarget.value;
     const { onValueChange } = this.props;
+
+    if (value.length === 0) {
+      if (!this.state.isEmpty) {
+        this.setState({ isEmpty: true });
+      }
+    } else {
+      this.setState({
+        isEmpty: false,
+        shouldRemove: false
+      });
+    }
     if (onValueChange) {
       onValueChange(value);
     }
@@ -38,22 +60,27 @@ class InputItem extends React.Component<PropsType> {
 
   @autobind
   onKeyUp(e: React.KeyboardEvent<FormControl>) {
-    const { onBackspace, onSubmit } = this.props;
+    const { onBackspace, onSubmit, value } = this.props;
 
     if (e.keyCode === KEYCODE.ENTER) {
       if (onSubmit) {
         onSubmit();
       }
-    }
-
-    else if (e.keyCode === KEYCODE.BACKSPACE) {
+    } else if (e.keyCode === KEYCODE.BACKSPACE) {
+      if (this.state.isEmpty && !this.state.shouldRemove) {
+        this.setState({
+          shouldRemove: true
+        });
+        return;
+      }
       if (onBackspace) {
         onBackspace();
       }
     }
   }
+
   render(): React.Node {
-    const { status } = this.props;
+    const { status, value } = this.props;
     return (
       <div className="input-item">
         <div className="input-group input-container">
@@ -67,6 +94,7 @@ class InputItem extends React.Component<PropsType> {
             ref={this.inputRef}
             onChange={this.onChange}
             onKeyUp={this.onKeyUp}
+            value={value}
             className={`form-control ${status.toLowerCase()}`}
             aria-describedby="basic-addon1"
           />

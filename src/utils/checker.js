@@ -4,11 +4,7 @@ export function isLowerCaseChar(char) {
 }
 
 export function isNumber(value) {
-  return (
-    !isNaN(value) ||
-    typeof value === 'number' ||
-    (isObjectLike(value) && getTag(value) === '[object Number]')
-  );
+  return !isNaN(value) || typeof value === 'number' || (isObjectLike(value) && getTag(value) === '[object Number]');
 }
 
 export function isObject(value) {
@@ -16,14 +12,14 @@ export function isObject(value) {
   return value !== null && (type === 'object' || type === 'function');
 }
 
-export function isQuadraticEquation (equation): boolean {
-  if (equation.coefficientX) return false;
+export function isQuadraticEquation(equation): boolean {
+  if (!equation) return false;
   return equation.a === 1 && equation.b === 1;
 }
 
 export function isFunction(value) {
   if (!isObject(value)) {
-    return false
+    return false;
   }
   // The use of `Object#toString` avoids issues with the `typeof` operator
   // in Safari 9 which returns 'object' for typed arrays and other constructors.
