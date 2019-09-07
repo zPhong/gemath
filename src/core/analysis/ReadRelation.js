@@ -415,20 +415,12 @@ function analyzeOperationType(relation: mixed, point: string): any {
 
   const objectsIncludePoint = [];
 
+  console.log(relation[objectType]);
+
   for (let index in relation[objectType]) {
     const object = relation[objectType][index];
     if (object.includes(point)) {
       objectsIncludePoint.push(object);
-    }
-    let isStatic = true;
-    object.split('').forEach((objPoint) => {
-      if (objPoint !== point && !dataViewModel.isStaticNodeById(objPoint)) {
-        isStatic = false;
-      }
-    });
-
-    if (!isStatic) {
-      return;
     }
 
     valueData[object] =
@@ -596,7 +588,7 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
 
   //move newRoot to oldRoot
   const transitionVector = calculateVector(newRootPoint, rootPoint, false);
-
+  console.log(modifiedAngleName, angleName);
   if (modifiedAngleName === angleName) {
     dataViewModel.updateCoordinate(modifiedAngleName[2], {
       x: changedPoint.x + transitionVector.x,

@@ -655,9 +655,18 @@ export function makeRoundCoordinate(point: CoordinateType, f: number = 3) {
 }
 
 export function getAngleFromTwoLines(d1: EquationType, d2: EquationType): number {
-  if (d1.a || d1.b || d2.a || d2.b) {
+  if (
+    d1.a ||
+    d1.b ||
+    d2.a ||
+    d2.b ||
+    (d1.c === 0 && d1.d === 0 && d1.e === 0) ||
+    (d2.c === 0 && d2.d === 0 && d2.e === 0)
+  ) {
     return -9999;
   }
+
+  console.log(d1, d2);
 
   const a1 = d1.c;
   const a2 = d2.c;

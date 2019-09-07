@@ -36,7 +36,11 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = [new RelationInputModel('tam giác ABC'), new RelationInputModel('(O) bàng tiếp ABC tại A')];
+    this.relationsInput = [
+      new RelationInputModel('tam giác ABC'),
+      new RelationInputModel('ABC = 60'),
+      new RelationInputModel('BCA = 30')
+    ];
   }
 
   @computed
@@ -310,12 +314,13 @@ class DataViewModel {
     const pointDetail = this.data.getPointDetails.get(pointId);
     const setOfEquation = pointDetail.setOfEquation;
     let isReplaceComplete = false;
-    setOfEquation.forEach((equation: EquationType, index: numer) => {
+    setOfEquation.forEach((equation: EquationType, index: number) => {
       if (isTwoEquationEqual(equation, searchEquation)) {
         setOfEquation[index] = replaceEquation;
         isReplaceComplete = true;
       }
     });
+
     if (!isReplaceComplete) {
       setOfEquation.push(replaceEquation);
     }
@@ -394,6 +399,16 @@ class DataViewModel {
   }
 
   executePointDetails(pointId: string, equation: EquationType) {
+    let sum = 0;
+    Object.keys(equation)
+      .map((key: string): number => equation[key])
+      .forEach((value: number) => {
+        sum += Math.abs(value);
+      });
+    if (sum === 0) {
+      return;
+    }
+
     let isFirst = false;
     if (!this.data.getPointDetails.has(pointId)) {
       this._updatePointDetails(pointId, {
