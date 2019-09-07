@@ -137,7 +137,7 @@ function getFirstStaticPointInShape(shape: string): string {
   const angles = [];
   if (dataViewModel.getData.getRelationsResult.relations) {
     dataViewModel.getData.getRelationsResult.relations.forEach((relation) => {
-      if (!relation.angle) {
+      if (!relation.angle || relation.outputType !== 'define') {
         return;
       }
       angles.push(relation.angle[0]);
@@ -212,7 +212,7 @@ function createPointsMapByRelation(relation: any) {
   if (lastObjectPoints.length === RelationPointsMap.length) {
     lastObjectPoints = [lastObjectPoints[0]];
   }
-  if (relation.relation === 'song song' || relation.relation === 'vuông góc') {
+  if (relation.relation === 'song song' || relation.relation === 'vuông góc' || relation.relation === 'phân giác') {
     lastObjectPoints = lastObjectPoints.filter(
       (point: string): boolean => !dataViewModel.getNodeInPointsMapById(point)
     );

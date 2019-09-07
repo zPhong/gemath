@@ -351,7 +351,7 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
       }
     }
   }
-  if (relation.segment.length === 2) {
+  if (relation.segment && relation.segment.length === 2) {
     const calculatedLineEquationOne = getLineFromTwoPoints(
       dataViewModel.getNodeInPointsMapById(relation.segment[0][0]).coordinate,
       dataViewModel.getNodeInPointsMapById(relation.segment[0][1]).coordinate
@@ -369,16 +369,14 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
     const calculatedPoint = calculateIntersectionByLineAndLine(calculatedLineEquationOne, calculatedLineEquationTwo);
 
     dataViewModel.updateCoordinate(relation.point[0], calculatedPoint);
-  } else if (relation.circle.length === 2) {
+  } else if (relation.circle && relation.circle.length === 2) {
     const roots = calculateIntersectionTwoCircleEquations(
       dataViewModel.getCircleEquation(relation.circle[0]),
       dataViewModel.getCircleEquation(relation.circle[1])
     );
 
     roots.forEach((root: CoordinateType, index: number) => {
-      if (!relation.point[index]) {
-        ErrorService.showError('500');
-      } else {
+      if (relation.point[index]) {
         dataViewModel.updateCoordinate(relation.point[index], root);
       }
     });
