@@ -182,24 +182,30 @@ function generateTrapezoid(name: string, type: string) {
       case '': {
         // p2 represents point B
         const p2: CoordinateType = {
-          x: getRandomValue(p1.x + MIN, p1.x + MAX),
+          x: getRandomValue(p1.x + Math.floor(MAX / 2), p1.x + MAX),
           y: p1.y,
         };
         dataViewModel.updateCoordinate(name[1], p2);
 
         // p3 represents point C
         const p3: CoordinateType = {
-          x: getRandomValue(p2.x + MIN, p2.x + MAX),
-          y: getRandomValue(p1.y + MIN, p1.y + MAX),
+          x: (getRandomValue(p2.x + Math.floor(MAX / 2), p2.x + MAX)),
+          y: getRandomValue(p2.y + Math.floor(MAX / 2), p1.y + MAX),
         };
         dataViewModel.updateCoordinate(name[2], p3);
 
         // p4 represents point D
         const p4: CoordinateType = {
-          x: getRandomValue(p1.x - MAX, p3.x - MIN),
+          x: getRandomValue(p1.x - Math.floor(MAX / 2), p3.x - MAX),
           y: p3.y,
         };
         dataViewModel.updateCoordinate(name[3], p4);
+        console.table({
+          p1,
+          p2,
+          p3,
+          p4,
+        });
         break;
       }
 
