@@ -1,13 +1,10 @@
 // @flow
 
-import { objectWithPoint } from '../definition/define.js'
-import type {
-  DrawingDataType,
-  NodeRelationType,
-  NodeType,
-} from '../../utils/types.js';
+import { objectWithPoint } from '../definition/define.js';
+import type { DrawingDataType, NodeRelationType, NodeType } from '../../utils/types.js';
 import dataViewModel from '../../ViewModel/DataViewModel';
 import { readPointsMap } from './ReadPointsMap';
+import { makeRoundCoordinate } from '../math/Math2D.js';
 
 let RelationPointsMap: Array<NodeType> = [];
 
@@ -30,12 +27,10 @@ export function analyzeResult(validatedResult): DrawingDataType {
   let result = {};
 
   readPointsMap();
-  result.points = dataViewModel.getData.getPointsMap.map(
-    (node: NodeType) => ({
-      id: node.id,
-      coordinate: node.coordinate
-    })
-  );
+  result.points = dataViewModel.getData.getPointsMap.map((node: NodeType) => ({
+    id: node.id,
+    coordinate: makeRoundCoordinate(node.coordinate, 3)
+  }));
 
   result.segments = [...getArraySegments(validatedResult), ...dataViewModel.getData.getAdditionSegment];
   return result;
@@ -79,12 +74,10 @@ function getShapeSegments(shape: any): Array<string> {
 }
 
 function trimPointsMap() {
-  dataViewModel.getData.setPointsMap(dataViewModel.getData.getPointsMap.map(
-    (node: NodeType): NodeType => ({
-      ...node,
-      dependentNodes: unique(node.dependentNodes)
-    })
-  )) ;
+  dataViewModel.getData.setPointsMap = dataViewModel.getData.getPointsMap.map((node: NodeType): NodeType => ({
+    ...node,
+    dependentNodes: unique(node.dependentNodes)
+  }));
 }
 
 function unique(dependentNodes: Array<NodeRelationType>): Array<NodeRelationType> {
@@ -101,18 +94,16 @@ function unique(dependentNodes: Array<NodeRelationType>): Array<NodeRelationType
 }
 
 function sortPriority(points) {
-  return points.sort(
-    (el1: string, el2: string): number => {
-      const index1 = findIndexByNodeId(el1, dataViewModel.getData.getPointsMap);
-      const index2 = findIndexByNodeId(el2, dataViewModel.getData.getPointsMap);
+  return points.sort((el1: string, el2: string): number => {
+    const index1 = findIndexByNodeId(el1, dataViewModel.getData.getPointsMap);
+    const index2 = findIndexByNodeId(el2, dataViewModel.getData.getPointsMap);
 
-      if (index1 === -1 && index2 === -1) {
-        return 1;
-      }
-      if (index1 >= 0 && index2 >= 0) return 1;
-      return index2 - index1;
+    if (index1 === -1 && index2 === -1) {
+      return 1;
     }
-  );
+    if (index1 >= 0 && index2 >= 0) return 1;
+    return index2 - index1;
+  });
 }
 
 function createPointsMapByShape(shape: any) {
@@ -126,10 +117,17 @@ function createPointsMapByShape(shape: any) {
     points = [shouldStaticPoint].concat(points.filter((point) => point !== shouldStaticPoint));
   }
 
-  const objectPointsMap = points.map((point: string, index: number) => {
-    return index !== 0 ? createNode(point, [{ id: points[0], relation: shape }]) : createNode(point);
-  });
-
+  let objectPointsMap;
+  // đường tròn ngoại tiếp, nội tiếp
+  if (shape.point) {
+    objectPointsMap = points.map((point: string) => {
+      return createNode(shape.point[0], [{ id: point, relation: shape }]);
+    });
+  } else {
+    objectPointsMap = points.map((point: string, index: number) => {
+      return index !== 0 ? createNode(point, [{ id: points[0], relation: shape }]) : createNode(point);
+    });
+  }
   objectPointsMap.forEach((node: NodeType) => {
     updateMap(node, dataViewModel.getData.getPointsMap);
   });
@@ -137,17 +135,17 @@ function createPointsMapByShape(shape: any) {
 
 function getFirstStaticPointInShape(shape: string): string {
   const angles = [];
-  dataViewModel.getData.getRelationsResult.relations.forEach((relation) => {
-    if (!relation.angle) {
-      return;
-    }
-    angles.push(relation.angle[0]);
-  });
+  if (dataViewModel.getData.getRelationsResult.relations) {
+    dataViewModel.getData.getRelationsResult.relations.forEach((relation) => {
+      if (!relation.angle || relation.outputType !== 'define') {
+        return;
+      }
+      angles.push(relation.angle[0]);
+    });
 
-  const shapePointCount = {};
+    const shapePointCount = {};
 
-  angles.forEach(
-    (angle: string): void => {
+    angles.forEach((angle: string): void => {
       angle.split('').forEach((point, index) => {
         //don't check middle point
         if (index !== 1) {
@@ -158,17 +156,18 @@ function getFirstStaticPointInShape(shape: string): string {
           }
         }
       });
-    }
-  );
+    });
 
-  let minCountPoint = shape[0];
-  Object.keys(shapePointCount).forEach((point) => {
-    if (shapePointCount[point] < shapePointCount[minCountPoint]) {
-      minCountPoint = point;
-    }
-  });
+    let minCountPoint = shape[0];
+    Object.keys(shapePointCount).forEach((point) => {
+      if (shapePointCount[point] < shapePointCount[minCountPoint]) {
+        minCountPoint = point;
+      }
+    });
 
-  return minCountPoint;
+    return minCountPoint;
+  }
+  return shape[0];
 }
 
 function createPointsMapByRelation(relation: any) {
@@ -193,42 +192,47 @@ function createPointsMapByRelation(relation: any) {
     }
   });
 
-  RelationPointsMap = [...RelationPointsMap].sort(
-    (nodeOne: NodeType, nodeTwo: NodeType): number => {
-      const index1 = findIndexByNodeId(nodeOne.id, dataViewModel.getData.getPointsMap);
-      const index2 = findIndexByNodeId(nodeTwo.id, dataViewModel.getData.getPointsMap);
-      if (index1 === -1 && index2 === -1) return 1;
-      if (index1 >= 0 && index2 >= 0) return index1 - index2;
-      return index2 - index1;
-    }
-  );
+  RelationPointsMap = [...RelationPointsMap].sort((nodeOne: NodeType, nodeTwo: NodeType): number => {
+    const index1 = findIndexByNodeId(nodeOne.id, dataViewModel.getData.getPointsMap);
+    const index2 = findIndexByNodeId(nodeTwo.id, dataViewModel.getData.getPointsMap);
+    if (index1 === -1 && index2 === -1) return 1;
+    if (index1 >= 0 && index2 >= 0) return index1 - index2;
+    return index2 - index1;
+  });
 
-  if (relation.operation === '=' && relation.value) {
-    const lastNodeDependentLength = RelationPointsMap[RelationPointsMap.length - 1].dependentNodes.length;
-    if (RelationPointsMap[RelationPointsMap.length - 1].dependentNodes[lastNodeDependentLength - 1]) {
-      RelationPointsMap[RelationPointsMap.length - 1].dependentNodes[lastNodeDependentLength - 1].relation = relation;
-    }
+  let lastObjectPoints;
+
+  if (relation.angle && relation.outputType === 'define' && !!relation.value) {
+    const index1 = findIndexByNodeId(relation.angle[0][0], dataViewModel.getData.getPointsMap);
+    const index2 = findIndexByNodeId(relation.angle[0][2], dataViewModel.getData.getPointsMap);
+    lastObjectPoints = [index1 > index2 ? relation.angle[0][0] : relation.angle[0][2]];
   } else {
-    let lastObjectPoints = getDependentObject();
-    if (lastObjectPoints.length === RelationPointsMap.length) {
-      lastObjectPoints = [lastObjectPoints[0]];
-    }
-    lastObjectPoints.forEach((point) => {
-      const index = findIndexByNodeId(point, RelationPointsMap);
-      const currentNode = RelationPointsMap[index];
-      RelationPointsMap.forEach((node) => {
-        if (node.id !== point) {
-          RelationPointsMap[index] = {
-            ...currentNode,
-            dependentNodes: [
-              ...currentNode.dependentNodes,
-              ...createDependentNodeOfRelation(node.id, relation, lastObjectPoints)
-            ]
-          };
-        }
-      });
-    });
+    lastObjectPoints = getDependentObject();
   }
+  if (lastObjectPoints.length === RelationPointsMap.length) {
+    lastObjectPoints = [lastObjectPoints[0]];
+  }
+  if (relation.relation === 'song song' || relation.relation === 'vuông góc' || relation.relation === 'phân giác') {
+    lastObjectPoints = lastObjectPoints.filter(
+      (point: string): boolean => !dataViewModel.getNodeInPointsMapById(point)
+    );
+  }
+  lastObjectPoints.forEach((point) => {
+    const index = findIndexByNodeId(point, RelationPointsMap);
+    const currentNode = RelationPointsMap[index];
+    RelationPointsMap.forEach((node) => {
+      if (node.id !== point) {
+        RelationPointsMap[index] = {
+          ...currentNode,
+          dependentNodes: [
+            ...currentNode.dependentNodes,
+            ...createDependentNodeOfRelation(node.id, relation, lastObjectPoints)
+          ]
+        };
+      }
+    });
+  });
+
   return RelationPointsMap;
 }
 
@@ -264,6 +268,8 @@ function createDependentNodeOfRelation(
     if (exception.includes(node.id)) return;
     result.push({ id: node.id, relation });
   });
+
+  console.log(result);
 
   return result;
 }

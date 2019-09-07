@@ -10,12 +10,17 @@ const defineSentences = {
   relation: [
     '{object} song song {object}',
     '{object} vuông góc {object}',
-    '{object} cắt {object} tại {point}',
+    '{object} cắt {object} tại {arrayPoints}',
+    '{object} phân giác ngoài {angle}',
+    '{object} phân giác trong {angle}',
     '{object} phân giác {angle}',
     '{arrayPoints} thẳng hàng',
     '{point} trung điểm {segment}',
     '{point} không thuộc {object}',
-    '{point} thuộc {object}'
+    '{point} thuộc {object}',
+    'trung tuyến {segment} của {triangle}',
+    'đường cao {segment} của {triangle}',
+    '{segment} tiếp tuyến {circle}'
   ],
   shape: [
     'tam giác {type triangle}',
@@ -25,7 +30,8 @@ const defineSentences = {
     'hình chữ nhật {rectangle}',
     'hình thoi {rhombus}',
     'hình vuông {square}',
-    'đường tròn tâm {circle}'
+    '{object type triangle} tại {escribedPoint}',
+    '{object type triangle}'
   ]
 };
 
@@ -35,12 +41,12 @@ const reversedDependentObjRelation = ['vuông góc', 'cắt'];
 
 const RankingObjectContain = [['point'], ['segment', 'ray'], ['angle']];
 
-const objectWithPoint = ['angle', 'segment', 'ray', 'point'];
+const objectWithPoint = ['angle', 'segment', 'ray', 'point', 'circle'];
 
 const validate = {
   object: {
     define: ['angle', 'segment'],
-    relation: ['ray', 'line', 'segment']
+    relation: ['ray', 'line', 'segment', 'circle']
   },
   point: { length: 1, format: '1' },
   segment: { length: 2, format: '11' },
@@ -58,7 +64,7 @@ const validate = {
     circle: { length: 1, format: '1' }
   },
   shapeType: {
-    triangle: ['', 'vuông', 'cân', 'vuông cân', 'đều'],
+    triangle: ['', 'vuông', 'cân', 'vuông cân', 'đều', 'nội tiếp', 'ngoại tiếp', 'bàng tiếp'],
     trapezoid: ['', 'vuông', 'cân']
   }
 };
@@ -73,7 +79,7 @@ const shapeRules = {
     right: '01^02', // Ex: AB vuong goc AC
     isosceles: '01=02',
     right_isosceles: '01^02&01=02',
-    equilateral: '01=02&01=12'
+    equilateral: '01=02&01=12&02=12'
   },
   trapezoid: {
     normal: '01|23',
@@ -84,13 +90,13 @@ const shapeRules = {
     normal: '01|23&03|12'
   },
   rectangle: {
-    normal: '01|23&03|12&01^12&12^23&23^03'
+    normal: '01^12&12^23&23^30&30^01'
   },
   rhombus: {
-    normal: '01|23&03|12&02^13'
+    normal: '02^13'
   },
   square: {
-    normal: '01|23&03|12&01^12&12^23&23^03&01=03&&01=12&12=23'
+    normal: '01|23&03|12&01^12&12^23&23^03&01=03&&01=12&12=23&&23=03'
   }
 };
 
@@ -98,10 +104,17 @@ const mappingShapeType = {
   vuông: 'right',
   cân: 'isosceles',
   'vuông cân': 'right_isosceles',
-  đều: 'equilateral'
+  đều: 'equilateral',
+  'nội tiếp': 'nội tiếp',
+  'ngoại tiếp': 'ngoại tiếp',
+  'bàng tiếp': 'bàng tiếp'
 };
 
-const TwoStaticPointRequireShape = ['triangle', 'rhombus', 'rectangle', 'square'];
+const circleType = ['nội tiếp', 'ngoại tiếp', 'bàng tiếp'];
+
+const TwoStaticPointRequireShape = ['triangle', 'trapezoid', 'rectangle', 'square'];
+
+const ShapeAffectBySegmentChange = ['rhombus', 'trapezoid', 'parallelogram'];
 
 export {
   validate,
@@ -112,5 +125,7 @@ export {
   shapeList,
   reversedDependentObjRelation,
   shapeRules,
-  mappingShapeType
+  mappingShapeType,
+  circleType,
+  ShapeAffectBySegmentChange
 };

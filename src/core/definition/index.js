@@ -1,8 +1,8 @@
-import {defineObject} from './defineObjType';
-import {validateInformation} from '../validation/validation';
-import {definePointType} from './definePointType';
-import {defineShapeType} from './defineShapeType';
-import {reversedDependentObjRelation} from "./define";
+import { defineObject } from './defineObjType';
+import { validateInformation } from '../validation/validation';
+import { definePointType } from './definePointType';
+import { defineShapeType } from './defineShapeType';
+import { reversedDependentObjRelation } from './define';
 
 function defineInformation(data) {
   let result;
@@ -34,7 +34,19 @@ function defineInformation(data) {
         if (type === 'segment') {
           value = sortString(value);
         }
+        if (type === 'circle') {
+          value = value[1].toUpperCase();
+        }
+
+        if (type === 'angle') {
+          value = [value[0], value[2]].sort().join(value[1]);
+        }
         result[type].push(value);
+      });
+    }
+    if (key === 'circle') {
+      result[key].forEach((value: string, index: number) => {
+        result[key][index] = result[key][index][1];
       });
     }
   });
@@ -52,7 +64,7 @@ function defineInformation(data) {
   if (validate) {
     return result;
   } else {
-    return {Error: result};
+    return { Error: result };
   }
 }
 
@@ -62,4 +74,4 @@ function sortString(str) {
   return sorted.join('');
 }
 
-export {defineInformation};
+export { defineInformation };

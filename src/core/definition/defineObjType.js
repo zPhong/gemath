@@ -1,4 +1,4 @@
-import {isLowerCaseChar, isNumber} from "../../utils/checker";
+import { isLowerCaseChar, isNumber } from '../../utils/checker';
 
 export function checkFormatString(str) {
   let result = '';
@@ -26,6 +26,9 @@ export function defineObject(value) {
   }
 
   if (value.length === 3) {
+    if (value.includes('(') && value.includes(')')) {
+      return 'circle';
+    }
     return 'angle';
   }
 
