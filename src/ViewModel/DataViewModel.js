@@ -36,11 +36,7 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = [
-      new RelationInputModel('tam giác ABC'),
-      new RelationInputModel('ABC = 60'),
-      new RelationInputModel('BCA = 30')
-    ];
+    this.relationsInput = [new RelationInputModel('hình thang ABCD')];
   }
 
   @computed
@@ -419,8 +415,14 @@ class DataViewModel {
     }
 
     if (this.data.getPointDetails.get(pointId).setOfEquation.length <= 1) {
+      let newSetOfEquation = [...this.data.getPointDetails.get(pointId).setOfEquation, equation];
+      if (newSetOfEquation.length === 2) {
+        if (isTwoEquationEqual(newSetOfEquation[0], newSetOfEquation[1])) {
+          newSetOfEquation = newSetOfEquation[0];
+        }
+      }
       this._updatePointDetails(pointId, {
-        setOfEquation: [...this.data.getPointDetails.get(pointId).setOfEquation, equation],
+        setOfEquation: newSetOfEquation,
         roots: this.data.getPointDetails.get(pointId).roots,
         exceptedCoordinates: this.data.getPointDetails.get(pointId).exceptedCoordinates
       });
