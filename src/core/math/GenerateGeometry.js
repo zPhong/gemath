@@ -196,7 +196,7 @@ function generateTrapezoid(name: string, type: string) {
 
         // p4 represents point D
         const p4: CoordinateType = {
-          x: getRandomValue(p1.x - Math.floor(MAX / 2), p3.x - MAX),
+          x: getRandomValue(p1.x - Math.floor(MAX / 2), p1.x - MAX),
           y: p3.y,
         };
         dataViewModel.updateCoordinate(name[3], p4);
