@@ -17,12 +17,10 @@ import {
   isIn,
   calculateIntersectionTwoCircleEquations,
   isVectorInSameLine,
-  isVectorSameDirection,
+  calculateExternalBisectLineEquation,
   calculateVector,
   calculateTangentEquation,
-  calculateTangentIntersectPointsByPointOutsideCircle,
-  calculateAngleTwoVector,
-  calculateDistanceFromPointToLine
+  calculateTangentIntersectPointsByPointOutsideCircle
 } from '../math/Math2D';
 import {
   generatePointAlignmentInside,
@@ -42,7 +40,6 @@ export function readRelation(relation: mixed, point: string) {
     equationResults = analyzeOperationType(relation, point);
   } else if (relation.relation) {
     const relationType = relation.relation;
-
     switch (relationType) {
       case 'trung điểm':
       case 'thuộc':
@@ -50,6 +47,8 @@ export function readRelation(relation: mixed, point: string) {
       case 'song song':
       case 'vuông góc':
       case 'phân giác':
+      case 'phân giác ngoài':
+      case 'phân giác trong':
       case 'thẳng hàng':
         equationResults = analyzeRelationType(relation, point);
         break;
@@ -229,6 +228,9 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
       dataViewModel.getNodeInPointsMapById(relation.segment[0][1]).coordinate
     );
   } else if (relationType === 'song song' || relationType === 'vuông góc') {
+    if (!segmentNotIncludePoint) {
+      return;
+    }
     const otherStaticPoint = segmentIncludePoint.replace(point, '');
     if (!dataViewModel.isValidCoordinate(otherStaticPoint) && !dataViewModel.isValidCoordinate(point)) {
       const point = generatePointMiddleTwoPoints(
@@ -288,7 +290,9 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
       dataViewModel.updateCoordinate(point, calculatedPoint);
     }
     return calculatedLineEquation;
-  } else if (relationType === 'phân giác') {
+  } else if (relationType.includes('phân giác')) {
+    const isExternal = relationType === 'phân giác ngoài';
+
     if (relation.angle) {
       const angle = relation.angle[0];
       if (angle.includes(point)) {
@@ -299,22 +303,40 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
         dataViewModel.getNodeInPointsMapById(angle[0]).coordinate,
         dataViewModel.getNodeInPointsMapById(angle[2]).coordinate
       );
-
-      const calculatedLineEquation = calculateInternalBisectLineEquation(
-        getLineFromTwoPoints(
+      let calculatedLineEquation;
+      if (isExternal) {
+        calculatedLineEquation = calculateExternalBisectLineEquation(
+          getLineFromTwoPoints(
+            dataViewModel.getNodeInPointsMapById(angle[0]).coordinate,
+            dataViewModel.getNodeInPointsMapById(angle[1]).coordinate
+          ),
+          getLineFromTwoPoints(
+            dataViewModel.getNodeInPointsMapById(angle[1]).coordinate,
+            dataViewModel.getNodeInPointsMapById(angle[2]).coordinate
+          ),
           dataViewModel.getNodeInPointsMapById(angle[0]).coordinate,
-          dataViewModel.getNodeInPointsMapById(angle[1]).coordinate
-        ),
-        getLineFromTwoPoints(
-          dataViewModel.getNodeInPointsMapById(angle[1]).coordinate,
           dataViewModel.getNodeInPointsMapById(angle[2]).coordinate
-        ),
-        dataViewModel.getNodeInPointsMapById(angle[0]).coordinate,
-        dataViewModel.getNodeInPointsMapById(angle[2]).coordinate
-      );
+        );
 
-      const calculatedPoint = calculateIntersectionByLineAndLine(calculatedLineEquation, staticLineEquation);
-      dataViewModel.updateCoordinate(point, calculatedPoint);
+        const calculatedPoint = getRandomPointInEquation(calculatedLineEquation);
+        dataViewModel.updateCoordinate(point, calculatedPoint);
+      } else {
+        calculatedLineEquation = calculateInternalBisectLineEquation(
+          getLineFromTwoPoints(
+            dataViewModel.getNodeInPointsMapById(angle[0]).coordinate,
+            dataViewModel.getNodeInPointsMapById(angle[1]).coordinate
+          ),
+          getLineFromTwoPoints(
+            dataViewModel.getNodeInPointsMapById(angle[1]).coordinate,
+            dataViewModel.getNodeInPointsMapById(angle[2]).coordinate
+          ),
+          dataViewModel.getNodeInPointsMapById(angle[0]).coordinate,
+          dataViewModel.getNodeInPointsMapById(angle[2]).coordinate
+        );
+
+        const calculatedPoint = calculateIntersectionByLineAndLine(calculatedLineEquation, staticLineEquation);
+        dataViewModel.updateCoordinate(point, calculatedPoint);
+      }
 
       return calculatedLineEquation;
     }
@@ -329,8 +351,7 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
       }
     }
   }
-
-  if (relation.segment.length === 2) {
+  if (relation.segment && relation.segment.length === 2) {
     const calculatedLineEquationOne = getLineFromTwoPoints(
       dataViewModel.getNodeInPointsMapById(relation.segment[0][0]).coordinate,
       dataViewModel.getNodeInPointsMapById(relation.segment[0][1]).coordinate
@@ -346,17 +367,16 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
     });
 
     const calculatedPoint = calculateIntersectionByLineAndLine(calculatedLineEquationOne, calculatedLineEquationTwo);
+
     dataViewModel.updateCoordinate(relation.point[0], calculatedPoint);
-  } else if (relation.circle.length === 2) {
+  } else if (relation.circle && relation.circle.length === 2) {
     const roots = calculateIntersectionTwoCircleEquations(
       dataViewModel.getCircleEquation(relation.circle[0]),
       dataViewModel.getCircleEquation(relation.circle[1])
     );
 
     roots.forEach((root: CoordinateType, index: number) => {
-      if (!relation.point[index]) {
-        ErrorService.showError('500');
-      } else {
+      if (relation.point[index]) {
         dataViewModel.updateCoordinate(relation.point[index], root);
       }
     });
@@ -372,14 +392,17 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
       (root: CoordinateType): boolean =>
         JSON.stringify(root) !== JSON.stringify(pointOne) && JSON.stringify(root) !== JSON.stringify(pointTwo)
     );
-
-    roots.forEach((root: CoordinateType, index: number) => {
-      if (!relation.point[index]) {
-        ErrorService.showError('500');
-      } else {
-        dataViewModel.updateCoordinate(relation.point[index], root);
-      }
-    });
+    if (relation.point.length === 2) {
+      roots.forEach((root: CoordinateType, index: number) => {
+        if (!relation.point[index]) {
+          ErrorService.showError('200');
+        } else {
+          dataViewModel.updateCoordinate(relation.point[index], root);
+        }
+      });
+    } else {
+      dataViewModel.updateCoordinate(relation.point[0], roots[getRandomValue(0, roots.length - 1)]);
+    }
   }
 }
 
@@ -390,20 +413,12 @@ function analyzeOperationType(relation: mixed, point: string): any {
 
   const objectsIncludePoint = [];
 
+  console.log(relation[objectType]);
+
   for (let index in relation[objectType]) {
     const object = relation[objectType][index];
     if (object.includes(point)) {
       objectsIncludePoint.push(object);
-    }
-    let isStatic = true;
-    object.split('').forEach((objPoint) => {
-      if (objPoint !== point && !dataViewModel.isStaticNodeById(objPoint)) {
-        isStatic = false;
-      }
-    });
-
-    if (!isStatic) {
-      return;
     }
 
     valueData[object] =
@@ -571,11 +586,7 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
 
   //move newRoot to oldRoot
   const transitionVector = calculateVector(newRootPoint, rootPoint, false);
-
-  console.log(
-    calculateAngleTwoVector(calculateVector(staticPoint, rootPoint), calculateVector(changedPoint, newRootPoint))
-  );
-
+  console.log(modifiedAngleName, angleName);
   if (modifiedAngleName === angleName) {
     dataViewModel.updateCoordinate(modifiedAngleName[2], {
       x: changedPoint.x + transitionVector.x,
@@ -588,10 +599,6 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
       calculateParallelLineByPointAndLine(rootPoint, calculatedEquation)
     );
 
-    console.log(modifiedAngleName[2], changedPoint, {
-      x: changedPoint.x + transitionVector.x,
-      y: changedPoint.y + transitionVector.y
-    });
     return;
   }
 

@@ -10,7 +10,8 @@ import { Icon, InputItem, SegmentSetting } from './components';
 import { DrawingPanel } from './components/DrawingPanel';
 import { calculateDistanceTwoPoints, calculateVector, isVectorSameDirection } from '../core/math/Math2D';
 import type { DrawingSegmentType, SegmentDataType } from '../utils/types';
-import appData from '../Model/AppData';
+import GConst from '../utils/values';
+
 @observer
 class MainView extends React.Component {
   constructor(props) {
@@ -189,6 +190,8 @@ class MainView extends React.Component {
 
   @autobind
   onClickDrawing() {
+    DataViewModel.getData.clear();
+
     const data = DataViewModel.analyzeInput();
     if (data.points.length === 0 && data.segments.length === 0) {
       DataViewModel.resetInputsStatus();
@@ -203,8 +206,6 @@ class MainView extends React.Component {
         visible: true
       }))
     });
-
-    DataViewModel.getData.clear();
   }
 
   componentDidUpdate() {
@@ -344,11 +345,7 @@ class MainView extends React.Component {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
-                        <span>
-                          Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
-                          squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
-                          nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
-                        </span>
+                        <div>{GConst.TutorialString.STEP_ONE}</div>
                       </Tooltip>
                     }>
                     <div className="bg-transparent icon-container">
@@ -392,13 +389,7 @@ class MainView extends React.Component {
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
                         <span>
-                          Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad
-                          squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa
-                          nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid
-                          single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer
-                          labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo.
-                          Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably
-                          haven't heard of them accusamus labore sustainable VHS.
+                          Thêm/Xóa các doạn thẳng
                         </span>
                       </Tooltip>
                     }>

@@ -46,12 +46,12 @@ export function getRandomPointInEquation(equation: EquationType): CoordinateType
 
     const radius = Math.sqrt(centerPoint.a * centerPoint.a + centerPoint.b * centerPoint.b - equation.e);
 
-    const randomValueX = getRandomValue(-radius, radius);
+    const randomValueX = getRandomValue(centerPoint.a - radius, centerPoint.a + radius);
 
     const solvedValueY = calculateQuadraticEquation(
       equation.b,
       equation.d,
-      randomValueX * randomValueX * equation.d * randomValueX + equation.e
+      randomValueX * randomValueX + equation.c * randomValueX + equation.e
     );
 
     if (typeof solvedValueY === 'number') {

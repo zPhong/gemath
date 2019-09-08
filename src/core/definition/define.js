@@ -11,6 +11,8 @@ const defineSentences = {
     '{object} song song {object}',
     '{object} vuông góc {object}',
     '{object} cắt {object} tại {arrayPoints}',
+    '{object} phân giác ngoài {angle}',
+    '{object} phân giác trong {angle}',
     '{object} phân giác {angle}',
     '{arrayPoints} thẳng hàng',
     '{point} trung điểm {segment}',
@@ -28,7 +30,8 @@ const defineSentences = {
     'hình chữ nhật {rectangle}',
     'hình thoi {rhombus}',
     'hình vuông {square}',
-    'đường tròn tâm {point type triangle}'
+    '{object type triangle} tại {escribedPoint}',
+    '{object type triangle}'
   ]
 };
 
@@ -61,7 +64,7 @@ const validate = {
     circle: { length: 1, format: '1' }
   },
   shapeType: {
-    triangle: ['', 'vuông', 'cân', 'vuông cân', 'đều', 'nội tiếp', 'ngoại tiếp'],
+    triangle: ['', 'vuông', 'cân', 'vuông cân', 'đều', 'nội tiếp', 'ngoại tiếp', 'bàng tiếp'],
     trapezoid: ['', 'vuông', 'cân']
   }
 };
@@ -76,7 +79,7 @@ const shapeRules = {
     right: '01^02', // Ex: AB vuong goc AC
     isosceles: '01=02',
     right_isosceles: '01^02&01=02',
-    equilateral: '01=02&01=12'
+    equilateral: '01=02&01=12&02=12'
   },
   trapezoid: {
     normal: '01|23',
@@ -93,7 +96,7 @@ const shapeRules = {
     normal: '02^13'
   },
   square: {
-    normal: '01|23&03|12&01^12&12^23&23^03&01=03&&01=12&12=23'
+    normal: '01|23&03|12&01^12&12^23&23^03&01=03&&01=12&12=23&&23=03'
   }
 };
 
@@ -103,10 +106,11 @@ const mappingShapeType = {
   'vuông cân': 'right_isosceles',
   đều: 'equilateral',
   'nội tiếp': 'nội tiếp',
-  'ngoại tiếp': 'ngoại tiếp'
+  'ngoại tiếp': 'ngoại tiếp',
+  'bàng tiếp': 'bàng tiếp'
 };
 
-const circleType = ['nội tiếp', 'ngoại tiếp'];
+const circleType = ['nội tiếp', 'ngoại tiếp', 'bàng tiếp'];
 
 const TwoStaticPointRequireShape = ['triangle', 'trapezoid', 'rectangle', 'square'];
 

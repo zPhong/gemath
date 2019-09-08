@@ -37,6 +37,10 @@ function defineInformation(data) {
         if (type === 'circle') {
           value = value[1].toUpperCase();
         }
+
+        if (type === 'angle') {
+          value = [value[0], value[2]].sort().join(value[1]);
+        }
         result[type].push(value);
       });
     }

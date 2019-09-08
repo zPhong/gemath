@@ -12,7 +12,8 @@ import {
   calculateCircumCircleEquation,
   getAngleFromTwoLines,
   calculateMiddlePoint,
-  calculateSymmetricalPoint
+  calculateSymmetricalPoint,
+  calculateEscribedCirclesEquation
 } from '../math/Math2D';
 import { getRandomValue } from '../math/Generation';
 import { mappingShapeType, shapeRules, TwoStaticPointRequireShape, circleType } from '../definition/define';
@@ -30,8 +31,8 @@ export function readPointsMap(): Array | {} {
   while (!dataViewModel.isPointsMapStatic()) {
     //get node to calculate
     const executingNode = dataViewModel.getNextExecuteNode();
-
     if (!executingNode) break;
+    console.log(executingNode.id);
 
     executeRelations(executingNode);
 
@@ -96,6 +97,7 @@ export function readPointsMap(): Array | {} {
   dataViewModel.getData.getPointsMap.forEach((node: NodeType) => {
     //Update calculated value to pointsMap
     if (dataViewModel.getData.getPointDetails.has(node.id)) {
+      console.log(dataViewModel.getData.getPointDetails.get(node.id));
       const roots = dataViewModel.getData.getPointDetails.get(node.id).roots;
       if (typeof roots === 'string') {
         ErrorService.showError('400');
@@ -173,6 +175,14 @@ function executeRelations(node: NodeType) {
               dataViewModel.getNodeInPointsMapById(shape[2]).coordinate
             );
             break;
+          case 'bàng tiếp':
+            data = calculateEscribedCirclesEquation(
+              dataViewModel.getNodeInPointsMapById(shape[0]).coordinate,
+              dataViewModel.getNodeInPointsMapById(shape[1]).coordinate,
+              dataViewModel.getNodeInPointsMapById(shape[2]).coordinate,
+              dataViewModel.getNodeInPointsMapById(relation.escribedPoint[0]).coordinate
+            );
+            break;
           default:
             break;
         }
@@ -182,7 +192,6 @@ function executeRelations(node: NodeType) {
         } else {
           ErrorService.ErrorMessage('400');
         }
-        return;
       } else if (!dataViewModel.isExecutedRelation(relation)) {
         generateGeometry(relation[shapeName], shapeName, relation.type);
         setPointsDirection(relation[shapeName]);
@@ -198,7 +207,6 @@ function executeRelations(node: NodeType) {
       }
       dataViewModel.executePointDetails(node.id, relationEquation);
     }
-
     if (!dataViewModel.isExecutedRelation(relation)) {
       dataViewModel.getData.getExecutedRelations.push(relation);
     }
@@ -284,14 +292,10 @@ function makeCorrectShape(shape: string, shapeName: string, rules: string, execu
         }
       }
     });
-
+    if (executePoint === 'C') console.log(nodeSetEquations);
     nodeSetEquations.forEach((equation) => {
       dataViewModel.executePointDetails(executePoint, equation);
     });
-    if (nodeSetEquations.length > 1) {
-      const coordinate = calculateIntersectionByLineAndLine(nodeSetEquations[0], nodeSetEquations[1]);
-      dataViewModel.updateCoordinate(executePoint, coordinate);
-    }
   }
 }
 
@@ -367,55 +371,34 @@ function getLinearEquationsByEqualRule(rule: string, shape: string, executePoint
   lines.forEach((line) => {
     const count = line.split('').filter((point: string): boolean => dataViewModel.isStaticNodeById(shape[point]))
       .length;
-    if (count === 2) {
+    if (count === 2 && !staticLine) {
       staticLine = line;
     } else {
       nonStaticLine = line;
     }
   });
-
+  console.log(staticLine, nonStaticLine);
   if (staticLine) {
     const count = staticLine.split('').filter((point: string): boolean => dataViewModel.isStaticNodeById(shape[point]))
       .length;
 
     if (count < 2) {
-      //return [];
-    }
-    //1 circle equation
-    if (staticLine.includes(nonStaticLine.replace(executePointIndex, ''))) {
-      const radius = calculateDistanceTwoPoints(
-        dataViewModel.getNodeInPointsMapById(shape[staticLine[0]]).coordinate,
-        dataViewModel.getNodeInPointsMapById(shape[staticLine[1]]).coordinate
-      );
-
-      return [
-        calculateCircleEquationByCenterPoint(
-          dataViewModel.getNodeInPointsMapById(shape[nonStaticLine.replace(executePointIndex, '')]).coordinate,
-          radius
-        )
-      ];
+      return [];
     }
 
-    // tam giác đều
+    const otherPoint = shape[nonStaticLine.replace(executePointIndex, '')];
+
     const radius = calculateDistanceTwoPoints(
       dataViewModel.getNodeInPointsMapById(shape[staticLine[0]]).coordinate,
       dataViewModel.getNodeInPointsMapById(shape[staticLine[1]]).coordinate
     );
 
-    const circleOne = calculateCircleEquationByCenterPoint(
-      dataViewModel.getNodeInPointsMapById(shape[staticLine[0]]).coordinate,
-      radius
-    );
-
-    const circleTwo = calculateCircleEquationByCenterPoint(
-      dataViewModel.getNodeInPointsMapById(shape[staticLine[0]]).coordinate,
-      radius
-    );
-
-    const nonStaticNodeId = shape[executePointIndex].id;
-
-    dataViewModel.updateCoordinate(nonStaticNodeId, calculateIntersectionTwoCircleEquations(circleOne, circleTwo));
-    return [circleOne, circleTwo];
+    //point is outside static line
+    if (staticLine.includes(nonStaticLine.replace(executePointIndex, ''))) {
+      return [
+        calculateCircleEquationByCenterPoint(dataViewModel.getNodeInPointsMapById(otherPoint).coordinate, radius)
+      ];
+    }
   }
 }
 
