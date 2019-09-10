@@ -83,9 +83,6 @@ export function readPointsMap(): Array | {} {
       }
     }
 
-    //appModel.updatePointsMap(executingNode);
-    dataViewModel.getData.getExecutedNode.push(executingNode.id);
-
     //update static Node
     dataViewModel.updateStaticNode();
 
@@ -200,17 +197,23 @@ function executeRelations(node: NodeType) {
         makeCorrectShape(shape, shapeName, shapeRules[shapeName][shapeType], node.id);
       }
     }
-    relationEquation = readRelation(relation, node.id);
-    if (relationEquation) {
-      if (Array.isArray(relationEquation)) {
-        relationEquation = relationEquation[getRandomValue(0, relationEquation.length)];
-      }
-      dataViewModel.executePointDetails(node.id, relationEquation);
-    }
+
     if (!dataViewModel.isExecutedRelation(relation)) {
+      relationEquation = readRelation(relation, node.id);
+      if (relationEquation) {
+        if (Array.isArray(relationEquation)) {
+          relationEquation = relationEquation[getRandomValue(0, relationEquation.length)];
+        }
+        dataViewModel.executePointDetails(node.id, relationEquation);
+      }
       dataViewModel.getData.getExecutedRelations.push(relation);
     }
   });
+  if (dataViewModel.isReCalculated) {
+    dataViewModel.isReCalculated = false;
+    return;
+  }
+  dataViewModel.getData.getExecutedNode.push(node.id);
 }
 
 function setPointsDirection(shape: string) {
@@ -301,6 +304,7 @@ function makeCorrectShape(shape: string, shapeName: string, rules: string, execu
 
 function updateCoordinateBySpecialPerpendicularRule(rule: string, shape: string, executePointIndex: number) {
   let includeLine, nonIncludeLine;
+
   const staticLines = rule
     .split('^')
     .filter(
@@ -327,9 +331,20 @@ function updateCoordinateBySpecialPerpendicularRule(rule: string, shape: string,
     const staticPointIndex = nonStaticLine.split('').filter((pointIndex: string): boolean => {
       return dataViewModel.isStaticNodeById(shape[pointIndex]);
     })[0];
-    if (shape[nonIncludeLine.replace(staticPointIndex, '')]) {
+    if (staticPointIndex === undefined) {
+      const coordinate = calculateIntersectionByLineAndLine(
+        calculatePerpendicularLineByPointAndLine(
+          intersectPoint,
+          getLineFromTwoPoints(shapePoints[staticLines[0][0]], shapePoints[staticLines[0][1]])
+        ),
+        getLineFromTwoPoints(shapePoints[staticLines[0][0]], shapePoints[nonStaticLine[0]])
+      );
+
+      dataViewModel.updateCoordinate(shape[nonStaticLine[0]], coordinate);
+    } else if (shape[nonStaticLine.replace(staticPointIndex, '')]) {
       const calculatedCoordinate = calculateSymmetricalPoint(shapePoints[staticPointIndex], intersectPoint);
-      dataViewModel.updateCoordinate(shape[nonIncludeLine.replace(staticPointIndex, '')], calculatedCoordinate);
+
+      dataViewModel.updateCoordinate(shape[nonStaticLine.replace(staticPointIndex, '')], calculatedCoordinate);
     }
   } else if (staticLines.length === 0) {
     //line perpendicular with line include 1 static point

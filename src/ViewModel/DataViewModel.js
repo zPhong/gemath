@@ -22,6 +22,9 @@ const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
 
 class DataViewModel {
   @observable
+  isReCalculated = false;
+
+  @observable
   circlesData = {};
 
   @observable
@@ -36,7 +39,11 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = [new RelationInputModel('hình thang ABCD')];
+    this.relationsInput = [
+      new RelationInputModel('hình thoi ABCD'),
+      new RelationInputModel('AC cắt BD tại O'),
+      new RelationInputModel('ABO = 60')
+    ];
   }
 
   @computed
@@ -118,6 +125,7 @@ class DataViewModel {
     if (!coordinate) {
       ErrorService.showError('200');
     }
+
     const _coordinate = {};
     Object.keys(coordinate)
       .sort()
@@ -138,6 +146,28 @@ class DataViewModel {
     }
 
     return this.data.getExecutedNode.includes(node.id);
+  };
+
+  reExecuteNode = (arrayPoint: Array<string>) => {
+    this.isReCalculated = true;
+    this.getData.pointsMap.forEach((node: NodeType, index: number) => {
+      if (arrayPoint.includes(node.id)) {
+        return;
+      }
+      this.getData.pointsMap[index].dependentNodes.forEach((dependence: NodeRelationType, index: number) => {
+        if (dependence.relation.outputType === 'shape' && arrayPoint.length > 0) {
+          this.getData.pointsMap[index].dependentNodes[index] = { ...dependence, id: arrayPoint[0] };
+        }
+      });
+      this.getData.pointsMap[index].isStatic = false;
+    });
+    this.getData.__pointDetails__.clear();
+
+    this.getData.executedNode = arrayPoint;
+    const keepExecutedRelations = this.getData.executedRelations.filter(
+      (relation: mixed): boolean => relation.outputType === 'shape'
+    );
+    this.getData.executedRelations = keepExecutedRelations;
   };
 
   isExecutedRelation = (relation: any): boolean => {
@@ -307,6 +337,13 @@ class DataViewModel {
   };
 
   replaceSetOfEquation(pointId: string, searchEquation: EquationType, replaceEquation: EquationType) {
+    if (!this.data.getPointDetails.has(pointId)) {
+      this._updatePointDetails(pointId, {
+        setOfEquation: [],
+        roots: [],
+        exceptedCoordinates: []
+      });
+    }
     const pointDetail = this.data.getPointDetails.get(pointId);
     const setOfEquation = pointDetail.setOfEquation;
     let isReplaceComplete = false;
@@ -504,7 +541,6 @@ class DataViewModel {
             coordinate = temp[0];
           }
         }
-        console.log(coordinate);
         dataViewModel.updateCoordinate(pointId, coordinate);
       }
     }
