@@ -17,6 +17,7 @@ import {
   isIn,
   calculateIntersectionTwoCircleEquations,
   isVectorInSameLine,
+  isVectorSameDirection,
   calculateExternalBisectLineEquation,
   calculateVector,
   calculateTangentEquation,
@@ -413,8 +414,6 @@ function analyzeOperationType(relation: mixed, point: string): any {
 
   const objectsIncludePoint = [];
 
-  console.log(relation[objectType]);
-
   for (let index in relation[objectType]) {
     const object = relation[objectType][index];
     if (object.includes(point)) {
@@ -567,7 +566,8 @@ function analyzeOperationType(relation: mixed, point: string): any {
 }
 
 function calculateLineEquationByAngleRelation(angleName: string, angleValue: number): EquationType {
-  const modifiedAngleName = renameAngle(angleName);
+  const checkResult = checkAndModifiedAngle(angleName);
+  const modifiedAngleName = checkResult.angle;
   const staticPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[0]).coordinate;
   const rootPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[1]).coordinate;
   const changedPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[2]).coordinate;
@@ -586,8 +586,7 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
 
   //move newRoot to oldRoot
   const transitionVector = calculateVector(newRootPoint, rootPoint, false);
-  console.log(modifiedAngleName, angleName);
-  if (modifiedAngleName === angleName) {
+  if (checkResult.isChanged === false) {
     dataViewModel.updateCoordinate(modifiedAngleName[2], {
       x: changedPoint.x + transitionVector.x,
       y: changedPoint.y + transitionVector.y
@@ -616,6 +615,11 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
   return null;
 }
 
+function reExecuteNode(array: Array<string>) {
+  console.log(`----------------`)
+  dataViewModel.reExecuteNode(array);
+}
+
 function getShapeAffectList(): Array<string> {
   const shapeList = [];
 
@@ -630,7 +634,7 @@ function getShapeAffectList(): Array<string> {
   return shapeList;
 }
 
-function renameAngle(angle: string): string {
+function checkAndModifiedAngle(angle: string): { angle: string, isChanged: boolean } {
   const shapeList = getShapeAffectList();
 
   const secondLine = `${angle[1]}${angle[2]}`;
@@ -642,6 +646,9 @@ function renameAngle(angle: string): string {
       dataViewModel.getNodeInPointsMapById(secondLine[1]).coordinate
     );
 
+    let modifiedAngleName = angle;
+    let updatePoint = modifiedAngleName[2];
+
     if (
       isVectorInSameLine(
         calculateVector(
@@ -649,15 +656,106 @@ function renameAngle(angle: string): string {
           dataViewModel.getNodeInPointsMapById(shape[1]).coordinate
         ),
         secondLineVector
+      ) ||
+      isVectorInSameLine(
+        calculateVector(
+          dataViewModel.getNodeInPointsMapById(shape[1]).coordinate,
+          dataViewModel.getNodeInPointsMapById(shape[2]).coordinate
+        ),
+        secondLineVector
       )
     ) {
-      return angle
+      modifiedAngleName = angle
         .split('')
         .reverse()
         .join('');
     }
+
+    let isChanged = modifiedAngleName !== angle;
+
+    if (
+      isVectorInSameLine(
+        calculateVector(
+          dataViewModel.getNodeInPointsMapById(shape[0]).coordinate,
+          dataViewModel.getNodeInPointsMapById(shape[2]).coordinate
+        ),
+        secondLineVector
+      )
+    ) {
+      if (angle[1] === shape[0]) {
+        if (
+          isVectorSameDirection(
+            calculateVector(
+              dataViewModel.getNodeInPointsMapById(shape[0]).coordinate,
+              dataViewModel.getNodeInPointsMapById(shape[2]).coordinate
+            ),
+            secondLineVector
+          )
+        ) {
+          updatePoint = shape[2];
+          isChanged = false;
+        }
+      } else if (angle[1] === shape[2]) {
+        if (
+          isVectorSameDirection(
+            calculateVector(
+              dataViewModel.getNodeInPointsMapById(shape[2]).coordinate,
+              dataViewModel.getNodeInPointsMapById(shape[0]).coordinate
+            ),
+            secondLineVector
+          )
+        ) {
+          updatePoint = shape[0];
+          isChanged = false;
+
+        }
+      }
+    } else if (
+      isVectorInSameLine(
+        calculateVector(
+          dataViewModel.getNodeInPointsMapById(shape[1]).coordinate,
+          dataViewModel.getNodeInPointsMapById(shape[3]).coordinate
+        ),
+        secondLineVector
+      )
+    ) {
+      if (angle[1] === shape[1]) {
+        if (
+          isVectorSameDirection(
+            calculateVector(
+              dataViewModel.getNodeInPointsMapById(shape[1]).coordinate,
+              dataViewModel.getNodeInPointsMapById(shape[3]).coordinate
+            ),
+            secondLineVector
+          )
+        ) {
+          updatePoint = shape[3];
+          isChanged = false;
+
+        }
+      } else if (angle[1] === shape[3]) {
+        if (
+          isVectorSameDirection(
+            calculateVector(
+              dataViewModel.getNodeInPointsMapById(shape[3]).coordinate,
+              dataViewModel.getNodeInPointsMapById(shape[1]).coordinate
+            ),
+            secondLineVector
+          )
+        ) {
+          updatePoint = shape[1];
+          isChanged = false;
+
+        }
+      }
+    }
+
+    reExecuteNode([modifiedAngleName[1], updatePoint]);
+    const result = modifiedAngleName.replace(modifiedAngleName[2], updatePoint);
+
+    return { angle: result, isChanged };
   }
-  return angle;
+  return { angle, isChanged: false };
 }
 
 function analyzeTangentRelation(relation: mixed, point: string): any {
