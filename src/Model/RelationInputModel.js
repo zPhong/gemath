@@ -10,6 +10,6 @@ export default class RelationInputModel {
   status: string = GConst.InputStatus.NORMAL;
 
   constructor(value: string) {
-    this.value = value;
+    this.value = value || '';
   }
 }

@@ -218,9 +218,11 @@ class MainView extends React.Component {
   @autobind
   renderRelationInput(): React.Node {
     return DataViewModel.RelationsInput.map((model, index) => {
+      console.log(model.value);
       return (
         <InputItem
           key={`input-${index}`}
+          index={index}
           ref={(ref) => {
             this.inputRefs[index] = ref;
           }}
@@ -246,13 +248,16 @@ class MainView extends React.Component {
     if (JSON.stringify(data) === JSON.stringify(drawingSegments[index])) {
       return;
     }
-
+    const length = JSON.parse(JSON.stringify(drawingSegments.length));
     const isAddSegment = !!drawingSegments[index];
     drawingSegments[index] = data;
 
     this.setState({ drawingSegments }, () => {
       if (isAddSegment) {
-        if (drawingSegments.map((segment: SegmentDataType): string => segment.name).includes(data.name)) {
+        if (
+          drawingSegments.map((segment: SegmentDataType): string => segment.name).includes(data.name) &&
+          length !== drawingSegments.length
+        ) {
           this.onDeleteSegmentSetting(index);
         }
       }
@@ -388,9 +393,7 @@ class MainView extends React.Component {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
-                        <span>
-                          Thêm/Xóa các doạn thẳng
-                        </span>
+                        <span>Thêm/Xóa các doạn thẳng</span>
                       </Tooltip>
                     }>
                     <div className="bg-transparent icon-container">
