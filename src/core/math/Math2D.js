@@ -782,7 +782,6 @@ export function getAngleFromTwoLines(d1: EquationType, d2: EquationType): number
     return -9999;
   }
 
-  console.log(d1, d2);
 
   const a1 = d1.c;
   const a2 = d2.c;
@@ -891,7 +890,6 @@ export function calculateEscribedCirclesEquation(
   ].filter(
     (point: CoordinateType): boolean => JSON.stringify(point) !== JSON.stringify(escribedPoint),
   );
-  console.log(otherPoints);
 
   if (otherPoints.length !== 2) {
     ErrorService.showError('300');

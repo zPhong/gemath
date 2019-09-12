@@ -125,7 +125,7 @@ function createPointsMapByShape(shape: any) {
     });
   } else {
     objectPointsMap = points.map((point: string, index: number) => {
-      return index !== 0 ? createNode(point, [{ id: points[0], relation: shape }]) : createNode(point);
+      return createNode(point, [{ id: points[0], relation: shape }]);
     });
   }
   objectPointsMap.forEach((node: NodeType) => {
@@ -269,8 +269,6 @@ function createDependentNodeOfRelation(
     result.push({ id: node.id, relation });
   });
 
-  console.log(result);
-
   return result;
 }
 
@@ -280,11 +278,10 @@ function createDependentNodeOfObject(
   points: Array<string>
 ): Array<NodeRelationType> {
   const result: Array<NodeRelationType> = [];
-  let relation = {};
-  relation[objectType] = objectName;
+  let relation = null;
 
   points.forEach((point: string, index: number) => {
-    if (index === points.length - 1) return;
+    if (index === points.length - 1 || !relation) return;
     result.push({ id: point, relation });
   });
 
