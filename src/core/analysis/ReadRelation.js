@@ -616,7 +616,7 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
 }
 
 function reExecuteNode(array: Array<string>) {
-  console.log(`----------------`)
+  console.log(`----------------`);
   dataViewModel.reExecuteNode(array);
 }
 
@@ -647,7 +647,6 @@ function checkAndModifiedAngle(angle: string): { angle: string, isChanged: boole
     );
 
     let modifiedAngleName = angle;
-    let updatePoint = modifiedAngleName[2];
 
     if (
       isVectorInSameLine(
@@ -672,6 +671,7 @@ function checkAndModifiedAngle(angle: string): { angle: string, isChanged: boole
     }
 
     let isChanged = modifiedAngleName !== angle;
+    let updatePoint = modifiedAngleName[2];
 
     if (
       isVectorInSameLine(
@@ -682,7 +682,7 @@ function checkAndModifiedAngle(angle: string): { angle: string, isChanged: boole
         secondLineVector
       )
     ) {
-      if (angle[1] === shape[0]) {
+      if (modifiedAngleName[1] === shape[0]) {
         if (
           isVectorSameDirection(
             calculateVector(
@@ -695,7 +695,7 @@ function checkAndModifiedAngle(angle: string): { angle: string, isChanged: boole
           updatePoint = shape[2];
           isChanged = false;
         }
-      } else if (angle[1] === shape[2]) {
+      } else if (modifiedAngleName[1] === shape[2]) {
         if (
           isVectorSameDirection(
             calculateVector(
@@ -707,7 +707,6 @@ function checkAndModifiedAngle(angle: string): { angle: string, isChanged: boole
         ) {
           updatePoint = shape[0];
           isChanged = false;
-
         }
       }
     } else if (
@@ -719,7 +718,7 @@ function checkAndModifiedAngle(angle: string): { angle: string, isChanged: boole
         secondLineVector
       )
     ) {
-      if (angle[1] === shape[1]) {
+      if (modifiedAngleName[1] === shape[1]) {
         if (
           isVectorSameDirection(
             calculateVector(
@@ -731,9 +730,8 @@ function checkAndModifiedAngle(angle: string): { angle: string, isChanged: boole
         ) {
           updatePoint = shape[3];
           isChanged = false;
-
         }
-      } else if (angle[1] === shape[3]) {
+      } else if (modifiedAngleName[1] === shape[3]) {
         if (
           isVectorSameDirection(
             calculateVector(
@@ -745,7 +743,6 @@ function checkAndModifiedAngle(angle: string): { angle: string, isChanged: boole
         ) {
           updatePoint = shape[1];
           isChanged = false;
-
         }
       }
     }
