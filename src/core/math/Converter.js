@@ -1,29 +1,57 @@
-import type { EquationType, LineType } from '../../utils/types';
+import type {
+  EquationType,
+  LineType,
+} from '../../utils/types';
+import { isValid } from '../utils/index';
 
 export function convertLinearToEquation(l: EquationType): EquationType {
-  return {
-    a: 0,
-    b: 0,
-    c: l.c,
-    d: l.d,
-    e: l.e
-  };
+  if (
+    isValid(l) &&
+    l.c &&
+    l.d &&
+    l.e
+  ) {
+    return {
+      a: 0,
+      b: 0,
+      c: l.c,
+      d: l.d,
+      e: l.e,
+    };
+  }
 }
 
 export function convertEquationToLineType(line: EquationType): LineType {
-  return {
-    a: -line.c / (line.d === 0 ? 1 : line.d),
-    b: -line.e / (line.d === 0 ? 1 : line.d)
-  };
+  if (
+    isValid(line) &&
+    line.c &&
+    line.d &&
+    line.e
+  ) {
+    return {
+      a: -line.c / (line.d === 0 ?
+        1 :
+        line.d),
+      b: -line.e / (line.d === 0 ?
+        1 :
+        line.d),
+    };
+  }
 }
 
 export function convertLineTypeToEquation(line: LineType): EquationType {
-  return {
-    a: 0,
-    b: 0,
-    c: -line.a,
-    d: 1,
-    e: -line.b
-  };
+  if (
+    isValid(line) &&
+    line.a &&
+    line.b
+  ) {
+    return {
+      a: 0,
+      b: 0,
+      c: -line.a,
+      d: 1,
+      e: -line.b,
+    };
+  }
 }
 
