@@ -1,2 +1,2 @@
-import isValid from './isValid';
-import isNum from './isNum.js';
+export { default as isNum } from './isNum';
+export { default as isValid } from './isValid';
