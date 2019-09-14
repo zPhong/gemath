@@ -141,7 +141,7 @@ function generateTriangle(name: string, type: string) {
 
 // Tu giac
 function generateQuadrilateral(name: string) {
-  if (name.length === 4) {
+  if (isValid(name) && name.length === 4) {
     // p1 represents point A
     const p1: CoordinateType = {
       x: 0,
@@ -161,12 +161,18 @@ function generateQuadrilateral(name: string) {
     let p3: CoordinateType = {};
     // prevent point C is on AB line
     const linearEquation = getLineFromTwoPoints(p1, p2);
-    do {
-      p3.x = getRandomValue(p1.x + MIN, p1.x + MAX);
-      p3.y = getRandomValue(p1.y + MIN, p1.y + MAX);
+    if (
+      isValid(linearEquation) &&
+      isValid(linearEquation.c) &&
+      isValid(linearEquation.e)
+    ) {
+      do {
+        p3.x = getRandomValue(p1.x + MIN, p1.x + MAX);
+        p3.y = getRandomValue(p1.y + MIN, p1.y + MAX);
+      }
+      while (p3.y === linearEquation.c * p3.x + linearEquation.e);
+      updateCoordinate(name[2], p3);
     }
-    while (p3.y === linearEquation.coefficientX * p3.x + linearEquation.constantTerm);
-    updateCoordinate(name[2], p3);
 
     // p4 represents point D
     const p4: CoordinateType = {
@@ -176,18 +182,23 @@ function generateQuadrilateral(name: string) {
 
     // prevents p1, p2, p4 are straight
     const line = getLineFromTwoPoints(p1, p2);
-    do {
-      p4.y = getRandomValue(p1.x, p1.x + MAX);
+    if (
+      isValid(line) &&
+      isValid(line.c) &&
+      isValid(line.e)
+    ) {
+      do {
+        p4.y = getRandomValue(p1.x, p1.x + MAX);
+      }
+      while (p4.y === line.c * p4.x + line.e);
+      updateCoordinate(name[3], p4);
     }
-    while (p4.y === line.coefficientX * p4.x + line.constantTerm);
-
-    updateCoordinate(name[3], p4);
   }
 }
 
 // Hinh thang
 function generateTrapezoid(name: string, type: string) {
-  if (name.length === 4) {
+  if (isValid(name) && name.length === 4) {
     // p1 represents point A
     const p1: CoordinateType = {
       x: 0,
@@ -218,12 +229,6 @@ function generateTrapezoid(name: string, type: string) {
           y: p3.y,
         };
         updateCoordinate(name[3], p4);
-        console.table({
-          p1,
-          p2,
-          p3,
-          p4,
-        });
         break;
       }
 
@@ -269,7 +274,7 @@ function generateTrapezoid(name: string, type: string) {
 
 // hinh binh hanh
 function generateParallelogram(name: string) {
-  if (name.length === 4) {
+  if (isValid(name) && name.length === 4) {
     // p1 represents point A
     const p1: CoordinateType = {
       x: 0,
@@ -336,7 +341,7 @@ function generateRectangle(name: string) {
 
 // Hinh thoi
 function generateRhombus(name: string) {
-  if (name.length === 4) {
+  if (isValid(name) && name.length === 4) {
     // p1 represents point A
     const p1: CoordinateType = {
       x: 0,
@@ -369,7 +374,7 @@ function generateRhombus(name: string) {
 }
 
 function generateSquare(name: string) {
-  if (name.length === 4) {
+  if (isValid(name) && name.length === 4) {
     // p1 represents point A
     const p1: CoordinateType = {
       x: 0,
