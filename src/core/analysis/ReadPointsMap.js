@@ -26,7 +26,7 @@ let shape, shapeName, shapeType;
 
 export function readPointsMap(): Array | {} {
   dataViewModel.createPointDetails();
-  console.table(dataViewModel.getData.getPointsMap);
+  console.table(JSON.parse(JSON.stringify(dataViewModel.getData.getPointsMap)));
 
   while (!dataViewModel.isPointsMapStatic()) {
     //get node to calculate
@@ -139,6 +139,7 @@ export function readPointsMap(): Array | {} {
       }
     }
   });
+  console.table({ ...dataViewModel.getData.getPointsMap });
 
   return dataViewModel.getData.getPointsMap.map((node) => ({
     id: node.id,

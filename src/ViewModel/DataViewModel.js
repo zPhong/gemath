@@ -42,7 +42,8 @@ class DataViewModel {
     this.relationsInput = [
       new RelationInputModel('hình thoi ABCD'),
       new RelationInputModel('AC cắt BD tại O'),
-      new RelationInputModel('ABO = 60')
+      new RelationInputModel('ABO = 60'),
+      new RelationInputModel('AOF = 60')
     ];
   }
 
@@ -316,7 +317,9 @@ class DataViewModel {
 
   getNodeInPointsMapById = (id: string): NodeType | null => {
     for (let i = 0; i < this.data.getPointsMap.length; i++) {
-      if (id === this.data.getPointsMap[i].id) return this.data.getPointsMap[i];
+      if (id === this.data.getPointsMap[i].id) {
+        return this.data.getPointsMap[i];
+      }
     }
     return null;
   };

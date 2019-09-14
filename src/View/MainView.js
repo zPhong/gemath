@@ -218,7 +218,6 @@ class MainView extends React.Component {
   @autobind
   renderRelationInput(): React.Node {
     return DataViewModel.RelationsInput.map((model, index) => {
-      console.log(model.value);
       return (
         <InputItem
           key={`input-${index}`}
