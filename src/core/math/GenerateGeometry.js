@@ -5,6 +5,7 @@ import type {
 } from '../../utils/types';
 import {
   calculateDistanceTwoPoints,
+  calculateIntersectionByLineAndLine,
   getLineFromTwoPoints,
   isIn,
   isIsosceles,
@@ -168,29 +169,55 @@ function generateQuadrilateral(name: string) {
     ) {
       do {
         p3.x = getRandomValue(p1.x + MIN, p1.x + MAX);
-        p3.y = getRandomValue(p1.y + MIN, p1.y + MAX);
+        p3.y = getRandomValue(p2.y + MIN, p2.y + MAX); // yC is always greater than yB
       }
-      while (p3.y === linearEquation.c * p3.x + linearEquation.e);
+      while (isIn(p3, linearEquation) || Math.abs(p3.y - p2.y) < 5);
       updateCoordinate(name[2], p3);
     }
 
     // p4 represents point D
     const p4: CoordinateType = {
-      x: getRandomValue(p1.x - MAX, p3.x),
+      x: undefined,
       y: undefined,
     };
 
     // prevents p1, p2, p4 are straight
-    const line = getLineFromTwoPoints(p1, p2);
+    const lineAB = getLineFromTwoPoints(p1, p2);
+    const lineAC = getLineFromTwoPoints(p1, p3);
+    const lineBC = getLineFromTwoPoints(p2, p3);
+    let lineAD = undefined;
+    let lineCD = undefined;
+    let intersection_AB_CD = [];
+    let intersection_AD_BC = [];
+
     if (
-      isValid(line) &&
-      isValid(line.c) &&
-      isValid(line.e)
+      isValid(lineAB) &&
+      isValid(lineAC) &&
+      isValid(lineBC)
     ) {
       do {
-        p4.y = getRandomValue(p1.x, p1.x + MAX);
+        p4.x = getRandomValue(p1.x - MAX, Math.min(p2.x, p3.x));
+        p4.y = getRandomValue(p1.x + MIN, p1.x + MAX);
+        lineAD = getLineFromTwoPoints(p1, p4);
+        lineCD = getLineFromTwoPoints(p3, p4);
+        if (isValid(lineAD) && isValid(lineCD)) {
+          intersection_AB_CD = calculateIntersectionByLineAndLine(lineAB, lineCD);
+          intersection_AD_BC = calculateIntersectionByLineAndLine(lineAD, lineBC);
+        }
+        if(!Array.isArray(intersection_AB_CD)) {
+          intersection_AB_CD = [];
+        }
+        if (!Array.isArray(intersection_AD_BC)) {
+          intersection_AD_BC = [];
+        }
       }
-      while (p4.y === line.c * p4.x + line.e);
+      while (
+        isIn(p4, lineAB) ||
+        isIn(p4, lineAC) ||
+        isIn(p4, lineBC) ||
+        intersection_AB_CD.length === 0 ||
+        intersection_AD_BC.length === 0
+        );
       updateCoordinate(name[3], p4);
     }
   }
