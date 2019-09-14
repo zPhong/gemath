@@ -7,9 +7,9 @@ import { isValid } from '../utils/index';
 export function convertLinearToEquation(l: EquationType): EquationType {
   if (
     isValid(l) &&
-    l.c &&
-    l.d &&
-    l.e
+    isValid(l.c) &&
+    isValid(l.d) &&
+    isValid(l.e)
   ) {
     return {
       a: 0,
@@ -24,9 +24,9 @@ export function convertLinearToEquation(l: EquationType): EquationType {
 export function convertEquationToLineType(line: EquationType): LineType {
   if (
     isValid(line) &&
-    line.c &&
-    line.d &&
-    line.e
+    isValid(line.c) &&
+    isValid(line.d) &&
+    isValid(line.e)
   ) {
     return {
       a: -line.c / (line.d === 0 ?
@@ -42,8 +42,8 @@ export function convertEquationToLineType(line: EquationType): LineType {
 export function convertLineTypeToEquation(line: LineType): EquationType {
   if (
     isValid(line) &&
-    line.a &&
-    line.b
+    isValid(line.a) &&
+    isValid(line.b)
   ) {
     return {
       a: 0,
