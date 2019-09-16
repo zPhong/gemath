@@ -274,8 +274,8 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
         : calculateIntersectionByLineAndLine(calculatedLineEquation, staticLineEquation);
 
       if (!isInStaticLine) {
-        dataViewModel.getData.pushAdditionSegment(`${point}${segmentNotIncludePoint[1]}`);
-        dataViewModel.getData.pushAdditionSegment(`${point}${segmentNotIncludePoint[0]}`);
+        dataViewModel.getData.getAdditionSegment.push(`${point}${segmentNotIncludePoint[1]}`);
+        dataViewModel.getData.getAdditionSegment.push(`${point}${segmentNotIncludePoint[0]}`);
       }
 
       dataViewModel.updateCoordinate(point, calculatedPoint);
@@ -363,8 +363,8 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
     );
 
     relation.segment.forEach((segment: string) => {
-      dataViewModel.getData.pushAdditionSegment(`${relation.point[0]}${segment[0]}`);
-      dataViewModel.getData.pushAdditionSegment(`${relation.point[0]}${segment[1]}`);
+      dataViewModel.getData.getAdditionSegment.push(`${relation.point[0]}${segment[0]}`);
+      dataViewModel.getData.getAdditionSegment.push(`${relation.point[0]}${segment[1]}`);
     });
 
     const calculatedPoint = calculateIntersectionByLineAndLine(calculatedLineEquationOne, calculatedLineEquationTwo);
@@ -640,7 +640,10 @@ function checkAndModifiedAngle(angle: string): { angle: string, isChanged: boole
   for (let i = 0; i < angle.length; i++) {
     if (!dataViewModel.isValidCoordinate(angle[i])) {
       const coordinate = dataViewModel.getNodeInPointsMapById(angle[i]).coordinate;
-      dataViewModel.updateCoordinate(angle[i],{x:coordinate.x || getRandomValue(-10,10),y:coordinate.y || getRandomValue(-10,10)})
+      dataViewModel.updateCoordinate(angle[i], {
+        x: coordinate.x || getRandomValue(-10, 10),
+        y: coordinate.y || getRandomValue(-10, 10)
+      });
       return { angle, isChanged: false };
     }
   }
@@ -776,13 +779,13 @@ function analyzeTangentRelation(relation: mixed, point: string): any {
   if (isIn(tangentPointCoordinate, circleEquation)) {
     tangentEquation = calculateTangentEquation(circleEquation, tangentPointCoordinate);
     dataViewModel.updateCoordinate(point, getRandomPointInEquation(tangentEquation));
-    dataViewModel.pushAdditionSegment(`${otherPointInSegment}${relation.circle[0]}`);
+    dataViewModel.getData.getAdditionSegment.push(`${otherPointInSegment}${relation.circle[0]}`);
   } else {
     const roots = calculateTangentIntersectPointsByPointOutsideCircle(circleEquation, tangentPointCoordinate);
     const result = filterTangentPoint(roots, circleEquation);
     tangentEquation = result.tangentEquation;
     dataViewModel.updateCoordinate(point, result.point);
-    dataViewModel.pushAdditionSegment(`${point}${relation.circle[0]}`);
+    dataViewModel.getData.getAdditionSegment.push(`${point}${relation.circle[0]}`);
   }
 
   return tangentEquation;

@@ -4,13 +4,11 @@ import {
   calculateCircleEquationByCenterPoint,
   calculateDistanceTwoPoints,
   calculateIntersectionByLineAndLine,
-  calculateIntersectionTwoCircleEquations,
   calculateParallelLineByPointAndLine,
   calculatePerpendicularLineByPointAndLine,
   getLineFromTwoPoints,
   calculateInCircleEquation,
   calculateCircumCircleEquation,
-  getAngleFromTwoLines,
   calculateMiddlePoint,
   calculateSymmetricalPoint,
   calculateEscribedCirclesEquation
@@ -18,9 +16,11 @@ import {
 import { getRandomValue } from '../math/Generation';
 import { mappingShapeType, shapeRules, TwoStaticPointRequireShape, circleType } from '../definition/define';
 import { generateGeometry } from '../math/GenerateGeometry';
+import { getRandomPointInEquation } from '../math/Generation';
 import { readRelation } from './ReadRelation';
 import ErrorService from '../../utils/ErrorHandleService.js';
 import appData from '../../Model/AppData.js';
+import { isQuadraticEquation } from '../../utils/checker.js';
 
 let shape, shapeName, shapeType;
 
@@ -94,7 +94,11 @@ export function readPointsMap(): Array | {} {
   dataViewModel.getData.getPointsMap.forEach((node: NodeType) => {
     //Update calculated value to pointsMap
     if (dataViewModel.getData.getPointDetails.has(node.id)) {
-      console.log(dataViewModel.getData.getPointDetails.get(node.id));
+      const setOfEquation = dataViewModel.getData.getPointDetails.get(node.id).setOfEquation;
+      if (setOfEquation.length === 1 && isQuadraticEquation(setOfEquation[0])) {
+        dataViewModel.updateCoordinate(node.id, getRandomPointInEquation(setOfEquation[0]));
+        return;
+      }
       const roots = dataViewModel.getData.getPointDetails.get(node.id).roots;
       if (typeof roots === 'string') {
         ErrorService.showError('400');
@@ -139,7 +143,6 @@ export function readPointsMap(): Array | {} {
       }
     }
   });
-  console.table({ ...dataViewModel.getData.getPointsMap });
 
   return dataViewModel.getData.getPointsMap.map((node) => ({
     id: node.id,

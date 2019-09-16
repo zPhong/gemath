@@ -40,10 +40,11 @@ class DataViewModel {
   constructor(appData) {
     this.data = appData;
     this.relationsInput = [
-      new RelationInputModel('hình thoi ABCD'),
-      new RelationInputModel('AC cắt BD tại O'),
-      new RelationInputModel('ABO = 60'),
-      new RelationInputModel('AOF = 60')
+      new RelationInputModel('tam giác ABC'),
+      new RelationInputModel('AB = 5'),
+      new RelationInputModel('AC = 7'),
+      new RelationInputModel('BC = 7'),
+      new RelationInputModel('ABC = 70')
     ];
   }
 
@@ -141,6 +142,7 @@ class DataViewModel {
   isStaticNode = (node: NodeType): boolean => {
     if (node.isStatic) return true;
     for (let i = 0; i < node.dependentNodes.length; i++) {
+      console.log(node.id, node.dependentNodes);
       if (!this.isExecutedRelation(node.dependentNodes[i].relation)) {
         return false;
       }
@@ -156,7 +158,7 @@ class DataViewModel {
         return;
       }
       this.getData.pointsMap[index].dependentNodes.forEach((dependence: NodeRelationType, index: number) => {
-        if (dependence.relation.outputType === 'shape' && arrayPoint.length > 0) {
+        if (dependence.relation.outputType === 'shape' && !dependence.relation.point && arrayPoint.length > 0) {
           this.getData.pointsMap[index].dependentNodes[index] = { ...dependence, id: arrayPoint[0] };
         }
       });
@@ -643,6 +645,7 @@ class DataViewModel {
   }
 
   getCircleEquation(centerId: string): EquationType {
+    console.log(this.circlesData, centerId);
     return this.circlesData[centerId].equation;
   }
 

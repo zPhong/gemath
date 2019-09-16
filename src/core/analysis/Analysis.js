@@ -5,10 +5,12 @@ import type { DrawingDataType, NodeRelationType, NodeType } from '../../utils/ty
 import dataViewModel from '../../ViewModel/DataViewModel';
 import { readPointsMap } from './ReadPointsMap';
 import { makeRoundCoordinate } from '../math/Math2D.js';
+import ErrorService from '../../utils/ErrorHandleService.js';
 
 let RelationPointsMap: Array<NodeType> = [];
 
 export function analyzeResult(validatedResult): DrawingDataType {
+  validatedResult = deleteWrongRelation(validatedResult);
   const shapes = validatedResult.shapes;
 
   shapes.forEach((shape) => {
@@ -34,6 +36,70 @@ export function analyzeResult(validatedResult): DrawingDataType {
 
   result.segments = [...getArraySegments(validatedResult), ...dataViewModel.getData.getAdditionSegment];
   return result;
+}
+
+function deleteWrongRelation(validatedResult) {
+  const shapes = validatedResult.shapes;
+  let isHaveTriangle = false;
+  let triangle = '';
+  shapes.forEach((shape: mixed) => {
+    if (shape.triangle && !shape.point) {
+      isHaveTriangle = true;
+      triangle = shape.triangle;
+    }
+  });
+
+  if (!isHaveTriangle) {
+    return validatedResult;
+  }
+
+  const segments = [];
+  const relationSegments = [];
+  const relationAngles = [];
+
+  validatedResult.relations.forEach((relation) => {
+    if (relation.outputType === 'define' && !!relation.value) {
+      if (relation.segment) {
+        relation.segment.forEach((segment: string) => {
+          if (!segments.includes(segment) && triangle.includes(segment[0]) && triangle.includes(segment[1])) {
+            segments.push(segment);
+            relationSegments.push(relation);
+          }
+        });
+      }
+
+      if (relation.angle) {
+        relation.angle.forEach((angle: string) => {
+          if (triangle.includes(angle[0]) && triangle.includes(angle[1]) && triangle.includes(angle[2])) {
+            relationAngles.push(relation);
+          }
+        });
+      }
+    }
+  });
+
+  let deleteRelationList = [];
+
+  if (segments.length > 1) {
+    if (segments.length === 2) {
+      relationAngles.shift();
+    }
+    deleteRelationList = relationAngles;
+  }
+  const relations = validatedResult.relations.filter((relation: mixed): boolean => {
+    for (let i = 0; i < deleteRelationList.length; i++) {
+      if (JSON.stringify(relation) === JSON.stringify(deleteRelationList[i])) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  deleteRelationList.forEach((relation: mixed) => {
+    ErrorService.updateErrorInInput(relation);
+  });
+
+  return { shapes, relations };
 }
 
 function getArraySegments(validatedResult): Array<string> {
@@ -148,12 +214,19 @@ function createPointsMapByShape(shape: any) {
 
 function getFirstStaticPointInShape(shape: string): string {
   const angles = [];
+  const segments = [];
   if (dataViewModel.getData.getRelationsResult.relations) {
     dataViewModel.getData.getRelationsResult.relations.forEach((relation) => {
       if (!relation.angle || relation.outputType !== 'define') {
         return;
+      } else {
+        angles.push(relation.angle[0]);
       }
-      angles.push(relation.angle[0]);
+      if (!relation.segment || relation.outputType !== 'define') {
+        return;
+      } else {
+        segments.push(relation.segment[0]);
+      }
     });
 
     const shapePointCount = {};
