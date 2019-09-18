@@ -40,9 +40,12 @@ class DataViewModel {
   constructor(appData) {
     this.data = appData;
     this.relationsInput = [
-      new RelationInputModel('hình thoi ABCD'),
-      new RelationInputModel('AC cắt BD tại O'),
-      new RelationInputModel('ABO = 60')
+      new RelationInputModel('tam giác ABC'),
+      new RelationInputModel('AB = 5'),
+      new RelationInputModel('AC = 7'),
+      new RelationInputModel('BC = 7'),
+      new RelationInputModel('ABC = 70'),
+      new RelationInputModel('AH đường cao ABC')
     ];
   }
 
@@ -86,6 +89,10 @@ class DataViewModel {
 
   clear() {
     this.data.clear();
+    this.inputData = [];
+    this.circlesData = {};
+    this.executedInputIndex = undefined;
+    this.executingRelation = undefined;
   }
 
   get getData() {
@@ -155,7 +162,7 @@ class DataViewModel {
         return;
       }
       this.getData.pointsMap[index].dependentNodes.forEach((dependence: NodeRelationType, index: number) => {
-        if (dependence.relation.outputType === 'shape' && arrayPoint.length > 0) {
+        if (dependence.relation.outputType === 'shape' && !dependence.relation.point && arrayPoint.length > 0) {
           this.getData.pointsMap[index].dependentNodes[index] = { ...dependence, id: arrayPoint[0] };
         }
       });
@@ -316,7 +323,9 @@ class DataViewModel {
 
   getNodeInPointsMapById = (id: string): NodeType | null => {
     for (let i = 0; i < this.data.getPointsMap.length; i++) {
-      if (id === this.data.getPointsMap[i].id) return this.data.getPointsMap[i];
+      if (id === this.data.getPointsMap[i].id) {
+        return this.data.getPointsMap[i];
+      }
     }
     return null;
   };
@@ -640,6 +649,7 @@ class DataViewModel {
   }
 
   getCircleEquation(centerId: string): EquationType {
+    console.log(this.circlesData, centerId);
     return this.circlesData[centerId].equation;
   }
 

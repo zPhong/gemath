@@ -190,7 +190,7 @@ class MainView extends React.Component {
 
   @autobind
   onClickDrawing() {
-    DataViewModel.getData.clear();
+    DataViewModel.clear();
 
     const data = DataViewModel.analyzeInput();
     if (data.points.length === 0 && data.segments.length === 0) {
@@ -218,7 +218,6 @@ class MainView extends React.Component {
   @autobind
   renderRelationInput(): React.Node {
     return DataViewModel.RelationsInput.map((model, index) => {
-      console.log(model.value);
       return (
         <InputItem
           key={`input-${index}`}

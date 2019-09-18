@@ -712,6 +712,10 @@ function calculateVectorLength(vector: CoordinateType): number {
 }
 
 export function calculateAngleTwoVector(vectorOne: CoordinateType, vectorTwo: CoordinateType): number {
+  if((vectorOne.x ===0 && vectorOne.y ===0) || (vectorTwo.x === 0 && vectorTwo.y === 0))
+  {
+    return 0
+  }
   return _makeRound(
     (Math.acos(
       calculateIntegratedDirection(vectorOne, vectorTwo) /
