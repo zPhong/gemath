@@ -302,6 +302,7 @@ function createPointsMapByRelation(relation: any) {
   } else {
     lastObjectPoints = getDependentObject();
   }
+
   if (lastObjectPoints.length === RelationPointsMap.length) {
     lastObjectPoints = [lastObjectPoints[0]];
   }
@@ -361,7 +362,6 @@ function createDependentNodeOfRelation(
     if (exception.includes(node.id)) return;
     result.push({ id: node.id, relation });
   });
-
   return result;
 }
 

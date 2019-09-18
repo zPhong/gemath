@@ -190,7 +190,7 @@ class MainView extends React.Component {
 
   @autobind
   onClickDrawing() {
-    DataViewModel.getData.clear();
+    DataViewModel.clear();
 
     const data = DataViewModel.analyzeInput();
     if (data.points.length === 0 && data.segments.length === 0) {

@@ -44,7 +44,8 @@ class DataViewModel {
       new RelationInputModel('AB = 5'),
       new RelationInputModel('AC = 7'),
       new RelationInputModel('BC = 7'),
-      new RelationInputModel('ABC = 70')
+      new RelationInputModel('ABC = 70'),
+      new RelationInputModel('AH đường cao ABC')
     ];
   }
 
@@ -88,6 +89,10 @@ class DataViewModel {
 
   clear() {
     this.data.clear();
+    this.inputData = [];
+    this.circlesData = {};
+    this.executedInputIndex = undefined;
+    this.executingRelation = undefined;
   }
 
   get getData() {
@@ -142,7 +147,6 @@ class DataViewModel {
   isStaticNode = (node: NodeType): boolean => {
     if (node.isStatic) return true;
     for (let i = 0; i < node.dependentNodes.length; i++) {
-      console.log(node.id, node.dependentNodes);
       if (!this.isExecutedRelation(node.dependentNodes[i].relation)) {
         return false;
       }

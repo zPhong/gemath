@@ -51,6 +51,8 @@ export function readRelation(relation: mixed, point: string) {
       case 'phân giác ngoài':
       case 'phân giác trong':
       case 'thẳng hàng':
+      case 'đường cao':
+      case 'trung tuyến':
         equationResults = analyzeRelationType(relation, point);
         break;
       case 'cắt':
@@ -141,6 +143,7 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
 
   //points = [...new Set(points)].filter((point: string): boolean => !nonStaticPoints.includes(point));
   const relationType = relation.relation;
+  console.log('---', relationType);
 
   if (
     relationType === 'trung điểm' ||
@@ -341,6 +344,36 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
 
       return calculatedLineEquation;
     }
+  } else if (relationType === 'đường cao' || relationType === 'trung tuyến') {
+    const segment = relation.segment[0];
+    const line = relation.triangle[0].replace(segment.replace(point, ''), '');
+    let calculatedPoint;
+    if (relationType === 'trung tuyến') {
+      calculatedPoint = calculateMiddlePoint(
+        dataViewModel.getNodeInPointsMapById(line[1]).coordinate,
+        dataViewModel.getNodeInPointsMapById(line[0]).coordinate
+      );
+    }
+
+    if (relationType === 'đường cao') {
+      const calculatedLineEquation = calculatePerpendicularLineByPointAndLine(
+        dataViewModel.getNodeInPointsMapById(segment.replace(point, '')).coordinate,
+        getLineFromTwoPoints(
+          dataViewModel.getNodeInPointsMapById(line[1]).coordinate,
+          dataViewModel.getNodeInPointsMapById(line[0]).coordinate
+        )
+      );
+
+      calculatedPoint = calculateIntersectionByLineAndLine(
+        calculatedLineEquation,
+        getLineFromTwoPoints(
+          dataViewModel.getNodeInPointsMapById(line[1]).coordinate,
+          dataViewModel.getNodeInPointsMapById(line[0]).coordinate
+        )
+      );
+    }
+
+    dataViewModel.updateCoordinate(point, calculatedPoint);
   }
 }
 

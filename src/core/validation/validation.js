@@ -1,24 +1,27 @@
 import { RankingObjectContain, validate } from '../definition/define.js';
 import { checkFormatString } from '../definition/defineObjType';
 import ErrorService from '../../utils/ErrorHandleService.js';
+import { relative } from 'upath';
 
-export function validateValue(value, type) {
-  if (!_validateName(value.value)) return false;
+export function validateValue(data, type) {
+  if (!_validateName(data.value)) return false;
 
   const validateGeometryType = validate.object[type];
   let validateType;
 
-  if (value.key === 'value' || value.key === 'relation' || value.key === 'undefined' || value.key === 'circle')
-    return true;
-  if (value.key === 'angle') if (!validateAngle(value.value)) return false;
+  if (data.key === 'triangle') {
+    return validateShape({ triangle: data.value });
+  }
+  if (data.key === 'value' || data.key === 'relation' || data.key === 'undefined' || data.key === 'circle') return true;
+  if (data.key === 'angle') if (!validateAngle(data.value)) return false;
 
-  if (validateGeometryType.includes(value.key) || value.key !== 'object') {
-    const format = checkFormatString(value.value);
-    validateType = validate[value.key];
+  if (validateGeometryType.includes(data.key) || data.key !== 'object') {
+    const format = checkFormatString(data.value);
+    validateType = validate[data.key];
     if (validateType && format)
       if (validateType.format) {
-        if (format === validateType.format && value.value.length === validateType.length) return true;
-      } else if (value.value.length === validateType.length) {
+        if (format === validateType.format && data.value.length === validateType.length) return true;
+      } else if (data.value.length === validateType.length) {
         return true;
       }
   }
@@ -35,9 +38,9 @@ function validateShape(shape) {
   const validateShapeFormat = validate.shape[keys[0]];
   const validateShapeType = validate.shapeType[keys[0]] || [''];
   //check format of shape value
-  const value = shape[keys[0]];
+  const data = shape[keys[0]];
   const format = checkFormatString(shape[keys[0]]);
-  const shapeFormatCheck = format === validateShapeFormat.format && value.length === validateShapeFormat.length;
+  const shapeFormatCheck = format === validateShapeFormat.format && data.length === validateShapeFormat.length;
 
   //check type of shape
   const type = shape.type || '';
@@ -112,8 +115,11 @@ export function validateInformation(info) {
       for (let j = 0; j < array.length; j++) {
         let value = array[j];
         const check = validateValue({ key, value }, type);
+        if (!check) {
+          console.log({ key, value }, type);
 
-        if (!check) return check;
+          return check;
+        }
       }
     }
   }
@@ -129,6 +135,9 @@ export function validateInformation(info) {
   }
 
   if (type === 'relation') {
+    if (info.triangle) {
+      return info.segment[0].split('').filter((point) => info.triangle[0].includes(point)).length > 0;
+    }
     return validateDataRelationship(info);
   }
 
