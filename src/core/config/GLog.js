@@ -17,9 +17,9 @@ export default class GLog {
     if (!GConfig.isOffLog && GConfig.isDev && moduleName && moduleName.constructor) {
       let msg = undefined;
       if (Array.isArray(msgs)) {
-        msg = msgs.join('\n');
+        msg = msgs.join('\n ');
       }
-      console.log(`[${moduleName.constructor.name}]`, `\n${msg}`);
+      console.log(`[${moduleName.constructor.name}]`, `\n ${msg}`);
     }
   }
 
