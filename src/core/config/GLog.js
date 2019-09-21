@@ -6,4 +6,10 @@ export default class GLog {
       console.info(`[${moduleName.constructor.name}]`, ...args);
     }
   }
+
+  static logMsg(moduleName, msg, offThis = false) {
+    if (!GConfig.isOffLog && !offThis) {
+      console.log(`[${moduleName.constructor.name}]`, msg);
+    }
+  }
 }
