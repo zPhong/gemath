@@ -18,8 +18,8 @@ const defineSentences = {
     '{point} trung điểm {segment}',
     '{point} không thuộc {object}',
     '{point} thuộc {object}',
-    'trung tuyến {segment} của {triangle}',
-    'đường cao {segment} của {triangle}',
+    '{segment} trung tuyến {triangle}',
+    '{segment} đường cao {triangle}',
     '{segment} tiếp tuyến {circle}'
   ],
   shape: [
@@ -41,7 +41,7 @@ const reversedDependentObjRelation = ['vuông góc', 'cắt'];
 
 const RankingObjectContain = [['point'], ['segment', 'ray'], ['angle']];
 
-const objectWithPoint = ['angle', 'segment', 'ray', 'point', 'circle'];
+const objectWithPoint = ['angle', 'segment', 'ray', 'point', 'circle', 'triangle'];
 
 const validate = {
   object: {
