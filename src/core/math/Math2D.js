@@ -11,7 +11,7 @@ import {
   convertLineTypeToEquation,
 } from './Converter';
 import { getRandomPointInEquation } from './Generation';
-import ErrorService from '../../utils/ErrorHandleService';
+import ErrorService from '../error/ErrorHandleService';
 import { distance } from '../../vendor/euclid/calc';
 
 const MIN = GConst.Number.MIN_RANDOM_NUMBER;
@@ -173,7 +173,7 @@ export function calculateDistanceFromPointToLine(point: CoordinateType, line: Eq
   let denominator = Math.sqrt(line.c * line.c + line.d * line.d);
 
   if (denominator === 0) {
-    return INFINITY;
+    ErrorService.showError()
   }
   return numerator / denominator;
 }

@@ -18,7 +18,7 @@ import { mappingShapeType, shapeRules, TwoStaticPointRequireShape, circleType } 
 import { generateGeometry } from '../math/GenerateGeometry';
 import { getRandomPointInEquation } from '../math/Generation';
 import { readRelation } from './ReadRelation';
-import ErrorService from '../../utils/ErrorHandleService.js';
+import ErrorService from '../error/ErrorHandleService.js';
 import appData from '../../Model/AppData.js';
 import { isQuadraticEquation } from '../../utils/checker.js';
 

@@ -11,7 +11,7 @@ import { defineInformation } from '../core/definition';
 import { analyzeResult } from '../core/analysis/Analysis';
 import RelationInputModel from '../Model/RelationInputModel';
 import { observable, action, computed } from 'mobx';
-import ErrorService from '../utils/ErrorHandleService';
+import ErrorService from '../core/error/ErrorHandleService';
 import { observer } from 'mobx-react';
 import autobind from 'autobind-decorator';
 import { isTwoEquationEqual } from '../core/math/Math2D';
