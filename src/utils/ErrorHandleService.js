@@ -1,6 +1,6 @@
 // @flow
 
-import GConst from './values';
+import GConst from '../core/config/values';
 import dataViewModel from '../ViewModel/DataViewModel';
 
 const ErrorCode = {

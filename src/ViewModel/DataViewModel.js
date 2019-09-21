@@ -3,7 +3,7 @@
 import appData from '../Model/AppData';
 import type { EquationType, PointDetailsType } from '../utils/types';
 import { NodeType } from '../utils/types';
-import GConst from '../utils/values.js';
+import GConst from '../core/config/values.js';
 import { calculateIntersectionTwoCircleEquations, isIn, makeRoundCoordinate } from '../core/math/Math2D.js';
 import { isQuadraticEquation } from '../utils/checker.js';
 import { defineSentences } from '../core/definition/define';

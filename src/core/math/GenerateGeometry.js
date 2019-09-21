@@ -11,7 +11,7 @@ import {
   isIsosceles,
 } from './Math2D';
 import { getRandomValue } from './Generation.js';
-import GConst from '../../utils/values';
+import GConst from '../config/values';
 import {
   isFunc,
   isValid,

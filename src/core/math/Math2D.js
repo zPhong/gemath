@@ -1,4 +1,4 @@
-import GConst from '../../utils/values';
+import GConst from '../config/values';
 import type {
   CircleType,
   CoordinateType,
