@@ -1,7 +1,7 @@
 // @flow
 
-import GConst from './values';
-import dataViewModel from '../ViewModel/DataViewModel';
+import GConst from '../config/values';
+import dataViewModel from '../../ViewModel/DataViewModel';
 
 const ErrorCode = {
   200: GConst.Errors.UNDEFINED_ERROR,

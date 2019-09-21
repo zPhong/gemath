@@ -1,6 +1,6 @@
 import { RankingObjectContain, validate } from '../definition/define.js';
 import { checkFormatString } from '../definition/defineObjType';
-import ErrorService from '../../utils/ErrorHandleService.js';
+import ErrorService from '../error/ErrorHandleService.js';
 import { relative } from 'upath';
 
 export function validateValue(data, type) {

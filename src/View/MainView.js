@@ -10,7 +10,7 @@ import { Icon, InputItem, SegmentSetting } from './components';
 import { DrawingPanel } from './components/DrawingPanel';
 import { calculateDistanceTwoPoints, calculateVector, isVectorSameDirection } from '../core/math/Math2D';
 import type { DrawingSegmentType, SegmentDataType } from '../utils/types';
-import GConst from '../utils/values';
+import GConst from '../core/config/values';
 
 @observer
 class MainView extends React.Component {

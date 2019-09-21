@@ -30,7 +30,7 @@ import {
   getRandomPointInEquation,
   getRandomValue
 } from '../math/Generation.js';
-import ErrorService from '../../utils/ErrorHandleService';
+import ErrorService from '../error/ErrorHandleService';
 import { ShapeAffectBySegmentChange, TwoStaticPointRequireShape } from '../definition/define';
 
 export function readRelation(relation: mixed, point: string) {
