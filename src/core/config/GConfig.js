@@ -1,11 +1,35 @@
-export default class GConfig {
-  static isOffLog = false;
+const env = {
+  isDev: true,
+};
 
+let isOffLog = false;
+
+export default class GConfig {
   static offLog() {
-    GConfig.isOffLog = true;
+    isOffLog = true;
   }
 
   static onLog() {
-    GConfig.isOffLog = false;
+    isOffLog = false;
+  }
+
+  static offEnvDev() {
+    env.isDev = false;
+  }
+
+  static onEnvDev() {
+    env.isDev = true;
+  }
+
+  static get isDev() {
+    return env.isDev;
+  }
+
+  static get env() {
+    return env;
+  }
+  
+  static get isOffLog() {
+    return isOffLog;
   }
 }
