@@ -12,4 +12,10 @@ export default class GLog {
       console.log(`[${moduleName.constructor.name}]`, msg);
     }
   }
+
+  static logError(moduleName, error, offThis = false) {
+    if (!GConfig.isOffLog && moduleName && moduleName.constructor && !offThis) {
+      console.error(`[${moduleName.constructor.name}]`, error);
+    }
+  }
 }
