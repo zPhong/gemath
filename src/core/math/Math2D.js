@@ -221,7 +221,7 @@ export function calculatePerpendicularLineByPointAndLine(point: CoordinateType, 
 }
 
 export function calculateIntersectionByLineAndLine(lineOne: EquationType, lineTwo: EquationType): CoordinateType {
-  return calculateSetOfEquationTypeAndQuadraticEquation(
+  let r = calculateSetOfEquationTypeAndQuadraticEquation(
     {
       c: lineOne.c,
       d: lineOne.d,
@@ -234,7 +234,16 @@ export function calculateIntersectionByLineAndLine(lineOne: EquationType, lineTw
       d: lineTwo.d,
       e: lineTwo.e,
     },
-  )[0];
+  );
+
+  if (Array.isArray(r)) {
+    if (r.length === 0) {
+      return [];
+    }
+    else {
+      return r;
+    }
+  }
 }
 
 export function calculateCircleEquationByCenterPoint(
@@ -463,23 +472,23 @@ export function calculateQuadraticEquation(a: number, b: number, c: number) {
 
   if (a === 0) {
     if (b === 0) {
-      return INFINITY;
+      return [];
     }
-    return -c / b;
+    return [-c / b];
   }
   else if (delta < 0) {
-    return IMPOSSIBLE;
+    return [];
   }
   else if (delta === 0) {
-    return -b / (2 * a);
+    return [-b / (2 * a)];
   }
   else {
     firstRoot = (-b + Math.sqrt(delta)) / (2 * a);
     secondRoot = (-b - Math.sqrt(delta)) / (2 * a);
-    return {
+    return [
       firstRoot,
       secondRoot,
-    };
+    ];
   }
 }
 
@@ -527,23 +536,23 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
 
     // solves x. Unneeded check IMPOSSIBLE.
     const root = calculateQuadraticEquation(u, v, w);
-    if (typeof root === 'number') {
+    if (Array.isArray(root) && root.length === 1) {
       results.push({
-        x: (-C - B * root) / A,
-        y: root,
+        x: (-C - B * root[0]) / A,
+        y: root[0],
       });
     }
-    else if (root === IMPOSSIBLE) {
-      return root;
+    else if (Array.isArray(root) && root.length === 0) {
+      return [];
     }
     else {
-      const r1 = root.firstRoot;
-      const r2 = root.secondRoot;
+      const r1 = root[0];
+      const r2 = root[1];
       results.push({
-        x: (-C - B * root.firstRoot) / A,
+        x: (-C - B * root[0]) / A,
         y: r1,
       }, {
-        x: (-C - B * root.secondRoot) / A,
+        x: (-C - B * root[1]) / A,
         y: r2,
       });
     }
@@ -556,21 +565,21 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
     // solves x. Unneeded check IMPOSSIBLE.
     const root = calculateQuadraticEquation(u, v, w);
 
-    if (typeof root === 'number') {
+    if (Array.isArray(root) && root.length === 1) {
       results.push({
-        x: root,
+        x: root[0],
         y: -l.e / l.d,
       });
     }
-    else if (root === IMPOSSIBLE) {
-      return root;
+    else if (Array.isArray(root) && root.length === 0) {
+      return [];
     }
     else {
       results.push({
-        x: root.firstRoot,
+        x: root[0],
         y: -l.e / l.d,
       }, {
-        x: root.secondRoot,
+        x: root[1],
         y: -l.e / l.d,
       });
     }
@@ -582,7 +591,7 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
 export function calculateIntersectionTwoCircleEquations(firstEquation: EquationType, secondEquation: EquationType) {
   let results: Array<Object> = [];
   if (!firstEquation || !secondEquation) {
-    return IMPOSSIBLE;
+    return [];
   }
   let q1, q2;
   firstEquation.a === undefined ?
