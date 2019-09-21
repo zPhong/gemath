@@ -13,6 +13,7 @@ import {
 import { getRandomPointInEquation } from './Generation';
 import ErrorService from '../error/ErrorHandleService';
 import { distance } from '../../vendor/euclid/calc';
+import GLog from '../config/GLog';
 
 const MIN = GConst.Number.MIN_RANDOM_NUMBER;
 const MAX = GConst.Number.MAX_RANDOM_NUMBER;
@@ -173,7 +174,9 @@ export function calculateDistanceFromPointToLine(point: CoordinateType, line: Eq
   let denominator = Math.sqrt(line.c * line.c + line.d * line.d);
 
   if (denominator === 0) {
-    ErrorService.showError()
+    GLog.logError(this, 'calculateDistanceFromPointToLine: mẫu số bằng 0');
+    ErrorService.showError(200);
+    return {};
   }
   return numerator / denominator;
 }
@@ -249,7 +252,7 @@ export function calculateIntersectionByLineAndLine(lineOne: EquationType, lineTw
 export function calculateCircleEquationByCenterPoint(
   centerPoint: CoordinateType,
   radius: number,
-): TwoVariableQuadraticEquation {
+): EquationType {
   const roundedRadius = _makeRound(radius, 6);
   return {
     a: 1,
@@ -313,7 +316,9 @@ function _calculateBisectLineEquation(lineOne: EquationType, lineTwo: EquationTy
 
   // check if denominator equals 0
   if (lineTwo.c * lineTwo.c + lineTwo.d * lineTwo.d === 0) {
-    return;
+    GLog.logError(this, 'calculateDistanceFromPointToLine: mẫu số bằng 0');
+    ErrorService.showError(200);
+    return [];
   }
 
   // Represent for [sqrt(a*a + b*b) / sqrt(a'*a' + b'*b')]
@@ -365,7 +370,8 @@ export function calculateSetOfEquationTypes(d1: EquationType, d2: EquationType) 
     (d1.c === 0 && d1.d === 0) ||
     (d2.c === 0 && d2.d === 0)
   ) {
-    return IMPOSSIBLE;
+    GLog.logMsg(this, d1, d2, IMPOSSIBLE);
+    return {};
   }
   if (d1.c === 0 && d2.d === 0) {
     return {
@@ -445,7 +451,8 @@ export function calculateIntersectionEquationTypeWithCircleEquation(d: EquationT
   const distanceFromCenterPointToLine = calculateDistanceFromPointToLine(centerPoint, d);
 
   if (distanceFromCenterPointToLine > Math.sqrt(A * A + B * B - q.e)) {
-    return IMPOSSIBLE;
+    GLog.logMsgWithLineBreaks(this, d, q, IMPOSSIBLE);
+    return [];
   }
   else {
     return calculateSetOfEquationTypeAndQuadraticEquation(d, q);
@@ -646,7 +653,8 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
       G - q1.e;
 
     if (a === 0 || b === 0) {
-      return IMPOSSIBLE;
+      GLog.logMsgWithLineBreaks(this, 'a = 0 || b = 0', firstEquation, secondEquation, IMPOSSIBLE);
+      return [];
     }
     else {
       const u = Z * (b * b + a * a);
@@ -654,7 +662,8 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
       const w = Z * c * c - _D * a * c + _G * a * a;
 
       const roots = calculateQuadraticEquation(u, v, w);
-      if (roots === IMPOSSIBLE) {
+      if (roots === []) {
+        GLog.logMsgWithLineBreaks(this, firstEquation, secondEquation, IMPOSSIBLE);
         return roots;
       }
       else if (typeof roots === 'number') {
@@ -721,9 +730,8 @@ function calculateVectorLength(vector: CoordinateType): number {
 }
 
 export function calculateAngleTwoVector(vectorOne: CoordinateType, vectorTwo: CoordinateType): number {
-  if((vectorOne.x ===0 && vectorOne.y ===0) || (vectorTwo.x === 0 && vectorTwo.y === 0))
-  {
-    return 0
+  if ((vectorOne.x === 0 && vectorOne.y === 0) || (vectorTwo.x === 0 && vectorTwo.y === 0)) {
+    return 0;
   }
   return _makeRound(
     (Math.acos(
@@ -752,7 +760,8 @@ export function _calculateLinesByAnotherLineAndAngle(d: EquationType, p: Coordin
       e: -root * p.x - p.y,
     });
   }
-  else if (root === IMPOSSIBLE) {
+  else if (root === []) {
+    GLog.logMsgWithLineBreaks(this, d, p, angle, IMPOSSIBLE);
     return root;
   }
   else {
@@ -821,7 +830,8 @@ export function getMiddlePointFromThreePointsInALine(
     d: line.d,
     e: line.e,
   })) {
-    return NOT_BE_IN_LINE;
+    GLog.logMsgWithLineBreaks(this, p1, p2, p3, NOT_BE_IN_LINE);
+    return {};
   }
 
   // another way: check vector =)))~
@@ -906,7 +916,7 @@ export function calculateEscribedCirclesEquation(
 
   if (otherPoints.length !== 2) {
     ErrorService.showError('300');
-    return;
+    return {};
   }
 
   const bisectorLineOne = calculateInternalBisectLineEquation(
