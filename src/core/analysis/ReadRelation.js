@@ -421,7 +421,10 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
       getLineFromTwoPoints(pointOne, pointTwo),
       dataViewModel.getCircleEquation(relation.circle[0])
     );
-
+    if (typeof roots === 'string') {
+      ErrorService.showError('200');
+    }
+    console.log(roots);
     roots = roots.filter(
       (root: CoordinateType): boolean =>
         JSON.stringify(root) !== JSON.stringify(pointOne) && JSON.stringify(root) !== JSON.stringify(pointTwo)

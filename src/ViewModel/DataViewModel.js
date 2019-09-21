@@ -16,6 +16,7 @@ import { observer } from 'mobx-react';
 import autobind from 'autobind-decorator';
 import { isTwoEquationEqual } from '../core/math/Math2D';
 import { getRandomValue } from '../core/math/Generation';
+import { Operation } from '../core/math/MathOperation';
 
 const NOT_FOUND = GConst.Number.NOT_FOUND;
 const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
@@ -41,11 +42,8 @@ class DataViewModel {
     this.data = appData;
     this.relationsInput = [
       new RelationInputModel('tam giác ABC'),
-      new RelationInputModel('AB = 5'),
-      new RelationInputModel('AC = 7'),
-      new RelationInputModel('BC = 7'),
-      new RelationInputModel('ABC = 70'),
-      new RelationInputModel('AH đường cao ABC')
+      new RelationInputModel('(I) bàng tiếp ABC tại A'),
+      new RelationInputModel('AB cắt (I) tại F')
     ];
   }
 
@@ -140,7 +138,7 @@ class DataViewModel {
         _coordinate[key] = coordinate[key];
       });
     if (index !== NOT_FOUND) {
-      this.data.getPointsMap[index].coordinate = makeRoundCoordinate(_coordinate, f);
+      this.data.getPointsMap[index].coordinate = _coordinate;
     }
   };
 

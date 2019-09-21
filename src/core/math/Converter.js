@@ -3,6 +3,9 @@ import type {
   LineType,
 } from '../../utils/types';
 import { isValid } from '../utils/index';
+import { Operation } from './MathOperation';
+
+const {Sub, Divide, isZero} = Operation;
 
 export function convertLinearToEquation(l: EquationType): EquationType {
   if (
@@ -29,10 +32,11 @@ export function convertEquationToLineType(line: EquationType): LineType {
     isValid(line.e)
   ) {
     return {
-      a: -line.c / (line.d === 0 ?
+      //-line.c / (line.d === 0 ? 1 : line.d)
+      a: Divide(Sub(0, line.c), isZero(line.d) ?
         1 :
         line.d),
-      b: -line.e / (line.d === 0 ?
+      b: Divide(Sub(0, line.e), isZero(line.d) ?
         1 :
         line.d),
     };
@@ -48,10 +52,9 @@ export function convertLineTypeToEquation(line: LineType): EquationType {
     return {
       a: 0,
       b: 0,
-      c: -line.a,
+      c: Sub(0, line.a),
       d: 1,
-      e: -line.b,
+      e: Sub(0, line.b),
     };
   }
 }
-

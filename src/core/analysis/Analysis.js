@@ -6,6 +6,7 @@ import dataViewModel from '../../ViewModel/DataViewModel';
 import { readPointsMap } from './ReadPointsMap';
 import { makeRoundCoordinate } from '../math/Math2D.js';
 import ErrorService from '../../utils/ErrorHandleService.js';
+import { Operation } from '../math/MathOperation.js';
 
 let RelationPointsMap: Array<NodeType> = [];
 
@@ -31,11 +32,28 @@ export function analyzeResult(validatedResult): DrawingDataType {
   readPointsMap();
   result.points = dataViewModel.getData.getPointsMap.map((node: NodeType) => ({
     id: node.id,
-    coordinate: makeRoundCoordinate(node.coordinate, 3)
+    coordinate: {
+      x: Operation.Round(node.coordinate.x, 3),
+      y: Operation.Round(node.coordinate.y, 3)
+    }
   }));
 
+  _RoundObject(dataViewModel.circlesData);
   result.segments = [...getArraySegments(validatedResult), ...dataViewModel.getData.getAdditionSegment];
   return result;
+}
+
+function _RoundObject(object: mixed): mixed {
+  if (typeof object === 'object') {
+    Object.keys(object).forEach((key: string) => {
+      object[key] = _RoundObject(object[key]);
+      if (key === 'radius') {
+        console.log(object[key]);
+      }
+    });
+    return object;
+  }
+  return Operation.Round(object);
 }
 
 function deleteWrongRelation(validatedResult) {
