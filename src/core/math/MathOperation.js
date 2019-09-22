@@ -3,7 +3,7 @@
 import { evaluate } from 'mathjs';
 import type { CalculatedResultType } from '../../utils/types';
 
-import ErrorService from '../../utils/ErrorHandleService';
+import ErrorService from '../error/ErrorHandleService';
 
 function MathOperation(): Object {
   function Parenthesis(element: CalculatedResultType): string {

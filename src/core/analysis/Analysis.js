@@ -5,7 +5,7 @@ import type { DrawingDataType, NodeRelationType, NodeType } from '../../utils/ty
 import dataViewModel from '../../ViewModel/DataViewModel';
 import { readPointsMap } from './ReadPointsMap';
 import { makeRoundCoordinate } from '../math/Math2D.js';
-import ErrorService from '../../utils/ErrorHandleService.js';
+import ErrorService from '../error/ErrorHandleService.js';
 import { Operation } from '../math/MathOperation.js';
 
 let RelationPointsMap: Array<NodeType> = [];
