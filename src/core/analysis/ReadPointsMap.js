@@ -18,8 +18,7 @@ import { mappingShapeType, shapeRules, TwoStaticPointRequireShape, circleType } 
 import { generateGeometry } from '../math/GenerateGeometry';
 import { getRandomPointInEquation } from '../math/Generation';
 import { readRelation } from './ReadRelation';
-import ErrorService from '../error/ErrorHandleService.js';
-import appData from '../../Model/AppData.js';
+import ErrorService from '../error/ErrorHandleService';
 import { isQuadraticEquation } from '../../utils/checker.js';
 
 let shape, shapeName, shapeType;
@@ -191,7 +190,7 @@ function executeRelations(node: NodeType) {
           dataViewModel.circlesData[relation.point[0]] = data;
           dataViewModel.updateCoordinate(relation.point[0], data.center);
         } else {
-          ErrorService.ErrorMessage('400');
+          ErrorService.showError('400');
         }
       } else if (!dataViewModel.isExecutedRelation(relation)) {
         generateGeometry(relation[shapeName], shapeName, relation.type);

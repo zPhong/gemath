@@ -32,6 +32,7 @@ import {
 } from '../math/Generation.js';
 import ErrorService from '../error/ErrorHandleService';
 import { ShapeAffectBySegmentChange, TwoStaticPointRequireShape } from '../definition/define';
+import { Operation } from '../math/MathOperation.js';
 
 export function readRelation(relation: mixed, point: string) {
   let equationResults;
@@ -424,7 +425,7 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
     if (typeof roots === 'string') {
       ErrorService.showError('200');
     }
-    console.log(roots);
+
     roots = roots.filter(
       (root: CoordinateType): boolean =>
         JSON.stringify(root) !== JSON.stringify(pointOne) && JSON.stringify(root) !== JSON.stringify(pointTwo)
@@ -440,6 +441,10 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
     } else {
       dataViewModel.updateCoordinate(relation.point[0], roots[getRandomValue(0, roots.length - 1)]);
     }
+
+    relation.point.forEach((point: string) => {
+      dataViewModel.getData.getAdditionSegment.push(`${relation.segment[0][0]}${point}`);
+    });
   }
 }
 
