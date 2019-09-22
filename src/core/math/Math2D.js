@@ -21,7 +21,7 @@ const {
   Compare,
   isZero,
   Abs,
-  isSmallerThanZero,
+   isSmallerThanZero,
   Round,
   Max
 } = Operation;
@@ -455,8 +455,6 @@ export function calculateIntersectionEquationTypeWithCircleEquation(
   const A = Divide(q.c, -2);
   const B = Divide(q.d, -2);
 
-  console.log(d, Round(A), Round(B), Round(Sqrt(Sub(Add(Pow(A, 2), Pow(B, 2)), q.e))));
-
   const centerPoint: CoordinateType = {
     x: A,
     y: B
@@ -464,7 +462,6 @@ export function calculateIntersectionEquationTypeWithCircleEquation(
   const distanceFromCenterPointToLine = calculateDistanceFromPointToLine(centerPoint, d);
 
   if (Compare(distanceFromCenterPointToLine, Sqrt(Sub(Add(Pow(A, 2), Pow(B, 2)), q.e))) > 0) {
-    console.log(Round(distanceFromCenterPointToLine), Round(Sqrt(Sub(Add(Pow(A, 2), Pow(B, 2)), q.e))));
     return IMPOSSIBLE;
   } else {
     return calculateSetOfEquationTypeAndQuadraticEquation(d, q);
@@ -490,6 +487,7 @@ export function calculateQuadraticEquation(
 ): CalculatedResultType {
   const delta = Sub(Pow(b, 2), Multiply(4, Multiply(a, c)));
 
+  console.log('delta: ', Round(delta), 'is smaller than 0\n', isSmallerThanZero(delta));
   let firstRoot,
     secondRoot: CalculatedResultType = undefined;
   if (isZero(a)) {
@@ -498,8 +496,6 @@ export function calculateQuadraticEquation(
     }
     return Sub(0, Divide(c, b));
   } else if (isSmallerThanZero(delta)) {
-    console.log({ a, b, c });
-    console.log(delta);
     return IMPOSSIBLE;
   } else if (isZero(delta)) {
     return Sub(0, Divide(b, Multiply(2, a)));
@@ -558,7 +554,7 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
   const G = q.d;
   const H = q.e;
 
-  if (A !== 0) {
+  if (!isZero(A)) {
     //A * A * E + D * B * B
     u = Add(Multiply(Pow(A, 2), E), Multiply(Pow(B, 2), D));
     //2 * B * C * D - A * B * F + A * A * G
@@ -596,9 +592,9 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
     //q.c * l.d * l.d
     v = Multiply(q.c, Pow(l.d, 2));
     //q.b * l.e * l.e - q.d * l.d * l.e + q.e * l.d * l.d
-    w = Add(
-      Sub(Multiply(q.b, Pow(l.e, 2)), Multiply(Multiply(q.d, l.d), Multiply(q.e, l.e))),
-      Multiply(q.e, Pow(l.d, 2))
+    w = Sub(
+      Multiply(q.b, Pow(l.e, 2)),
+      Multiply(Multiply(Multiply(q.d, l.d), Multiply(q.e, l.e)), Multiply(q.e, Pow(l.d, 2)))
     );
 
     // solves x. Unneeded check IMPOSSIBLE.
@@ -879,7 +875,6 @@ export function calculateCircumCircleEquation(p1: CoordinateType, p2: Coordinate
 
   const center = calculateIntersectionByLineAndLine(midPerpendicularsLineOne, midPerpendicularsLineTwo);
   const radius = calculateDistanceTwoPoints(center, p1);
-  console.log(radius);
   const equation = calculateCircleEquationByCenterPoint(center, radius);
 
   return {
@@ -947,11 +942,8 @@ export function calculateEscribedCirclesEquation(
   const center = calculateIntersectionByLineAndLine(bisectorLineOne, bisectorLineTwo);
   const radius = calculateDistanceFromPointToLine(center, getLineFromTwoPoints(otherPoints[1], otherPoints[0]));
 
-  console.log(getLineFromTwoPoints(otherPoints[1], otherPoints[0]));
-
-  console.log(Round(center.x), Round(center.y), Round(radius));
-
   const equation = calculateCircleEquationByCenterPoint(center, radius);
+
   return {
     center,
     radius,
@@ -985,8 +977,8 @@ export function calculateTangentIntersectPointsByPointOutsideCircle(
   exceptionPoint?: CoordinateType = null
 ): EquationType {
   const center: CoordinateType = {
-    x: Divide(Sub(0, circle.c), 2),
-    y: Divide(Sub(0, circle.d), 2)
+    x: Divide(circle.c, -2),
+    y: Divide(circle.d, -2)
   };
 
   const tempCircleCenter = calculateMiddlePoint(center, point);
