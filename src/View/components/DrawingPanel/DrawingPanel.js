@@ -3,6 +3,7 @@ import { Scene } from '../../../vendor/euclid';
 import { renderGeometry, renderPoints } from '../../../vendor/euclid/render';
 import type { DrawingDataType } from '../../../utils/types';
 import './DrawingPanel.scss';
+import { Operation } from '../../../core/math/MathOperation';
 type PropsType = {
   drawingData: DrawingDataType
 };
@@ -46,25 +47,35 @@ class DrawingPanel extends React.Component<PropsType> {
       arrY.push(point.coordinate.y);
     });
 
-    const disparityX = Math.max(...arrX) - Math.min(...arrX);
-    const disparityY = Math.max(...arrY) - Math.min(...arrY);
-    let ratio = 0;
-    const ODD = 15;
+    if (circles) {
+      Object.keys(circles).forEach((point) => {
+        const center = circles[point].center;
+        const radius = circles[point].radius;
+        arrX.push(center.x - radius, center.x + radius);
+        arrX.push(center.y - radius, center.y + radius);
+      });
+    }
+    const minX = Math.min(...arrX);
+    const minY = Math.min(...arrY);
+    const disparityX = Math.max(...arrX) - minX;
+    const disparityY = Math.max(...arrY) - minY;
+    const ODD = 0.15;
+    let ratio = 1;
     if (disparityX / disparityY >= 1) {
       // scale theo width
       // giá trị ước lượng (ODD): nhằm tránh điểm render ngay cạnh của viewBox sẽ làm mất tên điểm
-      ratio = Math.floor(width / disparityX) - ODD;
+      ratio = Operation.Round(width / disparityX) * (1 - ODD);
     } else {
-      ratio = Math.floor(height / disparityY) - ODD;
+      ratio = Operation.Round(height / disparityY) * (1 - ODD);
     }
 
-    const anchorX = Math.min(...arrX) + disparityX / 2;
-    const anchorY = Math.min(...arrY) + disparityY / 2;
+    const transitionX = width / 2 - (disparityX * ratio) / 2;
+    const transitionY = height / 2 - (disparityY * ratio) / 2;
     points.forEach((point) => {
       scene.point(
         point.id,
-        point.coordinate.x * ratio + width / 2 - ratio * anchorX,
-        point.coordinate.y * ratio + height / 2 - ratio * anchorY
+        (point.coordinate.x - minX) * ratio + transitionX,
+        (point.coordinate.y - minY) * ratio + transitionY
       );
     });
 
@@ -76,11 +87,21 @@ class DrawingPanel extends React.Component<PropsType> {
 
     if (circles) {
       Object.keys(circles).forEach((point) => {
+        const circlePoint = {
+          x: circles[point].radius + circles[point].center.x,
+          y: circles[point].radius + circles[point].center.y
+        };
         scene.point(
           point,
-          circles[point].center.x * ratio + width / 2 - ratio * anchorX,
-          circles[point].center.y * ratio + height / 2 - ratio * anchorY
+          (circles[point].center.x - minX) * ratio + transitionX,
+          (circles[point].center.y - minY) * ratio + transitionY
         );
+
+        const scaledCirclePoint = {
+          x: (circlePoint.x - minX) * ratio + transitionX,
+          y: (circlePoint.y - minY) * ratio + transitionY
+        };
+        console.log(circles[point].radius, ratio);
         scene.circle(`circle-${point}`, point, circles[point].radius * ratio);
       });
     }

@@ -4,13 +4,11 @@ import {
   calculateCircleEquationByCenterPoint,
   calculateDistanceTwoPoints,
   calculateIntersectionByLineAndLine,
-  calculateIntersectionTwoCircleEquations,
   calculateParallelLineByPointAndLine,
   calculatePerpendicularLineByPointAndLine,
   getLineFromTwoPoints,
   calculateInCircleEquation,
   calculateCircumCircleEquation,
-  getAngleFromTwoLines,
   calculateMiddlePoint,
   calculateSymmetricalPoint,
   calculateEscribedCirclesEquation
@@ -18,15 +16,16 @@ import {
 import { getRandomValue } from '../math/Generation';
 import { mappingShapeType, shapeRules, TwoStaticPointRequireShape, circleType } from '../definition/define';
 import { generateGeometry } from '../math/GenerateGeometry';
+import { getRandomPointInEquation } from '../math/Generation';
 import { readRelation } from './ReadRelation';
-import ErrorService from '../../utils/ErrorHandleService.js';
-import appData from '../../Model/AppData.js';
+import ErrorService from '../error/ErrorHandleService';
+import { isQuadraticEquation } from '../../utils/checker.js';
 
 let shape, shapeName, shapeType;
 
 export function readPointsMap(): Array | {} {
   dataViewModel.createPointDetails();
-  console.table(dataViewModel.getData.getPointsMap);
+  console.table(JSON.parse(JSON.stringify(dataViewModel.getData.getPointsMap)));
 
   while (!dataViewModel.isPointsMapStatic()) {
     //get node to calculate
@@ -83,9 +82,6 @@ export function readPointsMap(): Array | {} {
       }
     }
 
-    //appModel.updatePointsMap(executingNode);
-    dataViewModel.getData.getExecutedNode.push(executingNode.id);
-
     //update static Node
     dataViewModel.updateStaticNode();
 
@@ -97,7 +93,11 @@ export function readPointsMap(): Array | {} {
   dataViewModel.getData.getPointsMap.forEach((node: NodeType) => {
     //Update calculated value to pointsMap
     if (dataViewModel.getData.getPointDetails.has(node.id)) {
-      console.log(dataViewModel.getData.getPointDetails.get(node.id));
+      const setOfEquation = dataViewModel.getData.getPointDetails.get(node.id).setOfEquation;
+      if (setOfEquation.length === 1 && isQuadraticEquation(setOfEquation[0])) {
+        dataViewModel.updateCoordinate(node.id, getRandomPointInEquation(setOfEquation[0]));
+        return;
+      }
       const roots = dataViewModel.getData.getPointDetails.get(node.id).roots;
       if (typeof roots === 'string') {
         ErrorService.showError('400');
@@ -190,7 +190,7 @@ function executeRelations(node: NodeType) {
           dataViewModel.circlesData[relation.point[0]] = data;
           dataViewModel.updateCoordinate(relation.point[0], data.center);
         } else {
-          ErrorService.ErrorMessage('400');
+          ErrorService.showError('400');
         }
       } else if (!dataViewModel.isExecutedRelation(relation)) {
         generateGeometry(relation[shapeName], shapeName, relation.type);
@@ -200,17 +200,23 @@ function executeRelations(node: NodeType) {
         makeCorrectShape(shape, shapeName, shapeRules[shapeName][shapeType], node.id);
       }
     }
-    relationEquation = readRelation(relation, node.id);
-    if (relationEquation) {
-      if (Array.isArray(relationEquation)) {
-        relationEquation = relationEquation[getRandomValue(0, relationEquation.length)];
-      }
-      dataViewModel.executePointDetails(node.id, relationEquation);
-    }
+
     if (!dataViewModel.isExecutedRelation(relation)) {
+      relationEquation = readRelation(relation, node.id);
+      if (relationEquation) {
+        if (Array.isArray(relationEquation)) {
+          relationEquation = relationEquation[getRandomValue(0, relationEquation.length)];
+        }
+        dataViewModel.executePointDetails(node.id, relationEquation);
+      }
       dataViewModel.getData.getExecutedRelations.push(relation);
     }
   });
+  if (dataViewModel.isReCalculated) {
+    dataViewModel.isReCalculated = false;
+    return;
+  }
+  dataViewModel.getData.getExecutedNode.push(node.id);
 }
 
 function setPointsDirection(shape: string) {
@@ -301,6 +307,7 @@ function makeCorrectShape(shape: string, shapeName: string, rules: string, execu
 
 function updateCoordinateBySpecialPerpendicularRule(rule: string, shape: string, executePointIndex: number) {
   let includeLine, nonIncludeLine;
+
   const staticLines = rule
     .split('^')
     .filter(
@@ -327,9 +334,20 @@ function updateCoordinateBySpecialPerpendicularRule(rule: string, shape: string,
     const staticPointIndex = nonStaticLine.split('').filter((pointIndex: string): boolean => {
       return dataViewModel.isStaticNodeById(shape[pointIndex]);
     })[0];
-    if (shape[nonIncludeLine.replace(staticPointIndex, '')]) {
+    if (staticPointIndex === undefined) {
+      const coordinate = calculateIntersectionByLineAndLine(
+        calculatePerpendicularLineByPointAndLine(
+          intersectPoint,
+          getLineFromTwoPoints(shapePoints[staticLines[0][0]], shapePoints[staticLines[0][1]])
+        ),
+        getLineFromTwoPoints(shapePoints[staticLines[0][0]], shapePoints[nonStaticLine[0]])
+      );
+
+      dataViewModel.updateCoordinate(shape[nonStaticLine[0]], coordinate);
+    } else if (shape[nonStaticLine.replace(staticPointIndex, '')]) {
       const calculatedCoordinate = calculateSymmetricalPoint(shapePoints[staticPointIndex], intersectPoint);
-      dataViewModel.updateCoordinate(shape[nonIncludeLine.replace(staticPointIndex, '')], calculatedCoordinate);
+
+      dataViewModel.updateCoordinate(shape[nonStaticLine.replace(staticPointIndex, '')], calculatedCoordinate);
     }
   } else if (staticLines.length === 0) {
     //line perpendicular with line include 1 static point

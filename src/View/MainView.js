@@ -10,7 +10,7 @@ import { Icon, InputItem, SegmentSetting } from './components';
 import { DrawingPanel } from './components/DrawingPanel';
 import { calculateDistanceTwoPoints, calculateVector, isVectorSameDirection } from '../core/math/Math2D';
 import type { DrawingSegmentType, SegmentDataType } from '../utils/types';
-import GConst from '../utils/values';
+import GConst from '../core/config/values';
 
 @observer
 class MainView extends React.Component {
@@ -190,7 +190,7 @@ class MainView extends React.Component {
 
   @autobind
   onClickDrawing() {
-    DataViewModel.getData.clear();
+    DataViewModel.clear();
 
     const data = DataViewModel.analyzeInput();
     if (data.points.length === 0 && data.segments.length === 0) {
@@ -218,7 +218,6 @@ class MainView extends React.Component {
   @autobind
   renderRelationInput(): React.Node {
     return DataViewModel.RelationsInput.map((model, index) => {
-      console.log(model.value);
       return (
         <InputItem
           key={`input-${index}`}
