@@ -1,6 +1,6 @@
 @font-face {
   font-family: appDescriptionFont;
-  src: url('../../../resources/fonts/Nunito-Light.ttf');
+  src: url('../../../../resources/fonts/Nunito-Light.ttf');
 }
 
 .segment-setting {
@@ -149,7 +149,7 @@
           background-color: transparent;
           color: #dc3545;
         }
-        .btn-update{
+        .btn-update {
           min-width: 105px;
         }
         button:hover {
