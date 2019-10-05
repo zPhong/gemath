@@ -5,11 +5,9 @@ import type { PropsType } from './BaseBlockSetting/BaseBlockSetting';
 import React from 'react';
 import { DisplayData } from './string';
 
-type BlockType = {
-  type: 'SEGMENT' | 'LINE' | 'CIRCLE'
+const BlockSetting = (props: PropsType) => {
+  const type = props.value.type || 'SEGMENT';
+  return <BaseBlockSetting {...props} displayData={DisplayData[type]} />;
 };
-const BlockSetting = (type: BlockType = 'SEGMENT', props: PropsType) => (
-  <BaseBlockSetting {...props} displayData={DisplayData[type]} />
-);
 
 export { BlockSetting };
