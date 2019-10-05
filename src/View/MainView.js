@@ -10,7 +10,7 @@ import { Icon, InputItem, SegmentSetting } from './components';
 import { DrawingPanel } from './components/DrawingPanel';
 import { calculateDistanceTwoPoints, calculateVector, isVectorSameDirection } from '../core/math/Math2D';
 import type { DrawingSegmentType, SegmentDataType } from '../utils/types';
-import GConst from '../utils/values';
+import GConst from '../core/config/values';
 
 @observer
 class MainView extends React.Component {
@@ -190,7 +190,7 @@ class MainView extends React.Component {
 
   @autobind
   onClickDrawing() {
-    DataViewModel.getData.clear();
+    DataViewModel.clear();
 
     const data = DataViewModel.analyzeInput();
     if (data.points.length === 0 && data.segments.length === 0) {
@@ -221,6 +221,7 @@ class MainView extends React.Component {
       return (
         <InputItem
           key={`input-${index}`}
+          index={index}
           ref={(ref) => {
             this.inputRefs[index] = ref;
           }}
@@ -246,13 +247,16 @@ class MainView extends React.Component {
     if (JSON.stringify(data) === JSON.stringify(drawingSegments[index])) {
       return;
     }
-
+    const length = JSON.parse(JSON.stringify(drawingSegments.length));
     const isAddSegment = !!drawingSegments[index];
     drawingSegments[index] = data;
 
     this.setState({ drawingSegments }, () => {
       if (isAddSegment) {
-        if (drawingSegments.map((segment: SegmentDataType): string => segment.name).includes(data.name)) {
+        if (
+          drawingSegments.map((segment: SegmentDataType): string => segment.name).includes(data.name) &&
+          length !== drawingSegments.length
+        ) {
           this.onDeleteSegmentSetting(index);
         }
       }
@@ -388,9 +392,7 @@ class MainView extends React.Component {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
-                        <span>
-                          Thêm/Xóa các doạn thẳng
-                        </span>
+                        <span>Thêm/Xóa các doạn thẳng</span>
                       </Tooltip>
                     }>
                     <div className="bg-transparent icon-container">

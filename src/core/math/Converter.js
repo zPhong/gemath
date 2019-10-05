@@ -1,65 +1,60 @@
 import type {
-  CoordinateType,
   EquationType,
   LineType,
 } from '../../utils/types';
+import { isValid } from '../utils/index';
+import { Operation } from './MathOperation';
+
+const {Sub, Divide, isZero} = Operation;
 
 export function convertLinearToEquation(l: EquationType): EquationType {
-  return {
-    a: 0,
-    b: 0,
-    c: l.c,
-    d: l.d,
-    e: l.e,
-  };
+  if (
+    isValid(l) &&
+    isValid(l.c) &&
+    isValid(l.d) &&
+    isValid(l.e)
+  ) {
+    return {
+      a: 0,
+      b: 0,
+      c: l.c,
+      d: l.d,
+      e: l.e,
+    };
+  }
 }
 
 export function convertEquationToLineType(line: EquationType): LineType {
-  return {
-    a: -line.c /
-      (line.d === 0 ?
+  if (
+    isValid(line) &&
+    isValid(line.c) &&
+    isValid(line.d) &&
+    isValid(line.e)
+  ) {
+    return {
+      //-line.c / (line.d === 0 ? 1 : line.d)
+      a: Divide(Sub(0, line.c), isZero(line.d) ?
         1 :
         line.d),
-
-    b: -line.e /
-      (line.d === 0 ?
+      b: Divide(Sub(0, line.e), isZero(line.d) ?
         1 :
         line.d),
-  };
+    };
+  }
 }
 
 export function convertLineTypeToEquation(line: LineType): EquationType {
-  return {
-    a: 0,
-    b: 0,
-    c: -line.a,
-    d: 1,
-    e: -line.b,
-  };
-}
-
-export function convertCircleEquation(centerPoint: CoordinateType, radius: number): EquationType {
-  let results = undefined;
-
-  if (radius < 0) {
-    results = 'Radius must be a positive number';
+  if (
+    isValid(line) &&
+    isValid(line.a) &&
+    isValid(line.b)
+  ) {
+    return {
+      a: 0,
+      b: 0,
+      c: Sub(0, line.a),
+      d: 1,
+      e: Sub(0, line.b),
+    };
   }
-
-  const cX = centerPoint.x;
-  const cY = centerPoint.y;
-
-  const cXSquare = cX * cX;
-  const cYSquare = cY * cY;
-  const rSquare = radius * radius;
-
-  results = {
-    a: 1,
-    b: 1,
-    c: -2 * cX,
-    d: -2 * cY,
-    e: cXSquare + cYSquare - rSquare,
-  };
-
-  return results;
 }
-

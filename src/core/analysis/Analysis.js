@@ -5,10 +5,13 @@ import type { DrawingDataType, NodeRelationType, NodeType } from '../../utils/ty
 import dataViewModel from '../../ViewModel/DataViewModel';
 import { readPointsMap } from './ReadPointsMap';
 import { makeRoundCoordinate } from '../math/Math2D.js';
+import ErrorService from '../error/ErrorHandleService.js';
+import { Operation } from '../math/MathOperation.js';
 
 let RelationPointsMap: Array<NodeType> = [];
 
 export function analyzeResult(validatedResult): DrawingDataType {
+  validatedResult = deleteWrongRelation(validatedResult);
   const shapes = validatedResult.shapes;
 
   shapes.forEach((shape) => {
@@ -29,11 +32,92 @@ export function analyzeResult(validatedResult): DrawingDataType {
   readPointsMap();
   result.points = dataViewModel.getData.getPointsMap.map((node: NodeType) => ({
     id: node.id,
-    coordinate: makeRoundCoordinate(node.coordinate, 3)
+    coordinate: {
+      x: Operation.Round(node.coordinate.x, 3),
+      y: Operation.Round(node.coordinate.y, 3)
+    }
   }));
 
+  _RoundObject(dataViewModel.circlesData);
   result.segments = [...getArraySegments(validatedResult), ...dataViewModel.getData.getAdditionSegment];
   return result;
+}
+
+function _RoundObject(object: mixed): mixed {
+  if (typeof object === 'object') {
+    Object.keys(object).forEach((key: string) => {
+      object[key] = _RoundObject(object[key]);
+      if (key === 'radius') {
+        console.log(object[key]);
+      }
+    });
+    return object;
+  }
+  return Operation.Round(object);
+}
+
+function deleteWrongRelation(validatedResult) {
+  const shapes = validatedResult.shapes;
+  let isHaveTriangle = false;
+  let triangle = '';
+  shapes.forEach((shape: mixed) => {
+    if (shape.triangle && !shape.point) {
+      isHaveTriangle = true;
+      triangle = shape.triangle;
+    }
+  });
+
+  if (!isHaveTriangle) {
+    return validatedResult;
+  }
+
+  const segments = [];
+  const relationSegments = [];
+  const relationAngles = [];
+
+  validatedResult.relations.forEach((relation) => {
+    if (relation.outputType === 'define' && !!relation.value) {
+      if (relation.segment) {
+        relation.segment.forEach((segment: string) => {
+          if (!segments.includes(segment) && triangle.includes(segment[0]) && triangle.includes(segment[1])) {
+            segments.push(segment);
+            relationSegments.push(relation);
+          }
+        });
+      }
+
+      if (relation.angle) {
+        relation.angle.forEach((angle: string) => {
+          if (triangle.includes(angle[0]) && triangle.includes(angle[1]) && triangle.includes(angle[2])) {
+            relationAngles.push(relation);
+          }
+        });
+      }
+    }
+  });
+
+  let deleteRelationList = [];
+
+  if (segments.length > 1) {
+    if (segments.length === 2) {
+      relationAngles.shift();
+    }
+    deleteRelationList = relationAngles;
+  }
+  const relations = validatedResult.relations.filter((relation: mixed): boolean => {
+    for (let i = 0; i < deleteRelationList.length; i++) {
+      if (JSON.stringify(relation) === JSON.stringify(deleteRelationList[i])) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+  deleteRelationList.forEach((relation: mixed) => {
+    ErrorService.updateErrorInInput(relation);
+  });
+
+  return { shapes, relations };
 }
 
 function getArraySegments(validatedResult): Array<string> {
@@ -48,12 +132,24 @@ function getArraySegments(validatedResult): Array<string> {
   const relations = validatedResult.relations;
 
   relations.forEach((relation) => {
-    if (relation.segment) {
-      result = result.concat(relation.segment);
-    }
+    result = result.concat(getRelationSegments(relation));
   });
 
   return result.filter((item, index, array) => array.indexOf(item) === index);
+}
+
+function getRelationSegments(relation: mixed): Array<string> {
+  let result = [];
+  if (relation.segment) {
+    result = result.concat(relation.segment);
+  }
+  if (relation.angle) {
+    relation.angle.forEach((angle: string) => {
+      result = result.concat([`${angle[0]}${angle[1]}`, `${angle[1]}${angle[2]}`]);
+    });
+  }
+
+  return result;
 }
 
 function getShapeSegments(shape: any): Array<string> {
@@ -125,9 +221,10 @@ function createPointsMapByShape(shape: any) {
     });
   } else {
     objectPointsMap = points.map((point: string, index: number) => {
-      return index !== 0 ? createNode(point, [{ id: points[0], relation: shape }]) : createNode(point);
+      return createNode(point, [{ id: points[0], relation: shape }]);
     });
   }
+  console.log(objectPointsMap);
   objectPointsMap.forEach((node: NodeType) => {
     updateMap(node, dataViewModel.getData.getPointsMap);
   });
@@ -135,17 +232,27 @@ function createPointsMapByShape(shape: any) {
 
 function getFirstStaticPointInShape(shape: string): string {
   const angles = [];
+  const segments = [];
   if (dataViewModel.getData.getRelationsResult.relations) {
     dataViewModel.getData.getRelationsResult.relations.forEach((relation) => {
       if (!relation.angle || relation.outputType !== 'define') {
         return;
+      } else {
+        angles.push(relation.angle[0]);
       }
-      angles.push(relation.angle[0]);
+      if (!relation.segment || relation.outputType !== 'define') {
+        return;
+      } else {
+        segments.push(relation.segment[0]);
+      }
     });
 
     const shapePointCount = {};
 
     angles.forEach((angle: string): void => {
+      if (!shape.includes(angle[1])) {
+        return;
+      }
       angle.split('').forEach((point, index) => {
         //don't check middle point
         if (index !== 1) {
@@ -177,12 +284,8 @@ function createPointsMapByRelation(relation: any) {
       relation[objectType].forEach((object) => {
         let points = object.split('').filter((point) => point === point.toUpperCase());
 
-        points = sortPriority([...points]);
-
         const objectPointsMap = points.map((point: string, index: number) => {
-          return index === points.length - 1
-            ? createNode(point, createDependentNodeOfObject(objectType, object, points))
-            : createNode(point);
+          return createNode(point);
         });
 
         objectPointsMap.forEach((node: NodeType) => {
@@ -200,15 +303,24 @@ function createPointsMapByRelation(relation: any) {
     return index2 - index1;
   });
 
-  let lastObjectPoints;
+  let lastObjectPoints = [];
 
   if (relation.angle && relation.outputType === 'define' && !!relation.value) {
     const index1 = findIndexByNodeId(relation.angle[0][0], dataViewModel.getData.getPointsMap);
     const index2 = findIndexByNodeId(relation.angle[0][2], dataViewModel.getData.getPointsMap);
-    lastObjectPoints = [index1 > index2 ? relation.angle[0][0] : relation.angle[0][2]];
+    if (index1 < 0) {
+      lastObjectPoints.push(relation.angle[0][0]);
+    }
+    if (index2 < 0) {
+      lastObjectPoints.push(relation.angle[0][2]);
+    }
+    if (index1 >= 0 && index2 >= 0) {
+      lastObjectPoints = [index1 > index2 ? relation.angle[0][0] : relation.angle[0][2]];
+    }
   } else {
     lastObjectPoints = getDependentObject();
   }
+
   if (lastObjectPoints.length === RelationPointsMap.length) {
     lastObjectPoints = [lastObjectPoints[0]];
   }
@@ -268,26 +380,6 @@ function createDependentNodeOfRelation(
     if (exception.includes(node.id)) return;
     result.push({ id: node.id, relation });
   });
-
-  console.log(result);
-
-  return result;
-}
-
-function createDependentNodeOfObject(
-  objectType: string,
-  objectName: string,
-  points: Array<string>
-): Array<NodeRelationType> {
-  const result: Array<NodeRelationType> = [];
-  let relation = {};
-  relation[objectType] = objectName;
-
-  points.forEach((point: string, index: number) => {
-    if (index === points.length - 1) return;
-    result.push({ id: point, relation });
-  });
-
   return result;
 }
 
