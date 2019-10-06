@@ -1,7 +1,7 @@
 // @flow
 
-import GConst from './values';
-import dataViewModel from '../ViewModel/DataViewModel';
+import GConst from '../config/values';
+import dataViewModel from '../../ViewModel/DataViewModel';
 
 const ErrorCode = {
   200: GConst.Errors.UNDEFINED_ERROR,
@@ -24,7 +24,11 @@ class ErrorHandleService {
   showError(code: string, errorRelation?: mixed) {
     let index;
     if (errorRelation) {
-      index = dataViewModel.inputData.filter((data: mixed): boolean => data === errorRelation)[0];
+      dataViewModel.inputData.forEach((data: mixed, i: number) => {
+        if (data === errorRelation) {
+          index = i;
+        }
+      });
     } else {
       switch (code) {
         case 300:
@@ -41,6 +45,20 @@ class ErrorHandleService {
 
     alert(ErrorCode[code]);
     throw console.error('error', ErrorCode[code]);
+  }
+
+  updateErrorInInput(errorRelation: mixed) {
+    let index;
+    if (errorRelation) {
+      dataViewModel.inputData.forEach((data: mixed, i: number) => {
+        if (data === errorRelation) {
+          index = i;
+        }
+      });
+    }
+    if (index >= 0) {
+      dataViewModel.RelationsInput[index].status = GConst.InputStatus.ERROR;
+    }
   }
 }
 

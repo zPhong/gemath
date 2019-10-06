@@ -3,7 +3,7 @@
 import appData from '../Model/AppData';
 import type { EquationType, PointDetailsType } from '../utils/types';
 import { NodeType } from '../utils/types';
-import GConst from '../utils/values.js';
+import GConst from '../core/config/values.js';
 import { calculateIntersectionTwoCircleEquations, isIn, makeRoundCoordinate } from '../core/math/Math2D.js';
 import { isQuadraticEquation } from '../utils/checker.js';
 import { defineSentences } from '../core/definition/define';
@@ -11,11 +11,12 @@ import { defineInformation } from '../core/definition';
 import { analyzeResult } from '../core/analysis/Analysis';
 import RelationInputModel from '../Model/RelationInputModel';
 import { observable, action, computed } from 'mobx';
-import ErrorService from '../utils/ErrorHandleService';
+import ErrorService from '../core/error/ErrorHandleService';
 import { observer } from 'mobx-react';
 import autobind from 'autobind-decorator';
 import { isTwoEquationEqual } from '../core/math/Math2D';
 import { getRandomValue } from '../core/math/Generation';
+import { Operation } from '../core/math/MathOperation';
 
 const NOT_FOUND = GConst.Number.NOT_FOUND;
 const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
@@ -40,9 +41,9 @@ class DataViewModel {
   constructor(appData) {
     this.data = appData;
     this.relationsInput = [
-      new RelationInputModel('hình thoi ABCD'),
-      new RelationInputModel('AC cắt BD tại O'),
-      new RelationInputModel('ABO = 60')
+      new RelationInputModel('tam giác ABC'),
+      new RelationInputModel('(I) bàng tiếp ABC tại A'),
+      new RelationInputModel('AB cắt (I) tại F')
     ];
   }
 
@@ -86,6 +87,10 @@ class DataViewModel {
 
   clear() {
     this.data.clear();
+    this.inputData = [];
+    this.circlesData = {};
+    this.executedInputIndex = undefined;
+    this.executingRelation = undefined;
   }
 
   get getData() {
@@ -133,7 +138,7 @@ class DataViewModel {
         _coordinate[key] = coordinate[key];
       });
     if (index !== NOT_FOUND) {
-      this.data.getPointsMap[index].coordinate = makeRoundCoordinate(_coordinate, f);
+      this.data.getPointsMap[index].coordinate = _coordinate;
     }
   };
 
@@ -155,7 +160,7 @@ class DataViewModel {
         return;
       }
       this.getData.pointsMap[index].dependentNodes.forEach((dependence: NodeRelationType, index: number) => {
-        if (dependence.relation.outputType === 'shape' && arrayPoint.length > 0) {
+        if (dependence.relation.outputType === 'shape' && !dependence.relation.point && arrayPoint.length > 0) {
           this.getData.pointsMap[index].dependentNodes[index] = { ...dependence, id: arrayPoint[0] };
         }
       });
@@ -316,7 +321,9 @@ class DataViewModel {
 
   getNodeInPointsMapById = (id: string): NodeType | null => {
     for (let i = 0; i < this.data.getPointsMap.length; i++) {
-      if (id === this.data.getPointsMap[i].id) return this.data.getPointsMap[i];
+      if (id === this.data.getPointsMap[i].id) {
+        return this.data.getPointsMap[i];
+      }
     }
     return null;
   };
@@ -640,6 +647,7 @@ class DataViewModel {
   }
 
   getCircleEquation(centerId: string): EquationType {
+    console.log(this.circlesData, centerId);
     return this.circlesData[centerId].equation;
   }
 
