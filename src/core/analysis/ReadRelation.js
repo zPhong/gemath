@@ -21,7 +21,8 @@ import {
   calculateExternalBisectLineEquation,
   calculateVector,
   calculateTangentEquation,
-  calculateTangentIntersectPointsByPointOutsideCircle
+  calculateTangentIntersectPointsByPointOutsideCircle,
+  makeRoundCoordinate
 } from '../math/Math2D';
 import {
   generatePointAlignmentInside,
@@ -144,7 +145,6 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
 
   //points = [...new Set(points)].filter((point: string): boolean => !nonStaticPoints.includes(point));
   const relationType = relation.relation;
-  console.log('---', relationType);
 
   if (
     relationType === 'trung điểm' ||
@@ -426,10 +426,19 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
       ErrorService.showError('200');
     }
 
-    roots = roots.filter(
-      (root: CoordinateType): boolean =>
-        JSON.stringify(root) !== JSON.stringify(pointOne) && JSON.stringify(root) !== JSON.stringify(pointTwo)
-    );
+    roots = roots.filter((root: CoordinateType): boolean => {
+      console.log({ x: Operation.Round(pointOne.x), y: Operation.Round(pointOne.y) });
+      console.log({ x: Operation.Round(pointTwo.x), y: Operation.Round(pointTwo.y) });
+      console.log({ x: Operation.Round(root.x), y: Operation.Round(root.y) });
+      console.log(
+        !(Operation.isEqual(root.x, pointOne.x) && Operation.isEqual(root.y, pointOne.y)) &&
+          !(Operation.isEqual(root.x, pointTwo.x) && Operation.isEqual(root.y, pointTwo.y))
+      );
+      return (
+        !(Operation.isEqual(root.x, pointOne.x) && Operation.isEqual(root.y, pointOne.y)) &&
+        !(Operation.isEqual(root.x, pointTwo.x) && Operation.isEqual(root.y, pointTwo.y))
+      );
+    });
     if (relation.point.length === 2) {
       roots.forEach((root: CoordinateType, index: number) => {
         if (!relation.point[index]) {
@@ -439,7 +448,9 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
         }
       });
     } else {
-      dataViewModel.updateCoordinate(relation.point[0], roots[getRandomValue(0, roots.length - 1)]);
+      if (roots.length > 0) {
+        dataViewModel.updateCoordinate(relation.point[0], roots[getRandomValue(0, roots.length - 1)]);
+      }
     }
 
     relation.point.forEach((point: string) => {
@@ -659,7 +670,6 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
 }
 
 function reExecuteNode(array: Array<string>) {
-  console.log(`----------------`);
   dataViewModel.reExecuteNode(array);
 }
 

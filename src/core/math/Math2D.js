@@ -259,13 +259,7 @@ export function calculateDistanceTwoPoints(
 }
 
 export function calculateDistanceFromPointToLine(point: CoordinateType, line: EquationType): CalculatedResultType {
-  if (
-    isValid(point) &&
-    isValid(line) &&
-    isValid(line.c) &&
-    isValid(line.d) &&
-    isValid(line.e)
-  ) {
+  if (isValid(point) && isValid(line) && isValid(line.c) && isValid(line.d) && isValid(line.e)) {
     let numerator = Abs(Add(Add(Multiply(line.c, point.x), Multiply(line.d, point.y)), line.e));
     let denominator = Sqrt(Add(Pow(line.c, 2), Pow(line.d, 2)));
 
@@ -644,15 +638,12 @@ export function calculateQuadraticEquation(
       if (isZero(b)) {
         return [];
       }
-      return Sub(0, Divide(c, b));
-    }
-    else if (isSmallerThanZero(delta)) {
+      return [Sub(0, Divide(c, b))];
+    } else if (isSmallerThanZero(delta)) {
       return [];
-    }
-    else if (isZero(delta)) {
-      return Sub(0, Divide(b, Multiply(2, a)));
-    }
-    else {
+    } else if (isZero(delta)) {
+      return [Sub(0, Divide(b, Multiply(2, a)))]  ;
+    } else {
       firstRoot = Divide(Add(Sub(0, b), Sqrt(delta)), Multiply(2, a));
       secondRoot = Divide(Sub(Sub(0, b), Sqrt(delta)), Multiply(2, a));
       return [firstRoot, secondRoot];
@@ -1153,18 +1144,9 @@ export function calculateEscribedCirclesEquation(
   escribedPoint: CoordinateType
 ): CircleType {
   GLog.logInfo(this, p1, p2, p3, escribedPoint);
-  if (
-    isValid(p1) &&
-    isValid(p2) &&
-    isValid(p3) &&
-    isValid(escribedPoint)
-  ) {
-    const otherPoints = [
-      p1,
-      p2,
-      p3,
-    ].filter(
-      (point: CoordinateType): boolean => JSON.stringify(point) !== JSON.stringify(escribedPoint),
+  if (isValid(p1) && isValid(p2) && isValid(p3) && isValid(escribedPoint)) {
+    const otherPoints = [p1, p2, p3].filter(
+      (point: CoordinateType): boolean => JSON.stringify(point) !== JSON.stringify(escribedPoint)
     );
 
     if (isValid(otherPoints)) {

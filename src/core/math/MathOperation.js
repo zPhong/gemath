@@ -135,8 +135,8 @@ function MathOperation(): Object {
   }
 
   function isEqual(elementOne: CalculatedResultType, elementTwo: CalculatedResultType): boolean {
-    const calculatedValueOne = evaluate(elementOne);
-    const calculatedValueTwo = evaluate(elementTwo);
+    const calculatedValueOne = Round(elementOne, 7);
+    const calculatedValueTwo = Round(elementTwo, 7);
 
     return calculatedValueOne === calculatedValueTwo;
   }

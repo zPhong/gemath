@@ -101,7 +101,6 @@ class DrawingPanel extends React.Component<PropsType> {
           x: (circlePoint.x - minX) * ratio + transitionX,
           y: (circlePoint.y - minY) * ratio + transitionY
         };
-        console.log(circles[point].radius, ratio);
         scene.circle(`circle-${point}`, point, circles[point].radius * ratio);
       });
     }
