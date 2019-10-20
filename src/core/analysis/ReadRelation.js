@@ -277,7 +277,7 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
         ? getRandomPointInEquation(calculatedLineEquation)
         : calculateIntersectionByLineAndLine(calculatedLineEquation, staticLineEquation);
 
-      if (!isInStaticLine) {
+        if (!isInStaticLine) {
         dataViewModel.getData.getAdditionSegment.push(`${point}${segmentNotIncludePoint[1]}`);
         dataViewModel.getData.getAdditionSegment.push(`${point}${segmentNotIncludePoint[0]}`);
       }
@@ -427,13 +427,6 @@ function analyzeIntersectRelation(relation: mixed, point: string): CoordinateTyp
     }
 
     roots = roots.filter((root: CoordinateType): boolean => {
-      console.log({ x: Operation.Round(pointOne.x), y: Operation.Round(pointOne.y) });
-      console.log({ x: Operation.Round(pointTwo.x), y: Operation.Round(pointTwo.y) });
-      console.log({ x: Operation.Round(root.x), y: Operation.Round(root.y) });
-      console.log(
-        !(Operation.isEqual(root.x, pointOne.x) && Operation.isEqual(root.y, pointOne.y)) &&
-          !(Operation.isEqual(root.x, pointTwo.x) && Operation.isEqual(root.y, pointTwo.y))
-      );
       return (
         !(Operation.isEqual(root.x, pointOne.x) && Operation.isEqual(root.y, pointOne.y)) &&
         !(Operation.isEqual(root.x, pointTwo.x) && Operation.isEqual(root.y, pointTwo.y))
