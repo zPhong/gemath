@@ -42,10 +42,11 @@ class DataViewModel {
     this.data = appData;
     this.relationsInput = [
       new RelationInputModel('tam giác cân ABC'),
-      new RelationInputModel('AD vuông góc BC'),
-      new RelationInputModel('BE vuông góc AC'),
-      new RelationInputModel('AD cắt BE tại H'),
-      new RelationInputModel('(O) ngoại tiếp AHE')
+      new RelationInputModel('(I) nội tiếp ABC'),
+      new RelationInputModel('(K) bàng tiếp ABC tại A'),
+      new RelationInputModel('O trung điểm IK'),
+      new RelationInputModel('(O) ngoại tiếp BKC'),
+      new RelationInputModel('(P) đường kính BC')
     ];
   }
 

@@ -77,8 +77,9 @@ export function readPointsMap(): Array | {} {
             coordinate = roots[0];
           }
         }
-
-        dataViewModel.updateCoordinate(executingNode.id, coordinate);
+        if (coordinate) {
+          dataViewModel.updateCoordinate(executingNode.id, coordinate);
+        }
       }
     }
 
@@ -138,7 +139,9 @@ export function readPointsMap(): Array | {} {
             coordinate = roots[0];
           }
         }
-        dataViewModel.updateCoordinate(node.id, coordinate);
+        if (coordinate) {
+          dataViewModel.updateCoordinate(node.id, coordinate);
+        }
       }
     }
   });

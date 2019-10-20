@@ -63,6 +63,9 @@ export function readRelation(relation: mixed, point: string) {
       case 'tiếp tuyến':
         equationResults = analyzeTangentRelation(relation, point);
         break;
+      case 'đường kính':
+        equationResults = getCircleEquationByRelation(relation, point);
+        break;
       default:
         equationResults = null;
     }
@@ -129,6 +132,43 @@ export function readRelation(relation: mixed, point: string) {
     }
   }
   return null;
+}
+
+function getCircleEquationByRelation(relation: mixed, point: string): LinearEquation {
+  const segment = relation.segment[0];
+  let newPointCount = 0;
+  segment.split('').forEach((point: string) => {
+    if (!dataViewModel.isValidCoordinate(point)) {
+      newPointCount += 1;
+    }
+  });
+  if (newPointCount === 1) {
+    ErrorService.showError('200', relation);
+  } else if (newPointCount === 2) {
+    segment.split('').forEach((point: string, index: number) => {
+      if (!dataViewModel.isValidCoordinate(point)) {
+        let coordinate;
+        do {
+          coordinate = { x: getRandomValue(-10, 10), y: 0 };
+        } while (
+          JSON.stringify(coordinate) !== JSON.stringify(dataViewModel.getNodeInPointsMapById(segment[0]).coordinate)
+        );
+        dataViewModel.updateCoordinate(point, coordinate);
+      }
+    });
+  }
+
+  const p1 = dataViewModel.getNodeInPointsMapById(segment[0]).coordinate;
+  const p2 = dataViewModel.getNodeInPointsMapById(segment[1]).coordinate;
+
+  const center = calculateMiddlePoint(p1, p2);
+  dataViewModel.updateCoordinate(relation.circle[0], center);
+
+  dataViewModel.circlesData[relation.circle[0]] = {
+    equation: calculateCircleEquationByCenterPoint(center, calculateDistanceTwoPoints(center, p1)),
+    center,
+    radius: calculateDistanceTwoPoints(center, p1)
+  };
 }
 
 function analyzeRelationType(relation: mixed, point: string): LinearEquation {
@@ -277,7 +317,7 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
         ? getRandomPointInEquation(calculatedLineEquation)
         : calculateIntersectionByLineAndLine(calculatedLineEquation, staticLineEquation);
 
-        if (!isInStaticLine) {
+      if (!isInStaticLine) {
         dataViewModel.getData.getAdditionSegment.push(`${point}${segmentNotIncludePoint[1]}`);
         dataViewModel.getData.getAdditionSegment.push(`${point}${segmentNotIncludePoint[0]}`);
       }
