@@ -11,7 +11,8 @@ import {
   calculateCircumCircleEquation,
   calculateMiddlePoint,
   calculateSymmetricalPoint,
-  calculateEscribedCirclesEquation
+  calculateEscribedCirclesEquation,
+  calculateIntersectionTwoCircleEquations
 } from '../math/Math2D';
 import { getRandomValue } from '../math/Generation';
 import { mappingShapeType, shapeRules, TwoStaticPointRequireShape, circleType } from '../definition/define';
@@ -31,7 +32,6 @@ export function readPointsMap(): Array | {} {
     //get node to calculate
     const executingNode = dataViewModel.getNextExecuteNode();
     if (!executingNode) break;
-    console.log(executingNode.id);
 
     executeRelations(executingNode);
 
@@ -95,6 +95,7 @@ export function readPointsMap(): Array | {} {
     //Update calculated value to pointsMap
     if (dataViewModel.getData.getPointDetails.has(node.id)) {
       const setOfEquation = dataViewModel.getData.getPointDetails.get(node.id).setOfEquation;
+
       if (setOfEquation.length === 1 && isQuadraticEquation(setOfEquation[0])) {
         dataViewModel.updateCoordinate(node.id, getRandomPointInEquation(setOfEquation[0]));
         return;
@@ -104,9 +105,13 @@ export function readPointsMap(): Array | {} {
         ErrorService.showError('400');
         return;
       }
-      if (roots.length > 0) {
+
+      if (roots.length >= 0) {
         let coordinate;
-        if (dataViewModel.isNeedRandomCoordinate(node.id)) {
+        if (roots.length === 0 && setOfEquation.length > 0) {
+          const _roots = calculateIntersectionTwoCircleEquations(setOfEquation[0], setOfEquation[1]);
+          coordinate = _roots[getRandomValue(0, _roots.length)];
+        } else if (dataViewModel.isNeedRandomCoordinate(node.id)) {
           coordinate = roots[getRandomValue(0, roots.length)];
         } else {
           const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[node.id];
@@ -301,7 +306,6 @@ function makeCorrectShape(shape: string, shapeName: string, rules: string, execu
         }
       }
     });
-    if (executePoint === 'C') console.log(nodeSetEquations);
     nodeSetEquations.forEach((equation) => {
       dataViewModel.executePointDetails(executePoint, equation);
     });

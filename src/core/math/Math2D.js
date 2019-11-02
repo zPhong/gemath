@@ -730,14 +730,6 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
       // solves x. Unneeded check IMPOSSIBLE.
       const root = calculateQuadraticEquation(u, v, w);
       if (Array.isArray(root) && root.length === 1) {
-        if (root[0] === '-0') {
-          console.log(
-            Sub(Multiply(Multiply(2, B), Multiply(C, D)), Multiply(A, Multiply(B, F))),
-            Multiply(Pow(A, 2), G),
-            Add(Sub(Multiply(Multiply(2, B), Multiply(C, D)), Multiply(A, Multiply(B, F))), Multiply(Pow(A, 2), G))
-          );
-          console.log(u, v, w);
-        }
         results.push({
           x: Divide(Sub(0, Add(C, Multiply(B, root[0]))), A),
           y: root[0]
@@ -833,8 +825,27 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
       const c = isEqual(Z, q1.a) ? Sub(q1.e, G) : Sub(G, q1.e);
 
       if (isZero(a) || isZero(b)) {
-        GLog.logMsgWithLineBreaks(this, 'a = 0 || b = 0', firstEquation, secondEquation, IMPOSSIBLE);
-        return [];
+        if (isZero(a) && isZero(b)) {
+          GLog.logMsgWithLineBreaks(this, 'a = 0 || b = 0', firstEquation, secondEquation, IMPOSSIBLE);
+          return [];
+        }
+        if (isZero(a)) {
+          const y = Divide(Sub(0, c), b);
+          const x = calculateQuadraticEquation(1, D, Add(Add(G, Multiply(E, y)), Pow(y, 2)));
+          return x.map((value) => ({
+            x: value,
+            y
+          }));
+        }
+
+        if (isZero(b)) {
+          const x = Divide(Sub(0, c), a);
+          const y = calculateQuadraticEquation(1, E, Add(Add(G, Multiply(D, x)), Pow(x, 2)));
+          return y.map((value) => ({
+            x,
+            y: value
+          }));
+        }
       } else {
         const u = Multiply(Z, Add(Pow(b, 2), Pow(a, 2)));
         // 2 * b * c * Z - _D * a * b + _E * a * a

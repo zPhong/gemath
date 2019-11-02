@@ -31,7 +31,7 @@ export function analyzeResult(validatedResult): DrawingDataType {
 
   readPointsMap();
   result.points = dataViewModel.getData.getPointsMap.map((node: NodeType) => {
-    console.log(node.coordinate);
+
     return {
       id: node.id,
       coordinate: {
@@ -227,7 +227,6 @@ function createPointsMapByShape(shape: any) {
       return createNode(point, [{ id: points[0], relation: shape }]);
     });
   }
-  console.log(objectPointsMap);
   objectPointsMap.forEach((node: NodeType) => {
     updateMap(node, dataViewModel.getData.getPointsMap);
   });

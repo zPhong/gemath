@@ -537,6 +537,7 @@ function analyzeOperationType(relation: mixed, point: string): any {
     }
 
     if (objectType === 'segment') {
+
       return calculateCircleEquationByCenterPoint(
         dataViewModel.getNodeInPointsMapById(objectsIncludePoint[0].replace(point, '')).coordinate,
         staticValue
