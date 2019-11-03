@@ -21,6 +21,7 @@ import { getRandomPointInEquation } from '../math/Generation';
 import { readRelation } from './ReadRelation';
 import ErrorService from '../error/ErrorHandleService';
 import { isQuadraticEquation } from '../../utils/checker.js';
+import { Operation } from '../math/MathOperation.js';
 
 let shape, shapeName, shapeType;
 
@@ -48,31 +49,35 @@ export function readPointsMap(): Array | {} {
           coordinate = roots[getRandomValue(0, roots.length)];
         } else {
           const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[executingNode.id];
-          const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
-          if (roots.length > 1) {
-            const rootsDirection = roots.map((root) => ({
-              coordinate: root,
-              isRight: root.x > staticPointCoordinate.x,
-              isUp: root.y < staticPointCoordinate.y
-            }));
+          if (nodeDirectionInfo) {
+            const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
+            if (roots.length > 1) {
+              const rootsDirection = roots.map((root) => ({
+                coordinate: root,
+                isRight: root.x > staticPointCoordinate.x,
+                isUp: root.y < staticPointCoordinate.y
+              }));
 
-            const coordinateMatch = rootsDirection
-              .map((directionInfo) => {
-                let matchCount = 0;
-                if (directionInfo.isRight === nodeDirectionInfo.isRight) {
-                  matchCount++;
-                }
-                if (directionInfo.isUp === nodeDirectionInfo.isUp) {
-                  matchCount++;
-                }
-                return {
-                  coordinate: directionInfo.coordinate,
-                  matchCount
-                };
-              })
-              .sort((a, b) => b.matchCount - a.matchCount)[0];
+              const coordinateMatch = rootsDirection
+                .map((directionInfo) => {
+                  let matchCount = 0;
+                  if (directionInfo.isRight === nodeDirectionInfo.isRight) {
+                    matchCount++;
+                  }
+                  if (directionInfo.isUp === nodeDirectionInfo.isUp) {
+                    matchCount++;
+                  }
+                  return {
+                    coordinate: directionInfo.coordinate,
+                    matchCount
+                  };
+                })
+                .sort((a, b) => b.matchCount - a.matchCount)[0];
 
-            coordinate = coordinateMatch.coordinate;
+              coordinate = coordinateMatch.coordinate;
+            } else {
+              coordinate = roots[0];
+            }
           } else {
             coordinate = roots[0];
           }
@@ -108,38 +113,43 @@ export function readPointsMap(): Array | {} {
 
       if (roots.length >= 0) {
         let coordinate;
-        if (roots.length === 0 && setOfEquation.length > 0) {
+        if (roots.length === 0 && setOfEquation.length >= 2) {
           const _roots = calculateIntersectionTwoCircleEquations(setOfEquation[0], setOfEquation[1]);
+
           coordinate = _roots[getRandomValue(0, _roots.length)];
         } else if (dataViewModel.isNeedRandomCoordinate(node.id)) {
           coordinate = roots[getRandomValue(0, roots.length)];
         } else {
           const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[node.id];
-          const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
-          if (roots.length > 1) {
-            const rootsDirection = roots.map((root) => ({
-              coordinate: root,
-              isRight: root.x > staticPointCoordinate.x,
-              isUp: root.y < staticPointCoordinate.y
-            }));
+          if (nodeDirectionInfo) {
+            const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
+            if (roots.length > 1) {
+              const rootsDirection = roots.map((root) => ({
+                coordinate: root,
+                isRight: root.x > staticPointCoordinate.x,
+                isUp: root.y < staticPointCoordinate.y
+              }));
 
-            const coordinateMatch = rootsDirection
-              .map((directionInfo) => {
-                let matchCount = 0;
-                if (directionInfo.isRight === nodeDirectionInfo.isRight) {
-                  matchCount++;
-                }
-                if (directionInfo.isUp === nodeDirectionInfo.isUp) {
-                  matchCount++;
-                }
-                return {
-                  coordinate: directionInfo.coordinate,
-                  matchCount
-                };
-              })
-              .sort((a, b) => b.matchCount - a.matchCount)[0];
+              const coordinateMatch = rootsDirection
+                .map((directionInfo) => {
+                  let matchCount = 0;
+                  if (directionInfo.isRight === nodeDirectionInfo.isRight) {
+                    matchCount++;
+                  }
+                  if (directionInfo.isUp === nodeDirectionInfo.isUp) {
+                    matchCount++;
+                  }
+                  return {
+                    coordinate: directionInfo.coordinate,
+                    matchCount
+                  };
+                })
+                .sort((a, b) => b.matchCount - a.matchCount)[0];
 
-            coordinate = coordinateMatch.coordinate;
+              coordinate = coordinateMatch.coordinate;
+            } else {
+              coordinate = roots[0];
+            }
           } else {
             coordinate = roots[0];
           }
