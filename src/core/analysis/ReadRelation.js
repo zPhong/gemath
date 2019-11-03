@@ -223,14 +223,20 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[1]).coordinate
           );
           dataViewModel.updateCoordinate(point, calculatedPoint);
-          break;
+          return getLineFromTwoPoints(
+            dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate,
+            dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[1]).coordinate
+          );
         case 'thuộc':
           calculatedPoint = generatePointAlignmentInside(
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate,
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[1]).coordinate
           );
           dataViewModel.updateCoordinate(point, calculatedPoint);
-          break;
+          return getLineFromTwoPoints(
+            dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate,
+            dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[1]).coordinate
+          );
         case 'không thuộc':
           calculatedPoint = generatePointAlignmentOutside(
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate,
@@ -331,7 +337,7 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
       );
 
       const calculatedPoint = getRandomPointInEquation(calculatedLineEquation);
-
+      console.log(calculatedPoint);
       dataViewModel.updateCoordinate(point, calculatedPoint);
     }
     return calculatedLineEquation;

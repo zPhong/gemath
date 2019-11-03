@@ -254,6 +254,9 @@ export function calculateDistanceTwoPoints(
   ) {
     const squareX = Pow(Sub(secondPoint.x, firstPoint.x), 2);
     const squareY = Pow(Sub(secondPoint.y, firstPoint.y), 2);
+    if (squareY.toString().includes('NaN')) {
+      console.log(squareY);
+    }
     return Sqrt(Add(squareX, squareY));
   }
 }
@@ -434,7 +437,7 @@ function _calculateBisectLineEquation(lineOne: EquationType, lineTwo: EquationTy
     // ax + by + c = +/- [sqrt(a*a + b*b) / sqrt(a'*a' + b'*b')] * (a'x + b'y + c)
 
     // check if denominator equals 0
-    if (isZero(lineTwo.c * lineTwo.c + lineTwo.d * lineTwo.d)) {
+    if (isZero(Add(Pow(lineTwo.c, 2), Pow(lineTwo.d, 2)))) {
       GLog.logError(this, 'calculateDistanceFromPointToLine: mẫu số bằng 0');
       ErrorService.showError(200);
       return [];
@@ -510,8 +513,7 @@ export function calculateSetOfEquationTypes(d1: EquationType, d2: EquationType) 
     isValid(d2.e)
   ) {
     if (
-      (isZero(d1.c) && isZero(d2.c)) ||
-      (isZero(d1.d) && isZero(d2.d)) ||
+      (isZero(d1.c) && isZero(d2.c) && (isZero(d1.d) && isZero(d2.d))) ||
       (isZero(d1.c) && isZero(d1.d)) ||
       (isZero(d2.c) && isZero(d2.d))
     ) {
@@ -571,9 +573,9 @@ export function calculateSetOfEquationTypes(d1: EquationType, d2: EquationType) 
     }
 
     //(d1.e * d2.c - d1.c * d2.e) / (d1.d * d2.c - d1.c * d2.d)
-    const tempY = Divide(
-      Sub(Multiply(d1.e, d2.c), Multiply(d1.c * d2.e)),
-      Sub(Multiply(d1.d, d2.c), Multiply(d1.c * d2.d))
+    const tempY = Sub(
+      0,
+      Divide(Sub(Multiply(d1.e, d2.c), Multiply(d1.c, d2.e)), Sub(Multiply(d1.d, d2.c), Multiply(d1.c, d2.d)))
     );
 
     return {
@@ -730,14 +732,6 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
       // solves x. Unneeded check IMPOSSIBLE.
       const root = calculateQuadraticEquation(u, v, w);
       if (Array.isArray(root) && root.length === 1) {
-        if (root[0] === '-0') {
-          console.log(
-            Sub(Multiply(Multiply(2, B), Multiply(C, D)), Multiply(A, Multiply(B, F))),
-            Multiply(Pow(A, 2), G),
-            Add(Sub(Multiply(Multiply(2, B), Multiply(C, D)), Multiply(A, Multiply(B, F))), Multiply(Pow(A, 2), G))
-          );
-          console.log(u, v, w);
-        }
         results.push({
           x: Divide(Sub(0, Add(C, Multiply(B, root[0]))), A),
           y: root[0]
@@ -814,7 +808,7 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
         return calculateIntersectionEquationTypeWithCircleEquation(q2, q1);
       }
     } else if (isZero(q1.a) && isZero(q1.b) && isZero(q2.a) && isZero(q2.b)) {
-      results.push(calculateSetOfEquationTypes(q1, q2));
+      return [calculateSetOfEquationTypes(q1, q2)];
     } else {
       // a x2 + b y2 + Ax + By + C = 0
       // a'x2 + b'y2 + Dx + Ey + G = 0
@@ -833,8 +827,27 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
       const c = isEqual(Z, q1.a) ? Sub(q1.e, G) : Sub(G, q1.e);
 
       if (isZero(a) || isZero(b)) {
-        GLog.logMsgWithLineBreaks(this, 'a = 0 || b = 0', firstEquation, secondEquation, IMPOSSIBLE);
-        return [];
+        if (isZero(a) && isZero(b)) {
+          GLog.logMsgWithLineBreaks(this, 'a = 0 || b = 0', firstEquation, secondEquation, IMPOSSIBLE);
+          return [];
+        }
+        if (isZero(a)) {
+          const y = Divide(Sub(0, c), b);
+          const x = calculateQuadraticEquation(1, D, Add(Add(G, Multiply(E, y)), Pow(y, 2)));
+          return x.map((value) => ({
+            x: value,
+            y
+          }));
+        }
+
+        if (isZero(b)) {
+          const x = Divide(Sub(0, c), a);
+          const y = calculateQuadraticEquation(1, E, Add(Add(G, Multiply(D, x)), Pow(x, 2)));
+          return y.map((value) => ({
+            x,
+            y: value
+          }));
+        }
       } else {
         const u = Multiply(Z, Add(Pow(b, 2), Pow(a, 2)));
         // 2 * b * c * Z - _D * a * b + _E * a * a
@@ -874,6 +887,7 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
       return results;
     }
   }
+  return [];
 }
 
 export function calculateLinesByAnotherLineAndAngle(

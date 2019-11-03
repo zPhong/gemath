@@ -41,12 +41,14 @@ class DataViewModel {
   constructor(appData) {
     this.data = appData;
     this.relationsInput = [
-      new RelationInputModel('tam giác cân ABC'),
-      new RelationInputModel('(I) nội tiếp ABC'),
-      new RelationInputModel('(K) bàng tiếp ABC tại A'),
-      new RelationInputModel('O trung điểm IK'),
-      new RelationInputModel('(O) ngoại tiếp BKC'),
-      new RelationInputModel('(P) đường kính BC')
+      new RelationInputModel('tam giác ABC'),
+      new RelationInputModel('AB = 3'),
+      new RelationInputModel('AC = 4'),
+      new RelationInputModel('BC = 5'),
+      new RelationInputModel('AH vuông góc BC'),
+      new RelationInputModel('HD vuông góc AC'),
+      new RelationInputModel('DE song song BC'),
+      new RelationInputModel('E thuộc AB')
     ];
   }
 
@@ -141,6 +143,9 @@ class DataViewModel {
         _coordinate[key] = coordinate[key];
       });
     if (index !== NOT_FOUND) {
+      if (nodeId === 'E') {
+        console.error({ x: Operation.Round(_coordinate.x), y: Operation.Round(_coordinate.y) });
+      }
       this.data.getPointsMap[index].coordinate = _coordinate;
     }
   };
@@ -498,7 +503,10 @@ class DataViewModel {
     }
 
     let temp = this.data.getPointDetails.get(pointId).roots;
-
+    if (pointId === 'E') {
+      console.log({ c: Operation.Round(equation.c), d: Operation.Round(equation.d), e: Operation.Round(equation.e) });
+      if (temp.length > 0) console.log({ x: Operation.Round(temp[0].x), y: Operation.Round(temp[0].y) });
+    }
     if (typeof temp === 'string') {
       ErrorService.showError('500');
       return;
@@ -516,12 +524,12 @@ class DataViewModel {
         exceptedCoordinates: this.data.getPointDetails.get(pointId).exceptedCoordinates
       });
 
-      if (temp.length > 0) {
-        let coordinate;
-        if (dataViewModel.isNeedRandomCoordinate(pointId)) {
-          coordinate = temp[getRandomValue(0, temp.length)];
-        } else {
-          const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[pointId];
+      let coordinate;
+      if (dataViewModel.isNeedRandomCoordinate(pointId)) {
+        coordinate = temp[getRandomValue(0, temp.length)];
+      } else {
+        const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[pointId];
+        if (nodeDirectionInfo) {
           const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
           if (temp.length > 1) {
             const rootsDirection = temp.map((root) => ({
@@ -550,7 +558,11 @@ class DataViewModel {
           } else {
             coordinate = temp[0];
           }
+        } else {
+          coordinate = temp[0];
         }
+      }
+      if (coordinate) {
         dataViewModel.updateCoordinate(pointId, coordinate);
       }
     }

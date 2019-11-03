@@ -31,7 +31,6 @@ export function analyzeResult(validatedResult): DrawingDataType {
 
   readPointsMap();
   result.points = dataViewModel.getData.getPointsMap.map((node: NodeType) => {
-    console.log(node.coordinate);
     return {
       id: node.id,
       coordinate: {
@@ -40,6 +39,8 @@ export function analyzeResult(validatedResult): DrawingDataType {
       }
     };
   });
+
+  console.log(result.points);
 
   _RoundObject(dataViewModel.circlesData);
   result.segments = [...getArraySegments(validatedResult), ...dataViewModel.getData.getAdditionSegment];
@@ -227,7 +228,6 @@ function createPointsMapByShape(shape: any) {
       return createNode(point, [{ id: points[0], relation: shape }]);
     });
   }
-  console.log(objectPointsMap);
   objectPointsMap.forEach((node: NodeType) => {
     updateMap(node, dataViewModel.getData.getPointsMap);
   });
