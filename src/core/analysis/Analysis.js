@@ -30,13 +30,16 @@ export function analyzeResult(validatedResult): DrawingDataType {
   let result = {};
 
   readPointsMap();
-  result.points = dataViewModel.getData.getPointsMap.map((node: NodeType) => ({
-    id: node.id,
-    coordinate: {
-      x: Operation.Round(node.coordinate.x, 3),
-      y: Operation.Round(node.coordinate.y, 3)
-    }
-  }));
+  result.points = dataViewModel.getData.getPointsMap.map((node: NodeType) => {
+    console.log(node.coordinate);
+    return {
+      id: node.id,
+      coordinate: {
+        x: Operation.Round(node.coordinate.x, 3),
+        y: Operation.Round(node.coordinate.y, 3)
+      }
+    };
+  });
 
   _RoundObject(dataViewModel.circlesData);
   result.segments = [...getArraySegments(validatedResult), ...dataViewModel.getData.getAdditionSegment];

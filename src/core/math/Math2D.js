@@ -259,13 +259,7 @@ export function calculateDistanceTwoPoints(
 }
 
 export function calculateDistanceFromPointToLine(point: CoordinateType, line: EquationType): CalculatedResultType {
-  if (
-    isValid(point) &&
-    isValid(line) &&
-    isValid(line.c) &&
-    isValid(line.d) &&
-    isValid(line.e)
-  ) {
+  if (isValid(point) && isValid(line) && isValid(line.c) && isValid(line.d) && isValid(line.e)) {
     let numerator = Abs(Add(Add(Multiply(line.c, point.x), Multiply(line.d, point.y)), line.e));
     let denominator = Sqrt(Add(Pow(line.c, 2), Pow(line.d, 2)));
 
@@ -304,7 +298,7 @@ export function calculatePerpendicularLineByPointAndLine(point: CoordinateType, 
     if (isZero(line.c)) {
       perpendicularLine.c = Divide(-1, line.d);
       perpendicularLine.d = 0;
-      perpendicularLine.e = -perpendicularLine.c * point.x;
+      perpendicularLine.e = Multiply(Sub(0, perpendicularLine.c), point.x);
     } else if (isZero(line.d)) {
       perpendicularLine.c = 0;
       perpendicularLine.d = Divide(-1, line.c);
@@ -316,6 +310,7 @@ export function calculatePerpendicularLineByPointAndLine(point: CoordinateType, 
       perLine.b = Add(point.y, Divide(point.x, lineEquation.a));
       perpendicularLine = convertLineTypeToEquation(perLine);
     }
+
     return perpendicularLine;
   }
 }
@@ -350,6 +345,7 @@ export function calculateIntersectionByLineAndLine(lineOne: EquationType, lineTw
       if (r.length === 0) {
         return [];
       } else {
+        console.log(r);
         return r[0];
       }
     }
@@ -644,15 +640,12 @@ export function calculateQuadraticEquation(
       if (isZero(b)) {
         return [];
       }
-      return Sub(0, Divide(c, b));
-    }
-    else if (isSmallerThanZero(delta)) {
+      return [Sub(0, Divide(c, b))];
+    } else if (isSmallerThanZero(delta)) {
       return [];
-    }
-    else if (isZero(delta)) {
-      return Sub(0, Divide(b, Multiply(2, a)));
-    }
-    else {
+    } else if (isZero(delta)) {
+      return [Sub(0, Divide(b, Multiply(2, a)))];
+    } else {
       firstRoot = Divide(Add(Sub(0, b), Sqrt(delta)), Multiply(2, a));
       secondRoot = Divide(Sub(Sub(0, b), Sqrt(delta)), Multiply(2, a));
       return [firstRoot, secondRoot];
@@ -737,6 +730,14 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
       // solves x. Unneeded check IMPOSSIBLE.
       const root = calculateQuadraticEquation(u, v, w);
       if (Array.isArray(root) && root.length === 1) {
+        if (root[0] === '-0') {
+          console.log(
+            Sub(Multiply(Multiply(2, B), Multiply(C, D)), Multiply(A, Multiply(B, F))),
+            Multiply(Pow(A, 2), G),
+            Add(Sub(Multiply(Multiply(2, B), Multiply(C, D)), Multiply(A, Multiply(B, F))), Multiply(Pow(A, 2), G))
+          );
+          console.log(u, v, w);
+        }
         results.push({
           x: Divide(Sub(0, Add(C, Multiply(B, root[0]))), A),
           y: root[0]
@@ -1089,8 +1090,8 @@ export function getMiddlePointFromThreePointsInALine(
 export function calculateCircumCircleEquation(p1: CoordinateType, p2: CoordinateType, p3: CoordinateType): CircleType {
   if (isValid(p1) && isValid(p2) && isValid(p3)) {
     const midperpendicularsLineOne = calculatePerpendicularLineByPointAndLine(
-      calculateMiddlePoint(p1, p2),
-      getLineFromTwoPoints(p1, p2)
+      calculateMiddlePoint(p3, p2),
+      getLineFromTwoPoints(p3, p2)
     );
 
     const midperpendicularsLineTwo = calculatePerpendicularLineByPointAndLine(
@@ -1153,18 +1154,9 @@ export function calculateEscribedCirclesEquation(
   escribedPoint: CoordinateType
 ): CircleType {
   GLog.logInfo(this, p1, p2, p3, escribedPoint);
-  if (
-    isValid(p1) &&
-    isValid(p2) &&
-    isValid(p3) &&
-    isValid(escribedPoint)
-  ) {
-    const otherPoints = [
-      p1,
-      p2,
-      p3,
-    ].filter(
-      (point: CoordinateType): boolean => JSON.stringify(point) !== JSON.stringify(escribedPoint),
+  if (isValid(p1) && isValid(p2) && isValid(p3) && isValid(escribedPoint)) {
+    const otherPoints = [p1, p2, p3].filter(
+      (point: CoordinateType): boolean => JSON.stringify(point) !== JSON.stringify(escribedPoint)
     );
 
     if (isValid(otherPoints)) {

@@ -41,9 +41,12 @@ class DataViewModel {
   constructor(appData) {
     this.data = appData;
     this.relationsInput = [
-      new RelationInputModel('tam giác ABC'),
-      new RelationInputModel('(I) bàng tiếp ABC tại A'),
-      new RelationInputModel('AB cắt (I) tại F')
+      new RelationInputModel('tam giác cân ABC'),
+      new RelationInputModel('(I) nội tiếp ABC'),
+      new RelationInputModel('(K) bàng tiếp ABC tại A'),
+      new RelationInputModel('O trung điểm IK'),
+      new RelationInputModel('(O) ngoại tiếp BKC'),
+      new RelationInputModel('(P) đường kính BC')
     ];
   }
 
@@ -647,7 +650,6 @@ class DataViewModel {
   }
 
   getCircleEquation(centerId: string): EquationType {
-    console.log(this.circlesData, centerId);
     return this.circlesData[centerId].equation;
   }
 

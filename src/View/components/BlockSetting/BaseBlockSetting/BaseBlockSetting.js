@@ -56,7 +56,6 @@ class BaseBlockSetting extends React.Component<PropsType, StateType> {
       isMouseHoverDeletion: false,
       lineType: (props.value && props.value.lineType) || 'Medium'
     };
-    console.log((props.value && props.value.lineType) || 'Medium');
   }
 
   componentWillMount() {
@@ -169,7 +168,6 @@ class BaseBlockSetting extends React.Component<PropsType, StateType> {
 
   @autobind
   onSelectLineType(value: string) {
-    console.log(lineTypesMap[lineTypes[value]]);
     this.setState({ lineType: lineTypesMap[lineTypes[value]] });
   }
 

@@ -20,6 +20,7 @@ const defineSentences = {
     '{point} thuộc {object}',
     '{segment} trung tuyến {triangle}',
     '{segment} đường cao {triangle}',
+    '{circle} đường kính {segment}',
     '{segment} tiếp tuyến {circle}'
   ],
   shape: [

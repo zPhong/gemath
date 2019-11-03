@@ -27,7 +27,5 @@ export function defineShapeType(data) {
     }
   });
 
-  console.log(result);
-
   return result;
 }
