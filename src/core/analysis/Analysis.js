@@ -30,6 +30,7 @@ export function analyzeResult(validatedResult): DrawingDataType {
   let result = {};
 
   readPointsMap();
+  console.log(dataViewModel.getData.getPointsMap);
   result.points = dataViewModel.getData.getPointsMap.map((node: NodeType) => {
     return {
       id: node.id,

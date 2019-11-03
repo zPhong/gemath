@@ -254,9 +254,6 @@ export function calculateDistanceTwoPoints(
   ) {
     const squareX = Pow(Sub(secondPoint.x, firstPoint.x), 2);
     const squareY = Pow(Sub(secondPoint.y, firstPoint.y), 2);
-    if (squareY.toString().includes('NaN')) {
-      console.log(squareY);
-    }
     return Sqrt(Add(squareX, squareY));
   }
 }
@@ -348,7 +345,6 @@ export function calculateIntersectionByLineAndLine(lineOne: EquationType, lineTw
       if (r.length === 0) {
         return [];
       } else {
-        console.log(r);
         return r[0];
       }
     }
@@ -653,6 +649,7 @@ export function calculateQuadraticEquation(
       return [firstRoot, secondRoot];
     }
   }
+  return []
 }
 
 // Ax2 + By2 + Cx + Dy + E = 0
@@ -960,7 +957,7 @@ export function calculateAngleTwoVector(vectorOne: CoordinateType, vectorTwo: Co
       `(acos(
      ${Divide(
        calculateIntegratedDirection(vectorOne, vectorTwo),
-       Multiply((calculateVectorLength(vectorOne), calculateVectorLength(vectorTwo)))
+       Multiply(calculateVectorLength(vectorOne), calculateVectorLength(vectorTwo))
      )})*180)/PI`,
       1
     );
@@ -973,10 +970,28 @@ export function _calculateLinesByAnotherLineAndAngle(d: EquationType, p: Coordin
 
     const cosine = `cos((${angle} * PI) / 180)`;
     //d.c * d.c - cosine * cosine * d.c * d.c - cosine * cosine * d.d * d.d
-    const A = Sub(Sub(Pow(d.c, 2), Multiply(Pow(cosine, 2), Pow(d.c, 2)), Multiply(Pow(cosine, 2), Pow(d.d, 2))));
+    const A = 
+    Sub(
+      Sub(
+          Pow(d.c, 2), 
+          Multiply(
+            Pow(cosine, 2), 
+            Pow(d.c, 2)
+            )
+          ), 
+      Multiply(
+        Pow(cosine, 2),
+        Pow(d.d, 2)
+        )
+      );
     const B = Multiply(2, Multiply(d.c, d.d));
     //d.d * d.d - cosine * cosine * d.c * d.c - cosine * cosine * d.d * d.d;
-    const C = Sub(Sub(Pow(d.d, 2), Multiply(Pow(cosine, 2), Pow(d.c, 2)), Multiply(Pow(cosine, 2), Pow(d.d, 2))));
+    const C = Sub(
+      Sub(
+        Pow(d.d, 2),
+         Multiply(
+           Pow(cosine, 2),
+          Pow(d.c, 2))), Multiply(Pow(cosine, 2), Pow(d.d, 2)));
     const root = calculateQuadraticEquation(A, B, C);
 
     if (Array.isArray(root) && root.length === 1) {
@@ -1063,6 +1078,8 @@ export function getAngleFromTwoLines(d1: EquationType, d2: EquationType): number
     // round result
     return Round(result, 1);
   }
+  return -9999;
+
 }
 
 export function getMiddlePointFromThreePointsInALine(

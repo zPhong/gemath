@@ -115,6 +115,9 @@ export function readRelation(relation: mixed, point: string) {
     }
   }
 
+  if (point === 'C') {
+    console.log(equationResults);
+  }
   //TODO
   if (equationResults) {
     if (equationResults.coefficientX !== undefined) {
@@ -547,9 +550,8 @@ function analyzeOperationType(relation: mixed, point: string): any {
         dataViewModel.getNodeInPointsMapById(objectsIncludePoint[0].replace(point, '')).coordinate,
         staticValue
       );
-    }
-
-    return calculateLineEquationByAngleRelation(objectsIncludePoint[0], staticValue);
+    } 
+    return calculateLineEquationByAngleRelation(objectsIncludePoint[0], staticValue,point);
   }
   if (objectsIncludePoint.length === 2) {
     if (objectType === 'segment') {
@@ -658,7 +660,7 @@ function analyzeOperationType(relation: mixed, point: string): any {
   }
 }
 
-function calculateLineEquationByAngleRelation(angleName: string, angleValue: number): EquationType {
+function calculateLineEquationByAngleRelation(angleName: string, angleValue: number,executePoint:string): EquationType {
   const checkResult = checkAndModifiedAngle(angleName);
   const modifiedAngleName = checkResult.angle;
   const staticPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[0]).coordinate;
@@ -705,7 +707,7 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
     calculateParallelLineByPointAndLine(rootPoint, calculatedEquation)
   );
 
-  return null;
+  return getLineFromTwoPoints(rootPoint, executePoint === modifiedAngleName[2]?changedPoint:staticPoint);
 }
 
 function reExecuteNode(array: Array<string>) {

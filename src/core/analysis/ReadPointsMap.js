@@ -225,6 +225,9 @@ function executeRelations(node: NodeType) {
         if (Array.isArray(relationEquation)) {
           relationEquation = relationEquation[getRandomValue(0, relationEquation.length)];
         }
+        if (node.id === 'C') {
+          console.log(relationEquation);
+        }
         dataViewModel.executePointDetails(node.id, relationEquation);
       }
       dataViewModel.getData.getExecutedRelations.push(relation);
@@ -301,10 +304,12 @@ function makeCorrectShape(shape: string, shapeName: string, rules: string, execu
             equation = getLinearEquationByParallelRule(rule, shape, executePointIndex);
             break;
           case '^':
+            console.log(rule, executePointIndex);
             if (rule[1] === rule[3]) {
               equation = getLinearEquationByPerpendicularRule(rule, shape, executePointIndex);
             } else {
-              updateCoordinateBySpecialPerpendicularRule(rule, shape, executePointIndex);
+              console.log('AA');
+              equation = updateCoordinateBySpecialPerpendicularRule(rule, shape, executePointIndex);
             }
             break;
           case '=':
@@ -351,22 +356,29 @@ function updateCoordinateBySpecialPerpendicularRule(rule: string, shape: string,
     const staticPointIndex = nonStaticLine.split('').filter((pointIndex: string): boolean => {
       return dataViewModel.isStaticNodeById(shape[pointIndex]);
     })[0];
+
     if (staticPointIndex === undefined) {
+      const equation = calculatePerpendicularLineByPointAndLine(
+        intersectPoint,
+        getLineFromTwoPoints(shapePoints[staticLines[0][0]], shapePoints[staticLines[0][1]])
+      );
       const coordinate = calculateIntersectionByLineAndLine(
-        calculatePerpendicularLineByPointAndLine(
-          intersectPoint,
-          getLineFromTwoPoints(shapePoints[staticLines[0][0]], shapePoints[staticLines[0][1]])
-        ),
+        equation,
         getLineFromTwoPoints(shapePoints[staticLines[0][0]], shapePoints[nonStaticLine[0]])
       );
 
       dataViewModel.updateCoordinate(shape[nonStaticLine[0]], coordinate);
+      return equation;
     } else if (shape[nonStaticLine.replace(staticPointIndex, '')]) {
       const calculatedCoordinate = calculateSymmetricalPoint(shapePoints[staticPointIndex], intersectPoint);
-
       dataViewModel.updateCoordinate(shape[nonStaticLine.replace(staticPointIndex, '')], calculatedCoordinate);
+      const equation = calculatePerpendicularLineByPointAndLine(
+        shapePoints[staticPointIndex],
+        getLineFromTwoPoints(intersectPoint, shapePoints[staticPointIndex])
+      );
+      return equation;
     }
-  } else if (staticLines.length === 0) {
+  } else if (staticLines.length === 0 && nonIncludeLine) {
     //line perpendicular with line include 1 static point
     const intersectPoint = calculateIntersectionByLineAndLine(
       calculatePerpendicularLineByPointAndLine(
@@ -412,7 +424,6 @@ function getLinearEquationsByEqualRule(rule: string, shape: string, executePoint
       nonStaticLine = line;
     }
   });
-  console.log(staticLine, nonStaticLine);
   if (staticLine) {
     const count = staticLine.split('').filter((point: string): boolean => dataViewModel.isStaticNodeById(shape[point]))
       .length;
@@ -422,14 +433,12 @@ function getLinearEquationsByEqualRule(rule: string, shape: string, executePoint
     }
 
     const otherPoint = shape[nonStaticLine.replace(executePointIndex, '')];
-
     const radius = calculateDistanceTwoPoints(
       dataViewModel.getNodeInPointsMapById(shape[staticLine[0]]).coordinate,
       dataViewModel.getNodeInPointsMapById(shape[staticLine[1]]).coordinate
     );
-
     //point is outside static line
-    if (staticLine.includes(nonStaticLine.replace(executePointIndex, ''))) {
+    if (!staticLine.includes(executePointIndex)) {
       return [
         calculateCircleEquationByCenterPoint(dataViewModel.getNodeInPointsMapById(otherPoint).coordinate, radius)
       ];
