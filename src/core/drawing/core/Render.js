@@ -107,17 +107,40 @@ export function renderSvg({scene, data}) {
     const p = svg.append('g')
         .attr('cursor', 'grab');
 
-    const radius = 4;
-
     let dPoints = data.getPoints();
-    p.selectAll('circle')
-        .data(dPoints)
-        .join('circle')
-        .attr('cx', (dPoints) => dPoints.coordinate.x)
-        .attr('cy', (dPoints) => dPoints.coordinate.y)
+    const radius = 4;
+    const points = p.selectAll('circle').data(dPoints);
+
+    points.enter()
+        .append('circle')
+        .attr('cx', p => p.coordinate.x)
+        .attr('cy', p => p.coordinate.y)
         .attr('r', radius)
         .attr('fill', (circleObj, i) => d3.interpolateRainbow(i / dPoints.length));
 
+    points.enter()
+        .append('text')
+        .attr('x', p => p.coordinate.x + 10)
+        .attr('y', p => p.coordinate.y - 15)
+        .attr('id', p => `point-${p.name}`);
+
+    if (points && points._enter && Array.isArray(points._enter[0])) {
+        points._enter[0].forEach((node) => {
+            let name = '';
+            if (node && node.__data__ && node.__data__.name) {
+                name = node.__data__.name;
+            }
+
+            const element = document.getElementById(`point-${name}`);
+            if (element) {
+                const textNode = document.createTextNode(name);
+                element.appendChild(textNode);
+                element.style.fontSize = '22px';
+                element.style.fontFamily = 'appDescriptionFont';
+                element.style.fill = 'black';
+            }
+        });
+    }
 
     svg.call(d3.zoom()
         .extent([
