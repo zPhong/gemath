@@ -49,7 +49,27 @@ export function getTransformData({data, width, height}) {
                 });
             });
 
-            return {...data, points};
+            if (circles) {
+                const keys = Object.keys(circles);
+                let i = 0;
+                while (keys[i]) {
+                    circles[keys[i]] = {
+                        center: {
+                            x: (circles[keys[i]].center.x - minX) * ratio + transitionX,
+                            y: (circles[keys[i]].center.y - minY) * ratio + transitionY,
+                        },
+                        radius: circles[keys[i]].radius * ratio,
+                        equation: circles[keys[i]].equation,
+                    };
+                    i++;
+                }
+            }
+
+            return {
+                ...data,
+                points,
+                circles,
+            };
         }
     }
     else {
