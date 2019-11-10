@@ -35,6 +35,7 @@ export default function createDrawingData({data}) {
         addSegments,
         addLine,
         addCircle,
+        addCircles,
 
         getPoint,
         getPoints,
@@ -63,7 +64,14 @@ export default function createDrawingData({data}) {
             // addLines(data.lines);
         }
         if (data.circles) {
-            //addCircles(data.circles);
+
+            if (Array.isArray(data.circles)) {
+                addCircles(data.circles);
+            }
+            else {
+                const dataCircles = convertCircleFromObjToArr(data.circles);
+                addCircles(dataCircles);
+            }
         }
     }
 
@@ -144,17 +152,22 @@ export default function createDrawingData({data}) {
         }
     }
 
-    function addCircle({name, lineStyle, isVisible}) {
-        if (name) {
-            const centerPoint = name[0];
+    function addCircle({center, radius, equation, lineStyle, isVisible}) {
+        if (center && radius) {
+            const centerName = center.id;
 
             __drawingMap__
                 .get(CIRCLES)
                 .set(
-                    name,
+                    centerName,
                     {
-                        centerPoint: centerPoint,
-                        radius: '0',
+                        center: {
+                            id: center.id,
+                            coordinate: center.coordinate,
+                        },
+                        radius: radius ?
+                            radius :
+                            0,
                         lineStyle: lineStyle ?
                             lineStyle :
                             LineStyle.Light,
@@ -163,6 +176,41 @@ export default function createDrawingData({data}) {
                             true,
                     });
         }
+    }
+
+    function addCircles(circles) {
+        if (Array.isArray(circles)) {
+            circles.forEach(circle => {
+                addCircle({
+                    center: circle.center,
+                    radius: circle.radius,
+                    equation: circle.equation,
+                    lineStyle: circle.lineStyle,
+                    isVisible: circle.isVisible,
+                });
+            });
+        }
+    }
+
+    function convertCircleFromObjToArr(objCircles) {
+        const keys = Object.keys(objCircles);
+        const res = [];
+        let i = 0;
+        while (keys[i]) {
+            const obj = {
+                center: {
+                    id: keys[i],
+                    coordinate: objCircles[keys[i]].center,
+                },
+                radius: objCircles[keys[i]]['radius'],
+                equation: objCircles[keys[i]]['equation'],
+                lineStyle: objCircles[keys[i]]['lineType'],
+                isVisible: objCircles[keys[i]]['visible'],
+            };
+            res.push(obj);
+            i++;
+        }
+        return res;
     }
 
     function getPoint(pointName) {
@@ -208,10 +256,10 @@ export default function createDrawingData({data}) {
             const segmentValue = getSegment(segmentName);
             const segment = {
                 name: segmentName,
-                startPoint: segmentValue.startPoint,
-                endPoint: segmentValue.endPoint,
-                lineStyle: segmentValue.lineStyle,
-                isVisible: segmentValue.isVisible,
+                startPoint: segmentValue['startPoint'],
+                endPoint: segmentValue['endPoint'],
+                lineStyle: segmentValue['lineStyle'],
+                isVisible: segmentValue['isVisible'],
             };
             res.push(segment);
         }
@@ -233,8 +281,8 @@ export default function createDrawingData({data}) {
             const lineValue = getSegment(lineName);
             const segment = {
                 name: lineName,
-                lineStyle: lineValue.lineStyle,
-                isVisible: lineValue.isVisible,
+                lineStyle: lineValue['lineStyle'],
+                isVisible: lineValue['isVisible'],
             };
             res.push(segment);
         }
@@ -253,15 +301,17 @@ export default function createDrawingData({data}) {
         const circletKeys = circles.keys();
         for (let i = 0; i < circles.size; i++) {
             const circleName = circletKeys.next().value;
-            const circleValue = getSegment(circleName);
-            const segment = {
-                name: circleName,
-                centerPoint: circleValue.centerPoint,
-                radius: circleValue.radius,
-                lineStyle: circleValue.lineStyle,
-                isVisible: circleValue.isVisible,
+            const circleValue = getCircle(circleName);
+            const circle = {
+                center: {
+                    id: circleName,
+                    coordinate: circleValue['center'].coordinate,
+                },
+                radius: circleValue['radius'],
+                lineStyle: circleValue['lineStyle'],
+                isVisible: circleValue['isVisible'],
             };
-            res.push(segment);
+            res.push(circle);
         }
         return res;
     }

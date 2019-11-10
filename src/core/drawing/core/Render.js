@@ -12,8 +12,7 @@ export function renderSvg({scene, data}) {
             sHeight,
         ]);
 
-    const dSegments = data.getSegments();
-
+    // ========== Segments ==========
     const l = svg.append('g')
         .attr('cursor', 'grab');
 
@@ -39,6 +38,8 @@ export function renderSvg({scene, data}) {
         }
     }
 
+    const dSegments = data.getSegments();
+
     l.selectAll('line')
         .data(dSegments)
         .join('line')
@@ -51,19 +52,34 @@ export function renderSvg({scene, data}) {
         .attr('style', 'visibility: visible');
 
 
-    const g = svg.append('g')
+    // ========== Circles ==========
+    const c = svg.append('g')
+        .attr('cursor', 'grab');
+
+    let dCircles = data.getCircles();
+    c.selectAll('circle')
+        .data(dCircles)
+        .join('circle')
+        .attr('cx', dCircles =>  dCircles.center.coordinate.x)
+        .attr('cy', dCircles => dCircles.center.coordinate.y)
+        .attr('r', dCircles => dCircles.radius);
+
+
+    // ========== Points ==========
+    const p = svg.append('g')
         .attr('cursor', 'grab');
 
     const radius = 4;
 
     let dPoints = data.getPoints();
-    g.selectAll('circle')
+    p.selectAll('circle')
         .data(dPoints)
         .join('circle')
         .attr('cx', (dPoints) => dPoints.coordinate.x)
         .attr('cy', (dPoints) => dPoints.coordinate.y)
         .attr('r', radius)
         .attr('fill', (circleObj, i) => d3.interpolateRainbow(i / dPoints.length));
+
 
     svg.call(d3.zoom()
         .extent([
@@ -84,8 +100,9 @@ export function renderSvg({scene, data}) {
 
 
     function zoomed() {
-        g.attr('transform', d3.event.transform);
-        l.attr('transform', d3.event.transform);
+        p.attr('transform', d3.event['transform']);
+        l.attr('transform', d3.event['transform']);
+        c.attr('transform', d3.event['transform']);
     }
 
     return svg.node();
