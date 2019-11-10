@@ -9,6 +9,13 @@ const SEGMENTS = 'segments';
 const LINES = 'lines';
 const CIRCLES = 'circles';
 const NOT_FOUND = 'NOT FOUND';
+const Boundary = {
+    MIN_HORIZONTAL: 'min-horizontal',
+    MAX_HORIZONTAL: 'max-horizontal',
+    MIN_VERTICAL: 'min-vertical',
+    MAX_VERTICAL: 'max-vertical',
+};
+
 
 export default function createDrawingData({data}) {
 
@@ -24,6 +31,11 @@ export default function createDrawingData({data}) {
      *       ∙ name -> { centerPoint, radius, lineStyle, isVisible }
      */
     const __drawingMap__ = new Map();
+
+    // Stores boundary points of geometry
+    const __boundaryPoints__ = new Map();
+
+    let isInitDone = false;
 
     initialize();
     initData(data);
@@ -45,6 +57,10 @@ export default function createDrawingData({data}) {
         getLines,
         getCircle,
         getCircles,
+        getMinHorizontalPoint,
+        getMaxHorizontalPoint,
+        getMinVerticalPoint,
+        getMaxVerticalPoint,
     });
 
     function initialize() {
@@ -56,6 +72,7 @@ export default function createDrawingData({data}) {
     function initData(data) {
         if (data.points) {
             addPoints(data.points);
+            _updateBoundaryPoints();
         }
         if (data.segments) {
             addSegments(data.segments);
@@ -73,6 +90,81 @@ export default function createDrawingData({data}) {
                 addCircles(dataCircles);
             }
         }
+        isInitDone = true;
+    }
+
+    function _updateBoundaryPoints() {
+        let minX = 0;
+        let minXPoint = '';
+        let maxX = 0;
+        let maxXPoint = '';
+        let minY = 0;
+        let minYPoint = '';
+        let maxY = 0;
+        let maxYPoint = '';
+
+        const points = getPoints();
+        points.forEach((point, index) => {
+            if (point.name && point.coordinate) {
+                if (index === 0) {
+                    minX = point.coordinate.x;
+                    minXPoint = point.name;
+
+                    maxX = point.coordinate.x;
+                    maxXPoint = point.name;
+
+                    minY = point.coordinate.y;
+                    minYPoint = point.name;
+
+                    maxY = point.coordinate.y;
+                    maxYPoint = point.name;
+                }
+                else {
+                    if (point.coordinate.x < minX) {
+                        minX = point.coordinate.x;
+                        minXPoint = point.name;
+                    }
+                    else if (point.coordinate.x > maxX) {
+                        maxX = point.coordinate.x;
+                        maxXPoint = point.name;
+                    }
+
+                    if (point.coordinate.y < minY) {
+                        minY = point.coordinate.y;
+                        minYPoint = point.name;
+                    }
+                    else if (point.coordinate.y > maxY) {
+                        maxY = point.coordinate.y;
+                        maxYPoint = point.name;
+                    }
+                }
+                addPoint({
+                    name: point.name,
+                    x: point.coordinate.x,
+                    y: point.coordinate.y,
+                });
+            }
+        });
+        _setMinHorizontalPoint({
+            name: minXPoint,
+            x: getPoint(minXPoint).x,
+            y: getPoint(minXPoint).y,
+        });
+        _setMaxHorizontalPoint({
+            name: maxXPoint,
+            x: getPoint(maxXPoint).x,
+            y: getPoint(maxXPoint).y,
+        });
+        _setMinVerticalPoint({
+            name: minYPoint,
+            x: getPoint(minYPoint).x,
+            y: getPoint(minYPoint).y,
+        });
+        _setMaxVerticalPoint({
+            name: maxYPoint,
+            x: getPoint(maxYPoint).x,
+            y: getPoint(maxYPoint).y,
+        });
     }
 
     function addPoint({name, x, y}) {
@@ -81,6 +173,36 @@ export default function createDrawingData({data}) {
                 x,
                 y,
             });
+
+            if (isInitDone) {
+                if (x < getMinHorizontalPoint().coordinate.x) {
+                    _setMinHorizontalPoint({
+                        name,
+                        x,
+                        y,
+                    });
+                } else if (x > getMaxHorizontalPoint().coordinate.x) {
+                    _setMaxHorizontalPoint({
+                        name,
+                        x,
+                        y,
+                    });
+                }
+
+                if (y < getMinVerticalPoint().coordinate.y) {
+                    _setMinVerticalPoint({
+                        name,
+                        x,
+                        y,
+                    });
+                } else if (y > getMaxVerticalPoint().coordinate.y) {
+                    _setMaxVerticalPoint({
+                        name,
+                        x,
+                        y,
+                    });
+                }
+            }
         }
     }
 
@@ -314,5 +436,73 @@ export default function createDrawingData({data}) {
             res.push(circle);
         }
         return res;
+    }
+
+    function getMinHorizontalPoint() {
+        return __boundaryPoints__.get(Boundary.MIN_HORIZONTAL) || {};
+    }
+
+    function _setMinHorizontalPoint({name, x, y}) {
+        __boundaryPoints__.set(
+            Boundary.MIN_HORIZONTAL,
+            {
+                name: name,
+                coordinate: {
+                    x,
+                    y,
+                },
+            },
+        );
+    }
+
+    function getMaxHorizontalPoint() {
+        return __boundaryPoints__.get(Boundary.MAX_HORIZONTAL) || {};
+    }
+
+    function _setMaxHorizontalPoint({name, x, y}) {
+        __boundaryPoints__.set(
+            Boundary.MAX_HORIZONTAL,
+            {
+                name: name,
+                coordinate: {
+                    x,
+                    y,
+                },
+            },
+        );
+    }
+
+    function getMinVerticalPoint() {
+        return __boundaryPoints__.get(Boundary.MIN_VERTICAL) || {};
+    }
+
+    function _setMinVerticalPoint({name, x, y}) {
+        __boundaryPoints__.set(
+            Boundary.MIN_VERTICAL,
+            {
+                name: name,
+                coordinate: {
+                    x,
+                    y,
+                },
+            },
+        );
+    }
+
+    function getMaxVerticalPoint() {
+        return __boundaryPoints__.get(Boundary.MAX_VERTICAL) || {};
+    }
+
+    function _setMaxVerticalPoint({name, x, y}) {
+        __boundaryPoints__.set(
+            Boundary.MAX_VERTICAL,
+            {
+                name: name,
+                coordinate: {
+                    x,
+                    y,
+                },
+            },
+        );
     }
 }

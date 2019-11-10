@@ -118,10 +118,56 @@ export function renderSvg({scene, data}) {
         .attr('r', radius)
         .attr('fill', (circleObj, i) => d3.interpolateRainbow(i / dPoints.length));
 
+    const fontSize = 22;
+
+    function getPointNamePosition(pName) {
+        /*
+         * With biggest char:
+         *  width's element excludes text = 0.67 font-size;
+         *  height's element excludes text = 1.37 font-size;
+         */
+
+        const minH = data.getMinHorizontalPoint();
+        const maxH = data.getMaxHorizontalPoint();
+        const minV = data.getMinVerticalPoint();
+        const maxV = data.getMaxVerticalPoint();
+
+        if (pName === minH.name) {
+            return {
+                x: minH.coordinate.x - fontSize * 0.67 - 10,
+                y: minH.coordinate.y + (fontSize * 1.37) / 3.8,
+            };
+        }
+        else if (pName === maxH.name) {
+            return {
+                x: maxH.coordinate.x + 10,
+                y: maxH.coordinate.y + (fontSize * 1.37) / 3.8,
+            };
+        }
+
+        if (pName === minV.name) {
+            return {
+                x: minV.coordinate.x - (fontSize * 0.67) / 2,
+                y: minV.coordinate.y - 10,
+            };
+        }
+        else if (pName === maxV.name) {
+            return {
+                x: maxV.coordinate.x - (fontSize * 0.67) / 2,
+                y: maxV.coordinate.y + fontSize * 1.37,
+            };
+        }
+
+        return {
+            x: data.getPoint(pName).x + fontSize / 2,
+            y: data.getPoint(pName).y - fontSize / 2,
+        };
+    }
+
     points.enter()
         .append('text')
-        .attr('x', p => p.coordinate.x + 10)
-        .attr('y', p => p.coordinate.y - 15)
+        .attr('x', p => getPointNamePosition(p.name).x)
+        .attr('y', p => getPointNamePosition(p.name).y)
         .attr('id', p => `point-${p.name}`);
 
     if (points && points._enter && Array.isArray(points._enter[0])) {
@@ -135,7 +181,7 @@ export function renderSvg({scene, data}) {
             if (element) {
                 const textNode = document.createTextNode(name);
                 element.appendChild(textNode);
-                element.style.fontSize = '22px';
+                element.style.fontSize = `${fontSize}px`;
                 element.style.fontFamily = 'appDescriptionFont';
                 element.style.fill = 'black';
             }
