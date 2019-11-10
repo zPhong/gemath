@@ -108,10 +108,10 @@ export default function createDrawingData({data}) {
                     {
                         startPoint: startPoint,
                         endPoint: endPoint,
-                        lineStyle: lineStyle ?
+                        lineStyle: lineStyle !== undefined && lineStyle !== null ?
                             lineStyle :
                             LineStyle.Light,
-                        isVisible: isVisible ?
+                        isVisible: isVisible !== undefined && isVisible !== null ?
                             isVisible :
                             true,
                     });
@@ -142,10 +142,10 @@ export default function createDrawingData({data}) {
                     {
                         startPoint: startPoint,
                         endPoint: endPoint,
-                        lineStyle: lineStyle ?
+                        lineStyle: lineStyle !== undefined && lineStyle !== null ?
                             lineStyle :
                             LineStyle.Light,
-                        isVisible: isVisible ?
+                        isVisible: isVisible !== undefined && isVisible !== null ?
                             isVisible :
                             true,
                     });
@@ -168,10 +168,10 @@ export default function createDrawingData({data}) {
                         radius: radius ?
                             radius :
                             0,
-                        lineStyle: lineStyle ?
+                        lineStyle: lineStyle !== undefined && lineStyle !== null ?
                             lineStyle :
                             LineStyle.Light,
-                        isVisible: isVisible ?
+                        isVisible: isVisible !== undefined && isVisible !== null ?
                             isVisible :
                             true,
                     });

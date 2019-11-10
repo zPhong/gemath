@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import { LineStyle } from '../base/DrawingData';
 
 export function renderSvg({scene, data}) {
     const sWidth = scene.clientWidth;
@@ -38,6 +39,38 @@ export function renderSvg({scene, data}) {
         }
     }
 
+    function getStyles(comp) {
+        let style = '';
+        switch (comp.lineStyle) {
+            case LineStyle.Light:
+                style = `stroke-width: ${LineStyle.Light}`;
+                break;
+            case LineStyle.Medium:
+                style = `stroke-width: ${LineStyle.Medium}`;
+                break;
+            case LineStyle.Bold:
+                style = `stroke-width: ${LineStyle.Bold}`;
+                break;
+            default:
+                style = `stroke-width: ${LineStyle.Light}`;
+        }
+
+        if (comp.isVisible) {
+            if (style !== '') {
+                style += '; ';
+            }
+            style += 'visibility: visible';
+        }
+        else {
+            if (style !== '') {
+                style += '; ';
+            }
+            style += 'visibility: hidden';
+        }
+
+        return style;
+    }
+
     const dSegments = data.getSegments();
 
     l.selectAll('line')
@@ -47,9 +80,10 @@ export function renderSvg({scene, data}) {
         .attr('y1', (segment) => getCoordinate(slicePoints(segment.name).startPoint).y)
         .attr('x2', (segment) => getCoordinate(slicePoints(segment.name).endPoint).x)
         .attr('y2', (segment) => getCoordinate(slicePoints(segment.name).endPoint).y)
-        .attr('stroke-width', 2)
-        .attr('stroke', 'black')
-        .attr('style', 'visibility: visible');
+        .attr('stroke-dasharray', segment => segment.lineStyle === 0 ?
+            ('6,3') :
+            'none')
+        .attr('style', segment => getStyles(segment));
 
 
     // ========== Circles ==========
@@ -60,9 +94,13 @@ export function renderSvg({scene, data}) {
     c.selectAll('circle')
         .data(dCircles)
         .join('circle')
-        .attr('cx', dCircles =>  dCircles.center.coordinate.x)
+        .attr('cx', dCircles => dCircles.center.coordinate.x)
         .attr('cy', dCircles => dCircles.center.coordinate.y)
-        .attr('r', dCircles => dCircles.radius);
+        .attr('r', dCircles => dCircles.radius)
+        .attr('stroke-dasharray', segment => segment.lineStyle === 0 ?
+            ('6,3') :
+            'none')
+        .attr('style', circle => getStyles(circle));
 
 
     // ========== Points ==========
