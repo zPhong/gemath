@@ -34,7 +34,7 @@ import {
 import ErrorService from '../error/ErrorHandleService';
 import { ShapeAffectBySegmentChange, TwoStaticPointRequireShape } from '../definition/define';
 import { Operation } from '../math/MathOperation.js';
-
+import { getFirstStaticPointInShape } from './Analysis';
 export function readRelation(relation: mixed, point: string) {
   let equationResults;
 
@@ -73,8 +73,10 @@ export function readRelation(relation: mixed, point: string) {
     const shapeType = Object.keys(relation).filter((key) => key !== 'type')[0];
     switch (shapeType) {
       case 'triangle':
+        const staticPoint = getFirstStaticPointInShape(relation[shapeType]);
+
         equationResults = getLineFromTwoPoints(
-          dataViewModel.getNodeInPointsMapById(relation[shapeType][0]).coordinate,
+          dataViewModel.getNodeInPointsMapById(staticPoint).coordinate,
           dataViewModel.getNodeInPointsMapById(point).coordinate
         );
         break;
@@ -550,8 +552,8 @@ function analyzeOperationType(relation: mixed, point: string): any {
         dataViewModel.getNodeInPointsMapById(objectsIncludePoint[0].replace(point, '')).coordinate,
         staticValue
       );
-    } 
-    return calculateLineEquationByAngleRelation(objectsIncludePoint[0], staticValue,point);
+    }
+    return calculateLineEquationByAngleRelation(objectsIncludePoint[0], staticValue, point);
   }
   if (objectsIncludePoint.length === 2) {
     if (objectType === 'segment') {
@@ -660,7 +662,11 @@ function analyzeOperationType(relation: mixed, point: string): any {
   }
 }
 
-function calculateLineEquationByAngleRelation(angleName: string, angleValue: number,executePoint:string): EquationType {
+function calculateLineEquationByAngleRelation(
+  angleName: string,
+  angleValue: number,
+  executePoint: string
+): EquationType {
   const checkResult = checkAndModifiedAngle(angleName);
   const modifiedAngleName = checkResult.angle;
   const staticPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[0]).coordinate;
@@ -707,7 +713,7 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
     calculateParallelLineByPointAndLine(rootPoint, calculatedEquation)
   );
 
-  return getLineFromTwoPoints(rootPoint, executePoint === modifiedAngleName[2]?changedPoint:staticPoint);
+  return getLineFromTwoPoints(rootPoint, executePoint === modifiedAngleName[2] ? changedPoint : staticPoint);
 }
 
 function reExecuteNode(array: Array<string>) {

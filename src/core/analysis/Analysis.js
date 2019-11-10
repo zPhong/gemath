@@ -234,24 +234,35 @@ function createPointsMapByShape(shape: any) {
   });
 }
 
-function getFirstStaticPointInShape(shape: string): string {
+export function getFirstStaticPointInShape(shape: string): string {
   const angles = [];
   const segments = [];
   if (dataViewModel.getData.getRelationsResult.relations) {
     dataViewModel.getData.getRelationsResult.relations.forEach((relation) => {
       if (!relation.angle || relation.outputType !== 'define') {
-        return;
       } else {
         angles.push(relation.angle[0]);
       }
       if (!relation.segment || relation.outputType !== 'define') {
-        return;
       } else {
         segments.push(relation.segment[0]);
       }
     });
 
     const shapePointCount = {};
+    segments.forEach((segment: string) => {
+      if (!shape.includes(segment[1]) && !shape.includes(segment[0])) {
+        return;
+      }
+      segment.split('').forEach((point, index) => {
+        //don't check middle point
+        if (shapePointCount[point]) {
+          shapePointCount[point] += 1;
+        } else {
+          shapePointCount[point] = 1;
+        }
+      });
+    });
 
     angles.forEach((angle: string): void => {
       if (!shape.includes(angle[1])) {
@@ -259,24 +270,28 @@ function getFirstStaticPointInShape(shape: string): string {
       }
       angle.split('').forEach((point, index) => {
         //don't check middle point
-        if (index !== 1) {
-          if (shapePointCount[point]) {
+        if (shapePointCount[point]) {
+          if (index !== 1) {
             shapePointCount[point] += 1;
           } else {
-            shapePointCount[point] = 1;
+            shapePointCount[point] = 2;
           }
+        } else {
+          shapePointCount[point] = 1;
         }
       });
     });
 
-    let minCountPoint = shape[0];
+    console.log(shapePointCount);
+
+    let maxCountPoint = shape[0];
     Object.keys(shapePointCount).forEach((point) => {
-      if (shapePointCount[point] < shapePointCount[minCountPoint]) {
-        minCountPoint = point;
+      if (shapePointCount[point] > shapePointCount[maxCountPoint]) {
+        maxCountPoint = point;
       }
     });
 
-    return minCountPoint;
+    return maxCountPoint;
   }
   return shape[0];
 }
