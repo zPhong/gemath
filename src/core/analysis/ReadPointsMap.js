@@ -33,7 +33,7 @@ export function readPointsMap(): Array | {} {
     //get node to calculate
     const executingNode = dataViewModel.getNextExecuteNode();
     if (!executingNode) break;
-
+    console.log(executingNode);
     executeRelations(executingNode);
 
     //Update calculated value to pointsMap
@@ -106,6 +106,7 @@ export function readPointsMap(): Array | {} {
         return;
       }
       const roots = dataViewModel.getData.getPointDetails.get(node.id).roots;
+     
       if (typeof roots === 'string') {
         ErrorService.showError('400');
         return;
@@ -151,7 +152,8 @@ export function readPointsMap(): Array | {} {
               coordinate = roots[0];
             }
           } else {
-            coordinate = roots[0];
+            const filterRoots = roots.filter((root) => !dataViewModel.isCoordinateExist(root));
+            coordinate = filterRoots[getRandomValue(0, filterRoots.length - 1)];
           }
         }
         if (coordinate) {
@@ -225,9 +227,7 @@ function executeRelations(node: NodeType) {
         if (Array.isArray(relationEquation)) {
           relationEquation = relationEquation[getRandomValue(0, relationEquation.length)];
         }
-        if (node.id === 'C') {
-          console.log(relationEquation);
-        }
+
         dataViewModel.executePointDetails(node.id, relationEquation);
       }
       dataViewModel.getData.getExecutedRelations.push(relation);
@@ -304,11 +304,9 @@ function makeCorrectShape(shape: string, shapeName: string, rules: string, execu
             equation = getLinearEquationByParallelRule(rule, shape, executePointIndex);
             break;
           case '^':
-            console.log(rule, executePointIndex);
             if (rule[1] === rule[3]) {
               equation = getLinearEquationByPerpendicularRule(rule, shape, executePointIndex);
             } else {
-              console.log('AA');
               equation = updateCoordinateBySpecialPerpendicularRule(rule, shape, executePointIndex);
             }
             break;

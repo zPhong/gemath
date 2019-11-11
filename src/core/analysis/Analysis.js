@@ -30,7 +30,6 @@ export function analyzeResult(validatedResult): DrawingDataType {
   let result = {};
 
   readPointsMap();
-  console.log(dataViewModel.getData.getPointsMap);
   result.points = dataViewModel.getData.getPointsMap.map((node: NodeType) => {
     return {
       id: node.id,
@@ -41,7 +40,6 @@ export function analyzeResult(validatedResult): DrawingDataType {
     };
   });
 
-  console.log(result.points);
 
   _RoundObject(dataViewModel.circlesData);
   result.segments = [...getArraySegments(validatedResult), ...dataViewModel.getData.getAdditionSegment];
@@ -52,9 +50,6 @@ function _RoundObject(object: mixed): mixed {
   if (typeof object === 'object') {
     Object.keys(object).forEach((key: string) => {
       object[key] = _RoundObject(object[key]);
-      if (key === 'radius') {
-        console.log(object[key]);
-      }
     });
     return object;
   }
@@ -281,8 +276,6 @@ export function getFirstStaticPointInShape(shape: string): string {
         }
       });
     });
-
-    console.log(shapePointCount);
 
     let maxCountPoint = shape[0];
     Object.keys(shapePointCount).forEach((point) => {

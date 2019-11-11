@@ -116,8 +116,6 @@ export function validateInformation(info) {
         let value = array[j];
         const check = validateValue({ key, value }, type);
         if (!check) {
-          console.log({ key, value }, type);
-
           return check;
         }
       }

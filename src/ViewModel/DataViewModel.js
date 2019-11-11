@@ -42,8 +42,9 @@ class DataViewModel {
     this.data = appData;
     this.relationsInput = [
       new RelationInputModel('tam giác ABC'),
-      new RelationInputModel('AB = 3'),
-      new RelationInputModel('BC = 4')
+      new RelationInputModel('AB = 4'),
+      new RelationInputModel('BC = 4'),
+      new RelationInputModel('ACB = 60')
     ];
   }
 
@@ -138,9 +139,6 @@ class DataViewModel {
         _coordinate[key] = coordinate[key];
       });
     if (index !== NOT_FOUND) {
-      if (nodeId === 'A') {
-        console.error({ x: _coordinate.x, y: _coordinate.y });
-      }
       this.data.getPointsMap[index].coordinate = _coordinate;
     }
   };
@@ -205,6 +203,18 @@ class DataViewModel {
     }
     return true;
   };
+
+  isCoordinateExist(coordinate: CoordinateType): boolean {
+    for (let i = 0; i < this.data.getPointsMap.length; i++) {
+      if (
+        Operation.isEqual(this.data.getPointsMap[i].coordinate.x, coordinate.x) &&
+        Operation.isEqual(this.data.getPointsMap[i].coordinate.y, coordinate.y)
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   isValidCoordinate = (nodeId: string) => {
     if (nodeId) {
@@ -341,7 +351,7 @@ class DataViewModel {
   };
 
   _calculateSet = (equations: Array<EquationType>) => {
-    if (equations.length === 2) {
+    if (equations.length >= 2) {
       return calculateIntersectionTwoCircleEquations(equations[0], equations[1]);
     } else return NOT_ENOUGH_SET;
   };
@@ -357,6 +367,7 @@ class DataViewModel {
     const pointDetail = this.data.getPointDetails.get(pointId);
     const setOfEquation = pointDetail.setOfEquation;
     let isReplaceComplete = false;
+
     setOfEquation.forEach((equation: EquationType, index: number) => {
       if (isTwoEquationEqual(equation, searchEquation)) {
         setOfEquation[index] = replaceEquation;
@@ -416,7 +427,9 @@ class DataViewModel {
           coordinate = roots[0];
         }
       }
-      dataViewModel.updateCoordinate(pointId, coordinate);
+      if (coordinate) {
+        dataViewModel.updateCoordinate(pointId, coordinate);
+      }
     }
   }
 
@@ -476,7 +489,6 @@ class DataViewModel {
       isFirst = true;
     }
 
-    if (pointId === 'C') console.log(this.data.getPointDetails.get(pointId).setOfEquation);
     if (this.data.getPointDetails.get(pointId).setOfEquation.length === 2) {
       if (isQuadraticEquation(equation) && !isFirst) {
         for (let i = 0; i < 2; i++) {
@@ -499,10 +511,7 @@ class DataViewModel {
     }
 
     let temp = this.data.getPointDetails.get(pointId).roots;
-    if (pointId === 'E') {
-      console.log({ c: Operation.Round(equation.c), d: Operation.Round(equation.d), e: Operation.Round(equation.e) });
-      if (temp.length > 0) console.log({ x: Operation.Round(temp[0].x), y: Operation.Round(temp[0].y) });
-    }
+
     if (typeof temp === 'string') {
       ErrorService.showError('500');
       return;
