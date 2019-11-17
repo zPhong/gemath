@@ -3,23 +3,20 @@ import type { DrawingDataType } from '../../../utils/types';
 import './DrawingPanel.scss';
 import createDrawingData from '../../../core/drawing/base/DrawingData';
 import { getTransformData } from '../../../core/drawing/core/TranformCenter';
-import {
-    clearGeometry,
-    renderSvg,
-} from '../../../core/drawing/core/Render';
+import { clearGeometry, renderSvg } from '../../../core/drawing/core/Render';
 
 type PropsType = {
-    drawingData: DrawingDataType
+  drawingData: DrawingDataType
 };
 
 class DrawingPanel extends React.Component<PropsType> {
-    componentDidMount() {
-        this.renderGeometry(this.props.drawingData);
-    }
+  componentDidMount() {
+    this.renderGeometry(this.props.drawingData);
+  }
 
-    componentDidUpdate() {
-        this.renderGeometry(this.props.drawingData);
-    }
+  componentDidUpdate() {
+    this.renderGeometry(this.props.drawingData);
+  }
 
     renderGeometry(drawingData: DrawingDataType) {
         const svg = document.getElementById('geometry');
@@ -27,13 +24,13 @@ class DrawingPanel extends React.Component<PropsType> {
         const width = viewBox.width;
         const height = viewBox.height;
 
-        clearGeometry(svg);
+    clearGeometry(svg);
 
-        const transformData = getTransformData({
-            data: drawingData,
-            width,
-            height,
-        });
+    const transformData = getTransformData({
+      data: drawingData,
+      width,
+      height
+    });
 
         const data = createDrawingData({data: transformData});
         // function DataLogger(props, transformed) {
@@ -57,14 +54,13 @@ class DrawingPanel extends React.Component<PropsType> {
         });
     }
 
-    render(): React.Node {
-        return (
-            <div className="geometry-container">
-                <svg id="geometry" className="geometry-scene"
-                     viewBox="0 0 800 800"/>
-            </div>
-        );
-    }
+  render(): React.Node {
+    return (
+      <div className="geometry-container">
+        <svg id="geometry" className="geometry-scene" viewBox="0 0 800 800" />
+      </div>
+    );
+  }
 }
 
 export default DrawingPanel;

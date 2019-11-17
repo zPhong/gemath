@@ -15,7 +15,7 @@ export function getTransformData({data, width, height}) {
                     const center = circles[point].center;
                     const radius = circles[point].radius;
                     arrX.push(center.x - radius, center.x + radius);
-                    arrX.push(center.y - radius, center.y + radius);
+                    arrY.push(center.y - radius, center.y + radius);
                 });
             }
             const minX = Math.min(...arrX);
@@ -56,6 +56,24 @@ export function getTransformData({data, width, height}) {
                 transitionY = -(minY * ratio) + realCenter - curCenter;
             }
 
+            console.log({
+                minX,
+                minY,
+                maxX,
+                maxY,
+                disparityX,
+                disparityY,
+                w,
+                h,
+                rW,
+                rH,
+                ratio,
+                followH,
+                realCenter,
+                curCenter,
+                transitionX,
+                transitionY,
+            });
             const points = [];
             data.points.forEach((point) => {
                 points.push({
@@ -73,8 +91,8 @@ export function getTransformData({data, width, height}) {
                 while (keys[i]) {
                     circles[keys[i]] = {
                         center: {
-                            x: (circles[keys[i]].center.x - minX) * ratio + transitionX,
-                            y: (circles[keys[i]].center.y - minY) * ratio + transitionY,
+                            x: circles[keys[i]].center.x * ratio + transitionX,
+                            y: circles[keys[i]].center.y * ratio + transitionY,
                         },
                         radius: circles[keys[i]].radius * ratio,
                         equation: circles[keys[i]].equation,

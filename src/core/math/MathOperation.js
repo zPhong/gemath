@@ -10,14 +10,17 @@ function MathOperation(): Object {
     if (!isNaN(element)) {
       return element;
     }
-    return `(${element})`;
+    if (typeof element === 'string') {
+      return `(${element})`;
+    }
+    ErrorService.showError('200');
   }
   function Add(elementOne: CalculatedResultType, elementTwo: CalculatedResultType): CalculatedResultType {
     if (!isNaN(elementOne) || !isNaN(elementTwo)) {
-      if (parseInt(elementOne) === 0) {
+      if (parseFloat(elementOne) === 0) {
         return Parenthesis(elementTwo);
       }
-      if (parseInt(elementTwo) === 0) {
+      if (parseFloat(elementTwo) === 0) {
         return Parenthesis(elementOne);
       }
     }
@@ -87,6 +90,9 @@ function MathOperation(): Object {
       if (parseFloat(elementOne) === 0) {
         return 0;
       }
+      if (parseFloat(elementTwo) === 0) {
+        ErrorService.showError('200');
+      }
       if (!isNaN(elementTwo) && Math.abs(elementTwo) === 1) {
         const calculatedValue = evaluate(elementOne);
         if (calculatedValue === Round(calculatedValue)) {
@@ -107,7 +113,9 @@ function MathOperation(): Object {
   }
   function Sqrt(element: CalculatedResultType): CalculatedResultType {
     const result = `(${element})^(1/2)`;
-
+    if (Round(element) < 0) {
+      ErrorService.showError('200');
+    }
     const calculatedValue = evaluate(result);
     if (typeof calculatedValue !== 'number') {
       if (Round(element, 8) === 0) {
@@ -135,8 +143,8 @@ function MathOperation(): Object {
   }
 
   function isEqual(elementOne: CalculatedResultType, elementTwo: CalculatedResultType): boolean {
-    const calculatedValueOne = evaluate(elementOne);
-    const calculatedValueTwo = evaluate(elementTwo);
+    const calculatedValueOne = Round(elementOne, 7);
+    const calculatedValueTwo = Round(elementTwo, 7);
 
     return calculatedValueOne === calculatedValueTwo;
   }
