@@ -1294,7 +1294,7 @@ export function gcd(x, y) {
 }
 
 export function fractionReducing(numerator = 1, denominator = 1) {
-  if (isNum(numerator) && isNum(denominator)) {
+  if (typeof numerator === 'number' && typeof denominator === 'number') {
     const _gcd = gcd(numerator, denominator);
     return {
       numerator: Math.abs(numerator/_gcd),
