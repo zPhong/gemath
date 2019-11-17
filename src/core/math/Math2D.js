@@ -900,19 +900,20 @@ export function calculateLinesByAnotherLineAndAngle(
       angle
     );
     let count = 0;
-    const newRootPoints = equations.filter((equation: CoordinateType, i): boolean => {
+    const filterEquations = equations.filter((equation: CoordinateType, i): boolean => {
       const newRootPoint = calculateIntersectionByLineAndLine(getLineFromTwoPoints(rootPoint, staticPoint), equation);
       const staticVector = calculateVector(rootPoint, staticPoint, false);
       const dynamicVector = calculateVector(newRootPoint, dynamicPoint, false);
       const result = calculateAngleTwoVector(staticVector, dynamicVector) === parseInt(angle);
-
+      console.log(result, calculateAngleTwoVector(staticVector, dynamicVector));
       if (result) {
         count++;
       }
       return result;
     });
     if (count > 0) {
-      return newRootPoints[getRandomValue(0, count - 1)];
+      console.log(count, filterEquations);
+      return filterEquations[getRandomValue(0, count - 1)];
     }
 
     return ErrorService.showError('500');
@@ -965,7 +966,8 @@ export function _calculateLinesByAnotherLineAndAngle(d: EquationType, p: Coordin
   if (isValid(d) && isValid(d.c) && isValid(d.d) && isValid(p) && isValid(p.x) && isValid(p.y) && isValid(angle)) {
     let results: Array<EquationType> = [];
 
-    const cosine = `cos((${angle} * PI) / 180)`;
+    const cosine = Round(`cos((${angle} * PI) / 180)`);
+
     //d.c * d.c - cosine * cosine * d.c * d.c - cosine * cosine * d.d * d.d
     const A = Sub(Sub(Pow(d.c, 2), Multiply(Pow(cosine, 2), Pow(d.c, 2))), Multiply(Pow(cosine, 2), Pow(d.d, 2)));
     const B = Multiply(2, Multiply(d.c, d.d));

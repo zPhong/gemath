@@ -34,7 +34,7 @@ import {
 import ErrorService from '../error/ErrorHandleService';
 import { ShapeAffectBySegmentChange, TwoStaticPointRequireShape } from '../definition/define';
 import { Operation } from '../math/MathOperation.js';
-import { getFirstStaticPointInShape } from './Analysis';
+import { getPointOrderInShape } from './Analysis';
 export function readRelation(relation: mixed, point: string) {
   let equationResults;
 
@@ -73,7 +73,7 @@ export function readRelation(relation: mixed, point: string) {
     const shapeType = Object.keys(relation).filter((key) => key !== 'type')[0];
     switch (shapeType) {
       case 'triangle':
-        const staticPoint = getFirstStaticPointInShape(relation[shapeType]);
+        const staticPoint = getPointOrderInShape(relation[shapeType])[0];
 
         equationResults = getLineFromTwoPoints(
           dataViewModel.getNodeInPointsMapById(staticPoint).coordinate,
@@ -665,6 +665,7 @@ function calculateLineEquationByAngleRelation(
 ): EquationType {
   const checkResult = checkAndModifiedAngle(angleName);
   const modifiedAngleName = checkResult.angle;
+  console.log(modifiedAngleName);
   const staticPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[0]).coordinate;
   const rootPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[1]).coordinate;
   const changedPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[2]).coordinate;
@@ -695,12 +696,12 @@ function calculateLineEquationByAngleRelation(
       y: Operation.Add(changedPoint.y, transitionVector.y)
     });
 
-    if (executePoint === modifiedAngleName[2]) {
-      return getLineFromTwoPoints(rootPoint, {
-        x: Operation.Add(changedPoint.x, transitionVector.x),
-        y: Operation.Add(changedPoint.y, transitionVector.y)
-      });
-    }
+    // if (angleName === modifiedAngleName) {
+    //   return getLineFromTwoPoints(rootPoint, {
+    //     x: Operation.Add(changedPoint.x, transitionVector.x),
+    //     y: Operation.Add(changedPoint.y, transitionVector.y)
+    //   });
+    // }
     return;
   }
 

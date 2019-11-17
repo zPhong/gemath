@@ -43,8 +43,9 @@ class DataViewModel {
     this.relationsInput = [
       new RelationInputModel('tam giác ABC'),
       new RelationInputModel('AB = 4'),
-      new RelationInputModel('BC = 4'),
+      new RelationInputModel('AC = 4'),
       new RelationInputModel('ACB = 60')
+      //new RelationInputModel('ABC = 60')
     ];
   }
 
@@ -204,13 +205,13 @@ class DataViewModel {
     return true;
   };
 
-  isCoordinateExist(coordinate: CoordinateType): boolean {
+  isCoordinateExist(id: string, coordinate: CoordinateType): boolean {
     for (let i = 0; i < this.data.getPointsMap.length; i++) {
       if (
         Operation.isEqual(this.data.getPointsMap[i].coordinate.x, coordinate.x) &&
         Operation.isEqual(this.data.getPointsMap[i].coordinate.y, coordinate.y)
       ) {
-        return true;
+        return this.data.getPointsMap[i].id !== id;
       }
     }
     return false;
@@ -395,35 +396,37 @@ class DataViewModel {
         coordinate = roots[getRandomValue(0, roots.length)];
       } else {
         const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[pointId];
-        const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
-        if (roots.length > 1 && typeof roots !== 'string') {
-          const rootsDirection = roots.map((root) => ({
-            coordinate: root,
-            isRight: root.x > staticPointCoordinate.x,
-            isUp: root.y < staticPointCoordinate.y
-          }));
 
-          const coordinateMatch = rootsDirection
-            .map((directionInfo) => {
-              let matchCount = 0;
-              if (directionInfo.isRight === nodeDirectionInfo.isRight) {
-                matchCount++;
-              }
-              if (directionInfo.isUp === nodeDirectionInfo.isUp) {
-                matchCount++;
-              }
-              return {
-                coordinate: directionInfo.coordinate,
-                matchCount
-              };
-            })
-            .sort((a, b) => b.matchCount - a.matchCount)[0];
+        if (nodeDirectionInfo) {
+          const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
+          if (roots.length > 1) {
+            const rootsDirection = roots.map((root) => ({
+              coordinate: root,
+              isRight: root.x > staticPointCoordinate.x,
+              isUp: root.y < staticPointCoordinate.y
+            }));
 
-          coordinate = coordinateMatch.coordinate;
-        } else {
-          if (typeof roots === 'string') {
-            return;
+            const coordinateMatch = rootsDirection
+              .map((directionInfo) => {
+                let matchCount = 0;
+                if (directionInfo.isRight === nodeDirectionInfo.isRight) {
+                  matchCount++;
+                }
+                if (directionInfo.isUp === nodeDirectionInfo.isUp) {
+                  matchCount++;
+                }
+                return {
+                  coordinate: directionInfo.coordinate,
+                  matchCount
+                };
+              })
+              .sort((a, b) => b.matchCount - a.matchCount)[0];
+
+            coordinate = coordinateMatch.coordinate;
+          } else {
+            coordinate = roots[0];
           }
+        } else {
           coordinate = roots[0];
         }
       }
@@ -455,16 +458,6 @@ class DataViewModel {
   }
 
   executePointDetails(pointId: string, equation: EquationType) {
-    let sum = 0;
-    Object.keys(equation)
-      .map((key: string): number => equation[key])
-      .forEach((value: number) => {
-        sum += Math.abs(value);
-      });
-    if (sum === 0) {
-      return;
-    }
-
     let isFirst = false;
     if (!this.data.getPointDetails.has(pointId)) {
       this._updatePointDetails(pointId, {
@@ -518,6 +511,9 @@ class DataViewModel {
     }
 
     temp = temp.filter((root) => {
+      if (root.y === Infinity) {
+        console.error(temp);
+      }
       return isIn(root, equation);
     });
 

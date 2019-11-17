@@ -106,7 +106,7 @@ export function readPointsMap(): Array | {} {
         return;
       }
       const roots = dataViewModel.getData.getPointDetails.get(node.id).roots;
-     
+
       if (typeof roots === 'string') {
         ErrorService.showError('400');
         return;
@@ -114,10 +114,12 @@ export function readPointsMap(): Array | {} {
 
       if (roots.length >= 0) {
         let coordinate;
-        if (roots.length === 0 && setOfEquation.length >= 2) {
-          const _roots = calculateIntersectionTwoCircleEquations(setOfEquation[0], setOfEquation[1]);
+        if (roots.length === 0) {
+          if (setOfEquation.length >= 2) {
+            const _roots = calculateIntersectionTwoCircleEquations(setOfEquation[0], setOfEquation[1]);
 
-          coordinate = _roots[getRandomValue(0, _roots.length)];
+            coordinate = _roots[getRandomValue(0, _roots.length)];
+          }
         } else if (dataViewModel.isNeedRandomCoordinate(node.id)) {
           coordinate = roots[getRandomValue(0, roots.length)];
         } else {
@@ -152,7 +154,12 @@ export function readPointsMap(): Array | {} {
               coordinate = roots[0];
             }
           } else {
-            const filterRoots = roots.filter((root) => !dataViewModel.isCoordinateExist(root));
+            const filterRoots = roots.filter(
+              (root) =>
+                !dataViewModel.isCoordinateExist(node.id, root) &&
+                Operation.isEqual(dataViewModel.getNodeInPointsMapById(node.id).coordinate.x, root.x) &&
+                Operation.isEqual(dataViewModel.getNodeInPointsMapById(node.id).coordinate.y, root.y)
+            );
             coordinate = filterRoots[getRandomValue(0, filterRoots.length - 1)];
           }
         }

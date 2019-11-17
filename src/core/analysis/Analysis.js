@@ -40,7 +40,6 @@ export function analyzeResult(validatedResult): DrawingDataType {
     };
   });
 
-
   _RoundObject(dataViewModel.circlesData);
   result.segments = [...getArraySegments(validatedResult), ...dataViewModel.getData.getAdditionSegment];
   return result;
@@ -71,9 +70,10 @@ function deleteWrongRelation(validatedResult) {
     return validatedResult;
   }
 
-  const segments = [];
-  const relationSegments = [];
-  const relationAngles = [];
+  let segments = [];
+  let angles = [];
+  let relationSegments = [];
+  let relationAngles = [];
 
   validatedResult.relations.forEach((relation) => {
     if (relation.outputType === 'define' && !!relation.value) {
@@ -89,6 +89,7 @@ function deleteWrongRelation(validatedResult) {
       if (relation.angle) {
         relation.angle.forEach((angle: string) => {
           if (triangle.includes(angle[0]) && triangle.includes(angle[1]) && triangle.includes(angle[2])) {
+            angles.push(angle);
             relationAngles.push(relation);
           }
         });
@@ -98,12 +99,65 @@ function deleteWrongRelation(validatedResult) {
 
   let deleteRelationList = [];
 
-  if (segments.length > 1) {
-    if (segments.length === 2) {
-      relationAngles.shift();
+  if (angles.length > 1) {
+    if (angles.length > 2) {
+      angles = angles.splice(0, 2);
+      deleteRelationList = deleteRelationList.concat(relationAngles.splice(2, relationAngles.length - 2));
     }
-    deleteRelationList = relationAngles;
+    if (segments.length > 0) {
+      const segment = [angles[0][1], angles[1][1]].sort().join('');
+      let position = -1;
+      segments.some((value: string, index: number) => {
+        if (
+          value
+            .split('')
+            .sort()
+            .join('') === segment
+        ) {
+          position = index;
+          return true;
+        }
+        return false;
+      });
+
+
+      if (position >= 0) {
+        relationSegments.splice(position, 1);
+      } else {
+        const firstRelation = relationSegments[0];
+
+        const _segment = firstRelation.segment[0];
+        const _value = firstRelation.value;
+        let sum = 0;
+        const oppositeAngle = relationAngles
+          .filter((relation) => {
+            sum += parseInt(relation.value);
+            return !_segment.includes(relation.angle[0][1]);
+          })
+          .map((relation) => parseInt(relation.value))[0];
+
+        const calculatedSegmentValue =
+          (_value * Math.sin(((180 - sum) * Math.PI) / 360)) / Math.sin((oppositeAngle * Math.PI) / 360);
+
+        validatedResult.relations.push({
+          operation: '=',
+          outputType: 'define',
+          segment: [segment],
+          value: [`${calculatedSegmentValue}`]
+        });
+      }
+      deleteRelationList = deleteRelationList.concat(relationSegments);
+    }
+  } else {
+    if (segments.length > 1) {
+      if (segments.length === 2) {
+        relationAngles.shift();
+      }
+      deleteRelationList = relationAngles;
+    }
   }
+
+  console.log(deleteRelationList);
   const relations = validatedResult.relations.filter((relation: mixed): boolean => {
     for (let i = 0; i < deleteRelationList.length; i++) {
       if (JSON.stringify(relation) === JSON.stringify(deleteRelationList[i])) {
@@ -189,29 +243,12 @@ function unique(dependentNodes: Array<NodeRelationType>): Array<NodeRelationType
   return result;
 }
 
-function sortPriority(points) {
-  return points.sort((el1: string, el2: string): number => {
-    const index1 = findIndexByNodeId(el1, dataViewModel.getData.getPointsMap);
-    const index2 = findIndexByNodeId(el2, dataViewModel.getData.getPointsMap);
-
-    if (index1 === -1 && index2 === -1) {
-      return 1;
-    }
-    if (index1 >= 0 && index2 >= 0) return 1;
-    return index2 - index1;
-  });
-}
-
 function createPointsMapByShape(shape: any) {
   const shapeName = Object.keys(shape).filter((key) => key !== 'type')[0];
   let points = shape[shapeName].split('').filter((point) => point === point.toUpperCase());
 
-  points = sortPriority([...points]);
-
-  if (dataViewModel.getData.getPointsMap.length === 0) {
-    const shouldStaticPoint = getFirstStaticPointInShape(shape[shapeName]);
-    points = [shouldStaticPoint].concat(points.filter((point) => point !== shouldStaticPoint));
-  }
+  //points = sortPriority([...points]);
+  points = getPointOrderInShape(shape[shapeName]);
 
   let objectPointsMap;
   // đường tròn ngoại tiếp, nội tiếp
@@ -229,7 +266,7 @@ function createPointsMapByShape(shape: any) {
   });
 }
 
-export function getFirstStaticPointInShape(shape: string): string {
+export function getPointOrderInShape(shape: string): Array<string> {
   const angles = [];
   const segments = [];
   if (dataViewModel.getData.getRelationsResult.relations) {
@@ -245,6 +282,7 @@ export function getFirstStaticPointInShape(shape: string): string {
     });
 
     const shapePointCount = {};
+    console.log(segments, angles);
     segments.forEach((segment: string) => {
       if (!shape.includes(segment[1]) && !shape.includes(segment[0])) {
         return;
@@ -258,6 +296,7 @@ export function getFirstStaticPointInShape(shape: string): string {
         }
       });
     });
+    console.log(shapePointCount);
 
     angles.forEach((angle: string): void => {
       if (!shape.includes(angle[1])) {
@@ -269,24 +308,21 @@ export function getFirstStaticPointInShape(shape: string): string {
           if (index !== 1) {
             shapePointCount[point] += 1;
           } else {
-            shapePointCount[point] = 2;
+            shapePointCount[point] += 3;
           }
         } else {
-          shapePointCount[point] = 1;
+          if (index !== 1) {
+            shapePointCount[point] = 1;
+          } else {
+            shapePointCount[point] = 3;
+          }
         }
       });
     });
 
-    let maxCountPoint = shape[0];
-    Object.keys(shapePointCount).forEach((point) => {
-      if (shapePointCount[point] > shapePointCount[maxCountPoint]) {
-        maxCountPoint = point;
-      }
-    });
-
-    return maxCountPoint;
+    return Object.keys(shapePointCount).sort((a, b) => -shapePointCount[a] + shapePointCount[b]);
   }
-  return shape[0];
+  return shape.split('');
 }
 
 function createPointsMapByRelation(relation: any) {

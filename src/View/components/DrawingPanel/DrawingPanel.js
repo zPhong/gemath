@@ -80,7 +80,7 @@ class DrawingPanel extends React.Component<PropsType> {
     });
 
     segments.forEach((segment) => {
-      if (segment && segment.visible) {
+      if (segment && segment.name && segment.visible) {
         scene.segment(segment.name, segment.name[0], segment.name[1]);
       }
     });
