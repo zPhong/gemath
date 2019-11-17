@@ -41,14 +41,11 @@ class DataViewModel {
   constructor(appData) {
     this.data = appData;
     this.relationsInput = [
-      new RelationInputModel('tam giác ABC'),
-      new RelationInputModel('AB = 3'),
-      new RelationInputModel('AC = 4'),
-      new RelationInputModel('BC = 5'),
-      new RelationInputModel('AH vuông góc BC'),
-      new RelationInputModel('HD vuông góc AC'),
-      new RelationInputModel('DE song song BC'),
-      new RelationInputModel('E thuộc AB')
+        new RelationInputModel('tam giác cân ABC'),
+        new RelationInputModel('(I) nội tiếp ABC'),
+        new RelationInputModel('(K) bàng tiếp ABC tại A'),
+        new RelationInputModel('O trung điểm IK'),
+        new RelationInputModel('(O) ngoại tiếp BKC')
     ];
   }
 

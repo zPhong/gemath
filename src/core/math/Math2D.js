@@ -1284,3 +1284,28 @@ export function isIsosceles(p1: CoordinateType, p2: CoordinateType, p3: Coordina
     return result;
   }
 }
+
+export function gcd(x, y) {
+  if ((typeof x !== 'number') || (typeof y !== 'number')) {
+    return false;
+  }
+  x = Math.abs(x);
+  y = Math.abs(y);
+  while (y) {
+    let t = y;
+    y = x % y;
+    x = t;
+  }
+  return x;
+}
+
+export function fractionReducing(numerator = 1, denominator = 1) {
+  if (typeof numerator === 'number' && typeof denominator === 'number') {
+    const _gcd = gcd(numerator, denominator);
+    return {
+      numerator: Math.abs(numerator/_gcd),
+      denominator: Math.abs(denominator/_gcd),
+    }
+  }
+  return {};
+}
