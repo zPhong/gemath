@@ -1292,3 +1292,14 @@ export function gcd(x, y) {
   }
   return x;
 }
+
+export function fractionReducing(numerator = 1, denominator = 1) {
+  if (isNum(numerator) && isNum(denominator)) {
+    const _gcd = gcd(numerator, denominator);
+    return {
+      numerator: Math.abs(numerator/_gcd),
+      denominator: Math.abs(denominator/_gcd),
+    }
+  }
+  return {};
+}
