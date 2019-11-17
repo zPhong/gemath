@@ -117,7 +117,6 @@ export function readPointsMap(): Array | {} {
         if (roots.length === 0) {
           if (setOfEquation.length >= 2) {
             const _roots = calculateIntersectionTwoCircleEquations(setOfEquation[0], setOfEquation[1]);
-
             coordinate = _roots[getRandomValue(0, _roots.length)];
           }
         } else if (dataViewModel.isNeedRandomCoordinate(node.id)) {
@@ -125,6 +124,7 @@ export function readPointsMap(): Array | {} {
         } else {
           const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[node.id];
           if (nodeDirectionInfo) {
+            console.log(node.id, nodeDirectionInfo);
             const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
             if (roots.length > 1) {
               const rootsDirection = roots.map((root) => ({
@@ -156,10 +156,12 @@ export function readPointsMap(): Array | {} {
           } else {
             const filterRoots = roots.filter(
               (root) =>
-                !dataViewModel.isCoordinateExist(node.id, root) &&
-                Operation.isEqual(dataViewModel.getNodeInPointsMapById(node.id).coordinate.x, root.x) &&
-                Operation.isEqual(dataViewModel.getNodeInPointsMapById(node.id).coordinate.y, root.y)
+                (Operation.isEqual(dataViewModel.getNodeInPointsMapById(node.id).coordinate.x, root.x) &&
+                  Operation.isEqual(dataViewModel.getNodeInPointsMapById(node.id).coordinate.y, root.y) &&
+                  !dataViewModel.isCoordinateExist(node.id, root)) ||
+                !dataViewModel.isCoordinateExist(node.id, root)
             );
+            console.log(node.id, filterRoots.length);
             coordinate = filterRoots[getRandomValue(0, filterRoots.length - 1)];
           }
         }
@@ -248,6 +250,9 @@ function executeRelations(node: NodeType) {
 }
 
 function setPointsDirection(shape: string) {
+  if (shape.length < 4) {
+    return;
+  }
   shape.split('').forEach((point, index) => {
     if (index > 0) {
       const pointCoordinate = dataViewModel.getNodeInPointsMapById(point).coordinate;

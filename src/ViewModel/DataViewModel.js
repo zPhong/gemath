@@ -208,10 +208,11 @@ class DataViewModel {
   isCoordinateExist(id: string, coordinate: CoordinateType): boolean {
     for (let i = 0; i < this.data.getPointsMap.length; i++) {
       if (
+        this.data.getPointsMap[i].id !== id &&
         Operation.isEqual(this.data.getPointsMap[i].coordinate.x, coordinate.x) &&
         Operation.isEqual(this.data.getPointsMap[i].coordinate.y, coordinate.y)
       ) {
-        return this.data.getPointsMap[i].id !== id;
+        return true;
       }
     }
     return false;
