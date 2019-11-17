@@ -22,8 +22,6 @@ class DrawingPanel extends React.Component<PropsType> {
     }
 
     renderGeometry(drawingData: DrawingDataType) {
-        console.log(this.props.drawingData);
-
         const svg = document.getElementById('geometry');
         const viewBox = svg.viewBox.baseVal;
         const width = viewBox.width;
@@ -38,6 +36,21 @@ class DrawingPanel extends React.Component<PropsType> {
         });
 
         const data = createDrawingData({data: transformData});
+        // function DataLogger(props, transformed) {
+        //     this.dataProps = `${props.x} : ${props.y}`;
+        //     this.dataTransformed = `${transformed.x} : ${transformed.y}`;
+        // }
+        //
+        // let logger = {};
+        // for(let pointsKey in this.props.drawingData.points) {
+        //     const pointName = this.props.drawingData.points[pointsKey].id;
+        //     if(pointName) {
+        //         logger[pointName] = new DataLogger(this.props.drawingData.points[pointsKey].coordinate, transformData.points[pointsKey].coordinate)
+        //     }
+        // }
+        // console.table(logger)
+        // console.log(width, height)
+
         renderSvg({
             scene: svg,
             data,

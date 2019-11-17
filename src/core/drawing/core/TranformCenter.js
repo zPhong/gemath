@@ -1,5 +1,3 @@
-import { Operation } from '../../math/MathOperation';
-
 export function getTransformData({data, width, height}) {
     if (data) {
         const arrX = [];
@@ -22,29 +20,49 @@ export function getTransformData({data, width, height}) {
             }
             const minX = Math.min(...arrX);
             const minY = Math.min(...arrY);
-            const disparityX = Math.max(...arrX) - minX;
-            const disparityY = Math.max(...arrY) - minY;
-            const ODD = 0.15;
-            let ratio = 1;
-            if (disparityX / disparityY >= 1) {
-                // scale theo width
-                // giá trị ước lượng (ODD): nhằm tránh điểm render ngay cạnh của viewBox sẽ làm mất tên điểm
-                ratio = Operation.Round(width / disparityX) * (1 - ODD);
+            const maxX = Math.max(...arrX);
+            const maxY = Math.max(...arrY);
+            const disparityX = maxX - minX;
+            const disparityY = maxY - minY;
+
+            const ODD = 100;
+            const w = width - ODD,
+                h = height - ODD;
+            let ratio = 0;
+            const rW = Math.floor(w / disparityX),
+                rH = Math.floor(h / disparityY);
+            let transitionX = 0,
+                transitionY = 0;
+            let followH = false;
+            if (rW >= rH) {
+                ratio = rH;
+                followH = true;
             }
             else {
-                ratio = Operation.Round(height / disparityY) * (1 - ODD);
+                ratio = rW;
             }
 
-            const transitionX = width / 2 - (disparityX * ratio) / 2;
-            const transitionY = height / 2 - (disparityY * ratio) / 2;
+            let realCenter = 0, curCenter = 0;
+            if (followH) {
+                realCenter = width / 2;
+                curCenter = ((maxX - minX) / 2) * ratio;
+                transitionX = -(minX * ratio) + realCenter - curCenter;
+                transitionY = -(minY * ratio) + Math.floor(ODD / 2);
+            }
+            else {
+                realCenter = height / 2;
+                curCenter = ((maxY - minY) / 2) * ratio;
+                transitionX = -(minX * ratio) + Math.floor(ODD / 2);
+                transitionY = -(minY * ratio) + realCenter - curCenter;
+            }
 
             const points = [];
             data.points.forEach((point) => {
                 points.push({
                     id: point.id,
                     coordinate: {
-                        x: (point.coordinate.x - minX) * ratio + transitionX,
-                        y: (point.coordinate.y - minY) * ratio + transitionY,
+                        x: point.coordinate.x * ratio + transitionX,
+                        y: point.coordinate.y * ratio + transitionY,
                     },
                 });
             });
