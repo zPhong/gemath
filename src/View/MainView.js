@@ -11,6 +11,7 @@ import { DrawingPanel } from './components/DrawingPanel';
 import { calculateDistanceTwoPoints, calculateVector, isVectorSameDirection } from '../core/math/Math2D';
 import type { DrawingSegmentType, SegmentDataType } from '../utils/types';
 import GConst from '../core/config/values';
+import { LineStyle } from '../core/drawing/base/DrawingData';
 
 @observer
 class MainView extends React.Component {
@@ -77,7 +78,7 @@ class MainView extends React.Component {
       drawingData: this.trimDrawingData({ points, segments }).map((segment: string): DrawingSegmentType => ({
         name: segment,
         visible: true,
-        lineType: 'Medium'
+        lineType: LineStyle.Medium
       }))
     });
   }
@@ -206,7 +207,7 @@ class MainView extends React.Component {
       drawingData: this.trimDrawingData(data).map((segment: string): DrawingSegmentType => ({
         name: segment,
         visible: true,
-        lineType: 'Medium'
+        lineType: LineStyle.Medium
       }))
     });
   }
@@ -246,6 +247,7 @@ class MainView extends React.Component {
 
   @autobind
   onDoneSegmentSetting(data: DrawingSegmentType, index: number) {
+    console.log('onDone',data)
     const { drawingData } = this.state;
     if (JSON.stringify(data) === JSON.stringify(drawingData[index])) {
       return;

@@ -8,6 +8,7 @@ import { Icon } from '../../index';
 import type { DrawingSegmentType } from '../../../../utils/types';
 import type { BlockSettingDisplayType } from '../string';
 import './BaseBlockSetting.scss';
+import { LineStyle } from '../../../../core/drawing/base/DrawingData';
 
 export type BlockType = 'SEGMENT' | 'LINE' | 'CIRCLE';
 
@@ -24,7 +25,7 @@ export type PropsType = {
 type StateType = {
   start: string,
   end: string,
-  lineType: string,
+  lineStyle: string,
   visible: boolean,
   isEditMode: boolean,
   isCreateMode: boolean,
@@ -32,14 +33,14 @@ type StateType = {
   isMouseHoverDeletion: boolean
 };
 
-const lineTypesMap = {
-  'Nét đứt': 'Dashed',
-  'Nét mỏng': 'Light',
-  'B.thường': 'Medium',
-  'Nét dày': 'Bold'
+const lineStyleMap = {
+  'Nét đứt': LineStyle.Dashed,
+  'Nét mỏng': LineStyle.Light,
+  'B.thường': LineStyle.Medium,
+  'Nét dày': LineStyle.Bold
 };
 
-const lineTypes = ['Nét đứt', 'Nét mỏng', 'B.thường', 'Nét dày'];
+const lineStyles = ['Nét đứt', 'Nét mỏng', 'B.thường', 'Nét dày'];
 
 class BaseBlockSetting extends React.Component<PropsType, StateType> {
   constructor(props: PropsType) {
@@ -54,7 +55,7 @@ class BaseBlockSetting extends React.Component<PropsType, StateType> {
       isCreateMode: !props.value.name,
       isMouseHoverEdition: false,
       isMouseHoverDeletion: false,
-      lineType: (props.value && props.value.lineType) || 'Medium'
+      lineStyle: (props.value && props.value.lineStyle) || 'Medium'
     };
   }
 
@@ -84,10 +85,10 @@ class BaseBlockSetting extends React.Component<PropsType, StateType> {
   @autobind
   onDone() {
     const { onDone, type } = this.props;
-    const { start, end, lineType } = this.state;
+    const { start, end, lineStyle } = this.state;
 
     if (onDone) {
-      onDone({ name: `${start}${end}`, lineType, type, visible: true });
+      onDone({ name: `${start}${end}`, lineStyle, type, visible: true });
     }
     this.setState({ isEditMode: false });
   }
@@ -103,9 +104,9 @@ class BaseBlockSetting extends React.Component<PropsType, StateType> {
   @autobind
   onVisibleChange(visible: boolean) {
     const { onVisibleChange, value, type } = this.props;
-    const { lineType } = this.state;
+    const { lineStyle } = this.state;
     if (onVisibleChange) {
-      onVisibleChange({ name: value.name, type, lineType, visible: !value.visible });
+      onVisibleChange({ name: value.name, type, lineStyle, visible: !value.visible });
     }
   }
 
@@ -167,8 +168,8 @@ class BaseBlockSetting extends React.Component<PropsType, StateType> {
   }
 
   @autobind
-  onSelectLineType(value: string) {
-    this.setState({ lineType: lineTypesMap[lineTypes[value]] });
+  onSelectLineStyle(value: string) {
+    this.setState({ lineStyle: lineStyleMap[lineStyles[value]] });
   }
 
   @autobind
@@ -187,7 +188,7 @@ class BaseBlockSetting extends React.Component<PropsType, StateType> {
   @autobind
   renderEditContent(): React.Node {
     const { data, displayData } = this.props;
-    const { start, end, isCreateMode, lineType } = this.state;
+    const { start, end, isCreateMode, lineStyle } = this.state;
     return (
       <div className="content-edit">
         <div className="drop-down-container">
@@ -211,9 +212,9 @@ class BaseBlockSetting extends React.Component<PropsType, StateType> {
             </div>
             {this.renderDropdown(
               'lineTye',
-              Object.keys(lineTypesMap).filter((key: string): boolean => lineType === lineTypesMap[key])[0],
-              lineTypes,
-              this.onSelectLineType
+              Object.keys(lineStyleMap).filter((key: string): boolean => lineStyle === lineStyleMap[key])[0],
+                lineStyles,
+              this.onSelectLineStyle
             )}
           </div>
 
