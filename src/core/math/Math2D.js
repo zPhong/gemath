@@ -887,7 +887,7 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
   return [];
 }
 
-export function calculateLinesByAnotherLineAndAngle(
+export function   calculateLinesByAnotherLineAndAngle(
   rootPoint: CoordinateType,
   staticPoint: CoordinateType,
   dynamicPoint: CoordinateType,

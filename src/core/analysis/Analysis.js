@@ -120,7 +120,6 @@ function deleteWrongRelation(validatedResult) {
         return false;
       });
 
-
       if (position >= 0) {
         relationSegments.splice(position, 1);
       } else {
@@ -157,7 +156,6 @@ function deleteWrongRelation(validatedResult) {
     }
   }
 
-  console.log(deleteRelationList);
   const relations = validatedResult.relations.filter((relation: mixed): boolean => {
     for (let i = 0; i < deleteRelationList.length; i++) {
       if (JSON.stringify(relation) === JSON.stringify(deleteRelationList[i])) {
@@ -282,7 +280,6 @@ export function getPointOrderInShape(shape: string): Array<string> {
     });
 
     const shapePointCount = {};
-    console.log(segments, angles);
     segments.forEach((segment: string) => {
       if (!shape.includes(segment[1]) && !shape.includes(segment[0])) {
         return;
@@ -296,7 +293,6 @@ export function getPointOrderInShape(shape: string): Array<string> {
         }
       });
     });
-    console.log(shapePointCount);
 
     angles.forEach((angle: string): void => {
       if (!shape.includes(angle[1])) {

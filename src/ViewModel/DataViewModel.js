@@ -403,8 +403,8 @@ class DataViewModel {
           if (roots.length > 1) {
             const rootsDirection = roots.map((root) => ({
               coordinate: root,
-              isRight: root.x > staticPointCoordinate.x,
-              isUp: root.y < staticPointCoordinate.y
+              isRight: Operation.Compare(staticPointCoordinate.x, root.x) < 0,
+              isUp: Operation.Compare(staticPointCoordinate.y, root.y)
             }));
 
             const coordinateMatch = rootsDirection
@@ -536,8 +536,8 @@ class DataViewModel {
           if (temp.length > 1) {
             const rootsDirection = temp.map((root) => ({
               coordinate: root,
-              isRight: root.x > staticPointCoordinate.x,
-              isUp: root.y < staticPointCoordinate.y
+              isRight: Operation.Compare(staticPointCoordinate.x, root.x) < 0,
+              isUp: Operation.Compare(staticPointCoordinate.y, root.y)
             }));
 
             const coordinateMatch = rootsDirection

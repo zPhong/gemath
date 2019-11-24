@@ -679,22 +679,35 @@ function calculateLineEquationByAngleRelation(
     calculatedEquation,
     calculateCircleEquationByCenterPoint(changedPoint, calculateDistanceTwoPoints(changedPoint, rootPoint))
   ).sort((rootOne: CoordinateType, rootTwo: CoordinateType): number => {
-    return calculateDistanceTwoPoints(intersectPoint, rootOne) - calculateDistanceTwoPoints(intersectPoint, rootTwo);
-  })[0];
-
+    return calculateDistanceTwoPoints(intersectPoint, rootTwo) - calculateDistanceTwoPoints(intersectPoint, rootOne);
+  });
   //move newRoot to oldRoot
-  const transitionVector = calculateVector(newRootPoint, rootPoint, false);
+  const transitionVector = calculateVector(newRootPoint[0], rootPoint, false);
+
   if (checkResult.isChanged === false) {
+    const calculatedCoordinate = {
+      x: Operation.Add(changedPoint.x, transitionVector.x),
+      y: Operation.Add(changedPoint.y, transitionVector.y)
+    };
+    dataViewModel.updateCoordinate(modifiedAngleName[2], calculatedCoordinate);
+
+    dataViewModel.getData.getPointDirectionMap[modifiedAngleName[2]] = {
+      root: modifiedAngleName[1],
+      isRight: Operation.Compare(rootPoint.x, calculatedCoordinate.x),
+      isUp: Operation.Compare(rootPoint.y, calculatedCoordinate.y)
+    };
+
+    dataViewModel.getData.getPointDirectionMap[modifiedAngleName[0]] = {
+      root: modifiedAngleName[1],
+      isRight: Operation.Compare(rootPoint.x, staticPoint.x),
+      isUp: Operation.Compare(rootPoint.y, staticPoint.y)
+    };
+
     dataViewModel.replaceSetOfEquation(
       modifiedAngleName[2],
       getLineFromTwoPoints(rootPoint, changedPoint),
       calculateParallelLineByPointAndLine(rootPoint, calculatedEquation)
     );
-
-    dataViewModel.updateCoordinate(modifiedAngleName[2], {
-      x: Operation.Add(changedPoint.x, transitionVector.x),
-      y: Operation.Add(changedPoint.y, transitionVector.y)
-    });
 
     // if (angleName === modifiedAngleName) {
     //   return getLineFromTwoPoints(rootPoint, {
@@ -705,10 +718,24 @@ function calculateLineEquationByAngleRelation(
     return;
   }
 
-  dataViewModel.updateCoordinate(modifiedAngleName[0], {
+  const calculatedCoordinate = {
     x: Operation.Sub(staticPoint.x, transitionVector.x),
     y: Operation.Sub(staticPoint.y, transitionVector.y)
-  });
+  };
+
+  dataViewModel.updateCoordinate(modifiedAngleName[0], calculatedCoordinate);
+
+  dataViewModel.getData.getPointDirectionMap[modifiedAngleName[0]] = {
+    root: modifiedAngleName[1],
+    isRight: Operation.Compare(rootPoint.x, calculatedCoordinate.x) < 0,
+    isUp: Operation.Compare(rootPoint.y, calculatedCoordinate.y) < 0
+  };
+
+  dataViewModel.getData.getPointDirectionMap[modifiedAngleName[2]] = {
+    root: modifiedAngleName[1],
+    isRight: Operation.Compare(rootPoint.x, changedPoint.x),
+    isUp: Operation.Compare(rootPoint.y, changedPoint.y)
+  };
 
   dataViewModel.replaceSetOfEquation(
     modifiedAngleName[1],

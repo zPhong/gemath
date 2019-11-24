@@ -33,7 +33,6 @@ export function readPointsMap(): Array | {} {
     //get node to calculate
     const executingNode = dataViewModel.getNextExecuteNode();
     if (!executingNode) break;
-    console.log(executingNode);
     executeRelations(executingNode);
 
     //Update calculated value to pointsMap
@@ -54,8 +53,8 @@ export function readPointsMap(): Array | {} {
             if (roots.length > 1) {
               const rootsDirection = roots.map((root) => ({
                 coordinate: root,
-                isRight: root.x > staticPointCoordinate.x,
-                isUp: root.y < staticPointCoordinate.y
+                isRight: Operation.Compare(staticPointCoordinate.x, root.x),
+                isUp: Operation.Compare(staticPointCoordinate.y, root.y)
               }));
 
               const coordinateMatch = rootsDirection
@@ -124,15 +123,15 @@ export function readPointsMap(): Array | {} {
         } else {
           const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[node.id];
           if (nodeDirectionInfo) {
-            console.log(node.id, nodeDirectionInfo);
             const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
             if (roots.length > 1) {
-              const rootsDirection = roots.map((root) => ({
-                coordinate: root,
-                isRight: root.x > staticPointCoordinate.x,
-                isUp: root.y < staticPointCoordinate.y
-              }));
-
+              const rootsDirection = roots.map((root) => {
+                return {
+                  coordinate: root,
+                  isRight: Operation.Compare(staticPointCoordinate.x, root.x),
+                  isUp: Operation.Compare(staticPointCoordinate.y, root.y)
+                };
+              });
               const coordinateMatch = rootsDirection
                 .map((directionInfo) => {
                   let matchCount = 0;
@@ -147,9 +146,9 @@ export function readPointsMap(): Array | {} {
                     matchCount
                   };
                 })
-                .sort((a, b) => b.matchCount - a.matchCount)[0];
-
-              coordinate = coordinateMatch.coordinate;
+                .sort((a, b) => b.matchCount - a.matchCount);
+              console.log(coordinateMatch[0].matchCount);
+              coordinate = coordinateMatch[0].coordinate;
             } else {
               coordinate = roots[0];
             }
