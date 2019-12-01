@@ -41,11 +41,11 @@ class DataViewModel {
   constructor(appData) {
     this.data = appData;
     this.relationsInput = [
-        new RelationInputModel('tam giác cân ABC'),
-        new RelationInputModel('(I) nội tiếp ABC'),
-        new RelationInputModel('(K) bàng tiếp ABC tại A'),
-        new RelationInputModel('O trung điểm IK'),
-        new RelationInputModel('(O) ngoại tiếp BKC')
+      new RelationInputModel('tam giác ABC'),
+      new RelationInputModel('AB = 4'),
+      new RelationInputModel('AC = 4'),
+      new RelationInputModel('ACB = 60')
+      //new RelationInputModel('ABC = 60')
     ];
   }
 
@@ -140,9 +140,6 @@ class DataViewModel {
         _coordinate[key] = coordinate[key];
       });
     if (index !== NOT_FOUND) {
-      if (nodeId === 'E') {
-        console.error({ x: Operation.Round(_coordinate.x), y: Operation.Round(_coordinate.y) });
-      }
       this.data.getPointsMap[index].coordinate = _coordinate;
     }
   };
@@ -207,6 +204,19 @@ class DataViewModel {
     }
     return true;
   };
+
+  isCoordinateExist(id: string, coordinate: CoordinateType): boolean {
+    for (let i = 0; i < this.data.getPointsMap.length; i++) {
+      if (
+        this.data.getPointsMap[i].id !== id &&
+        Operation.isEqual(this.data.getPointsMap[i].coordinate.x, coordinate.x) &&
+        Operation.isEqual(this.data.getPointsMap[i].coordinate.y, coordinate.y)
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   isValidCoordinate = (nodeId: string) => {
     if (nodeId) {
@@ -343,7 +353,7 @@ class DataViewModel {
   };
 
   _calculateSet = (equations: Array<EquationType>) => {
-    if (equations.length === 2) {
+    if (equations.length >= 2) {
       return calculateIntersectionTwoCircleEquations(equations[0], equations[1]);
     } else return NOT_ENOUGH_SET;
   };
@@ -359,6 +369,7 @@ class DataViewModel {
     const pointDetail = this.data.getPointDetails.get(pointId);
     const setOfEquation = pointDetail.setOfEquation;
     let isReplaceComplete = false;
+
     setOfEquation.forEach((equation: EquationType, index: number) => {
       if (isTwoEquationEqual(equation, searchEquation)) {
         setOfEquation[index] = replaceEquation;
@@ -386,39 +397,43 @@ class DataViewModel {
         coordinate = roots[getRandomValue(0, roots.length)];
       } else {
         const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[pointId];
-        const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
-        if (roots.length > 1 && typeof roots !== 'string') {
-          const rootsDirection = roots.map((root) => ({
-            coordinate: root,
-            isRight: root.x > staticPointCoordinate.x,
-            isUp: root.y < staticPointCoordinate.y
-          }));
 
-          const coordinateMatch = rootsDirection
-            .map((directionInfo) => {
-              let matchCount = 0;
-              if (directionInfo.isRight === nodeDirectionInfo.isRight) {
-                matchCount++;
-              }
-              if (directionInfo.isUp === nodeDirectionInfo.isUp) {
-                matchCount++;
-              }
-              return {
-                coordinate: directionInfo.coordinate,
-                matchCount
-              };
-            })
-            .sort((a, b) => b.matchCount - a.matchCount)[0];
+        if (nodeDirectionInfo) {
+          const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
+          if (roots.length > 1) {
+            const rootsDirection = roots.map((root) => ({
+              coordinate: root,
+              isRight: Operation.Compare(staticPointCoordinate.x, root.x) < 0,
+              isUp: Operation.Compare(staticPointCoordinate.y, root.y)
+            }));
 
-          coordinate = coordinateMatch.coordinate;
-        } else {
-          if (typeof roots === 'string') {
-            return;
+            const coordinateMatch = rootsDirection
+              .map((directionInfo) => {
+                let matchCount = 0;
+                if (directionInfo.isRight === nodeDirectionInfo.isRight) {
+                  matchCount++;
+                }
+                if (directionInfo.isUp === nodeDirectionInfo.isUp) {
+                  matchCount++;
+                }
+                return {
+                  coordinate: directionInfo.coordinate,
+                  matchCount
+                };
+              })
+              .sort((a, b) => b.matchCount - a.matchCount)[0];
+
+            coordinate = coordinateMatch.coordinate;
+          } else {
+            coordinate = roots[0];
           }
+        } else {
           coordinate = roots[0];
         }
       }
-      dataViewModel.updateCoordinate(pointId, coordinate);
+      if (coordinate) {
+        dataViewModel.updateCoordinate(pointId, coordinate);
+      }
     }
   }
 
@@ -444,16 +459,6 @@ class DataViewModel {
   }
 
   executePointDetails(pointId: string, equation: EquationType) {
-    let sum = 0;
-    Object.keys(equation)
-      .map((key: string): number => equation[key])
-      .forEach((value: number) => {
-        sum += Math.abs(value);
-      });
-    if (sum === 0) {
-      return;
-    }
-
     let isFirst = false;
     if (!this.data.getPointDetails.has(pointId)) {
       this._updatePointDetails(pointId, {
@@ -500,16 +505,16 @@ class DataViewModel {
     }
 
     let temp = this.data.getPointDetails.get(pointId).roots;
-    if (pointId === 'E') {
-      console.log({ c: Operation.Round(equation.c), d: Operation.Round(equation.d), e: Operation.Round(equation.e) });
-      if (temp.length > 0) console.log({ x: Operation.Round(temp[0].x), y: Operation.Round(temp[0].y) });
-    }
+
     if (typeof temp === 'string') {
       ErrorService.showError('500');
       return;
     }
 
     temp = temp.filter((root) => {
+      if (root.y === Infinity) {
+        console.error(temp);
+      }
       return isIn(root, equation);
     });
 
@@ -531,8 +536,8 @@ class DataViewModel {
           if (temp.length > 1) {
             const rootsDirection = temp.map((root) => ({
               coordinate: root,
-              isRight: root.x > staticPointCoordinate.x,
-              isUp: root.y < staticPointCoordinate.y
+              isRight: Operation.Compare(staticPointCoordinate.x, root.x) < 0,
+              isUp: Operation.Compare(staticPointCoordinate.y, root.y)
             }));
 
             const coordinateMatch = rootsDirection

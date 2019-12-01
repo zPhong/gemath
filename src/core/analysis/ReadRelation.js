@@ -34,7 +34,7 @@ import {
 import ErrorService from '../error/ErrorHandleService';
 import { ShapeAffectBySegmentChange, TwoStaticPointRequireShape } from '../definition/define';
 import { Operation } from '../math/MathOperation.js';
-
+import { getPointOrderInShape } from './Analysis';
 export function readRelation(relation: mixed, point: string) {
   let equationResults;
 
@@ -73,8 +73,10 @@ export function readRelation(relation: mixed, point: string) {
     const shapeType = Object.keys(relation).filter((key) => key !== 'type')[0];
     switch (shapeType) {
       case 'triangle':
+        const staticPoint = getPointOrderInShape(relation[shapeType])[0];
+
         equationResults = getLineFromTwoPoints(
-          dataViewModel.getNodeInPointsMapById(relation[shapeType][0]).coordinate,
+          dataViewModel.getNodeInPointsMapById(staticPoint).coordinate,
           dataViewModel.getNodeInPointsMapById(point).coordinate
         );
         break;
@@ -337,7 +339,6 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
       );
 
       const calculatedPoint = getRandomPointInEquation(calculatedLineEquation);
-      console.log(calculatedPoint);
       dataViewModel.updateCoordinate(point, calculatedPoint);
     }
     return calculatedLineEquation;
@@ -548,8 +549,7 @@ function analyzeOperationType(relation: mixed, point: string): any {
         staticValue
       );
     }
-
-    return calculateLineEquationByAngleRelation(objectsIncludePoint[0], staticValue);
+    return calculateLineEquationByAngleRelation(objectsIncludePoint[0], staticValue, point);
   }
   if (objectsIncludePoint.length === 2) {
     if (objectType === 'segment') {
@@ -658,9 +658,14 @@ function analyzeOperationType(relation: mixed, point: string): any {
   }
 }
 
-function calculateLineEquationByAngleRelation(angleName: string, angleValue: number): EquationType {
+function calculateLineEquationByAngleRelation(
+  angleName: string,
+  angleValue: number,
+  executePoint: string
+): EquationType {
   const checkResult = checkAndModifiedAngle(angleName);
   const modifiedAngleName = checkResult.angle;
+  console.log(modifiedAngleName);
   const staticPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[0]).coordinate;
   const rootPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[1]).coordinate;
   const changedPoint = dataViewModel.getNodeInPointsMapById(modifiedAngleName[2]).coordinate;
@@ -674,16 +679,29 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
     calculatedEquation,
     calculateCircleEquationByCenterPoint(changedPoint, calculateDistanceTwoPoints(changedPoint, rootPoint))
   ).sort((rootOne: CoordinateType, rootTwo: CoordinateType): number => {
-    return calculateDistanceTwoPoints(intersectPoint, rootOne) - calculateDistanceTwoPoints(intersectPoint, rootTwo);
-  })[0];
-
+    return calculateDistanceTwoPoints(intersectPoint, rootTwo) - calculateDistanceTwoPoints(intersectPoint, rootOne);
+  });
   //move newRoot to oldRoot
-  const transitionVector = calculateVector(newRootPoint, rootPoint, false);
+  const transitionVector = calculateVector(newRootPoint[0], rootPoint, false);
+
   if (checkResult.isChanged === false) {
-    dataViewModel.updateCoordinate(modifiedAngleName[2], {
-      x: changedPoint.x + transitionVector.x,
-      y: changedPoint.y + transitionVector.y
-    });
+    const calculatedCoordinate = {
+      x: Operation.Add(changedPoint.x, transitionVector.x),
+      y: Operation.Add(changedPoint.y, transitionVector.y)
+    };
+    dataViewModel.updateCoordinate(modifiedAngleName[2], calculatedCoordinate);
+
+    dataViewModel.getData.getPointDirectionMap[modifiedAngleName[2]] = {
+      root: modifiedAngleName[1],
+      isRight: Operation.Compare(rootPoint.x, calculatedCoordinate.x),
+      isUp: Operation.Compare(rootPoint.y, calculatedCoordinate.y)
+    };
+
+    dataViewModel.getData.getPointDirectionMap[modifiedAngleName[0]] = {
+      root: modifiedAngleName[1],
+      isRight: Operation.Compare(rootPoint.x, staticPoint.x),
+      isUp: Operation.Compare(rootPoint.y, staticPoint.y)
+    };
 
     dataViewModel.replaceSetOfEquation(
       modifiedAngleName[2],
@@ -691,13 +709,33 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
       calculateParallelLineByPointAndLine(rootPoint, calculatedEquation)
     );
 
+    // if (angleName === modifiedAngleName) {
+    //   return getLineFromTwoPoints(rootPoint, {
+    //     x: Operation.Add(changedPoint.x, transitionVector.x),
+    //     y: Operation.Add(changedPoint.y, transitionVector.y)
+    //   });
+    // }
     return;
   }
 
-  dataViewModel.updateCoordinate(modifiedAngleName[0], {
-    x: staticPoint.x - transitionVector.x,
-    y: staticPoint.y - transitionVector.y
-  });
+  const calculatedCoordinate = {
+    x: Operation.Sub(staticPoint.x, transitionVector.x),
+    y: Operation.Sub(staticPoint.y, transitionVector.y)
+  };
+
+  dataViewModel.updateCoordinate(modifiedAngleName[0], calculatedCoordinate);
+
+  dataViewModel.getData.getPointDirectionMap[modifiedAngleName[0]] = {
+    root: modifiedAngleName[1],
+    isRight: Operation.Compare(rootPoint.x, calculatedCoordinate.x) < 0,
+    isUp: Operation.Compare(rootPoint.y, calculatedCoordinate.y) < 0
+  };
+
+  dataViewModel.getData.getPointDirectionMap[modifiedAngleName[2]] = {
+    root: modifiedAngleName[1],
+    isRight: Operation.Compare(rootPoint.x, changedPoint.x),
+    isUp: Operation.Compare(rootPoint.y, changedPoint.y)
+  };
 
   dataViewModel.replaceSetOfEquation(
     modifiedAngleName[1],
@@ -705,7 +743,7 @@ function calculateLineEquationByAngleRelation(angleName: string, angleValue: num
     calculateParallelLineByPointAndLine(rootPoint, calculatedEquation)
   );
 
-  return null;
+  return getLineFromTwoPoints(rootPoint, executePoint === modifiedAngleName[2] ? changedPoint : staticPoint);
 }
 
 function reExecuteNode(array: Array<string>) {
@@ -738,8 +776,21 @@ function checkAndModifiedAngle(angle: string): { angle: string, isChanged: boole
     }
   }
   const shapeList = getShapeAffectList();
-
   const secondLine = `${angle[1]}${angle[2]}`;
+
+  if (shapeList.length === 0) {
+    if (dataViewModel.isStaticNodeById(angle[2])) {
+      if (!dataViewModel.isStaticNodeById(angle[0])) {
+        return {
+          angle: angle
+            .split('')
+            .reverse()
+            .join(''),
+          isChanged: false
+        };
+      }
+    }
+  }
 
   for (let i = 0; i < shapeList.length; i++) {
     const shape = shapeList[i];

@@ -1,7 +1,7 @@
 import GConst from '../config/values';
 import type { CalculatedResultType, CircleType, CoordinateType, EquationType, LineType } from '../../utils/types';
 import { convertEquationToLineType, convertLinearToEquation, convertLineTypeToEquation } from './Converter';
-import { getRandomPointInEquation } from './Generation';
+import { getRandomPointInEquation, getRandomValue } from './Generation';
 import ErrorService from '../error/ErrorHandleService';
 import { Operation } from './MathOperation';
 import GLog from '../config/GLog';
@@ -254,9 +254,6 @@ export function calculateDistanceTwoPoints(
   ) {
     const squareX = Pow(Sub(secondPoint.x, firstPoint.x), 2);
     const squareY = Pow(Sub(secondPoint.y, firstPoint.y), 2);
-    if (squareY.toString().includes('NaN')) {
-      console.log(squareY);
-    }
     return Sqrt(Add(squareX, squareY));
   }
 }
@@ -348,7 +345,6 @@ export function calculateIntersectionByLineAndLine(lineOne: EquationType, lineTw
       if (r.length === 0) {
         return [];
       } else {
-        console.log(r);
         return r[0];
       }
     }
@@ -653,6 +649,7 @@ export function calculateQuadraticEquation(
       return [firstRoot, secondRoot];
     }
   }
+  return [];
 }
 
 // Ax2 + By2 + Cx + Dy + E = 0
@@ -890,7 +887,7 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
   return [];
 }
 
-export function calculateLinesByAnotherLineAndAngle(
+export function   calculateLinesByAnotherLineAndAngle(
   rootPoint: CoordinateType,
   staticPoint: CoordinateType,
   dynamicPoint: CoordinateType,
@@ -902,26 +899,24 @@ export function calculateLinesByAnotherLineAndAngle(
       dynamicPoint,
       angle
     );
-    let index = 0;
-    const newRootPoints = equations
-      .map((equation: EquationType): CoordinateType => {
-        return calculateIntersectionByLineAndLine(getLineFromTwoPoints(rootPoint, staticPoint), equation);
-      })
-      .filter((newRootPoint: CoordinateType, i): boolean => {
-        const staticVector = calculateVector(rootPoint, staticPoint, false);
-        const dynamicVector = calculateVector(newRootPoint, dynamicPoint, false);
-        const result = calculateAngleTwoVector(staticVector, dynamicVector) === parseInt(angle);
-        if (result) {
-          index = i;
-        }
-        return result;
-      });
-    if (newRootPoints[0]) {
-      return equations[index];
+    let count = 0;
+    const filterEquations = equations.filter((equation: CoordinateType, i): boolean => {
+      const newRootPoint = calculateIntersectionByLineAndLine(getLineFromTwoPoints(rootPoint, staticPoint), equation);
+      const staticVector = calculateVector(rootPoint, staticPoint, false);
+      const dynamicVector = calculateVector(newRootPoint, dynamicPoint, false);
+      const result = calculateAngleTwoVector(staticVector, dynamicVector) === parseInt(angle);
+      console.log(result, calculateAngleTwoVector(staticVector, dynamicVector));
+      if (result) {
+        count++;
+      }
+      return result;
+    });
+    if (count > 0) {
+      console.log(count, filterEquations);
+      return filterEquations[getRandomValue(0, count - 1)];
     }
 
-    ErrorService.showError('500');
-    return {};
+    return ErrorService.showError('500');
   }
 }
 
@@ -960,7 +955,7 @@ export function calculateAngleTwoVector(vectorOne: CoordinateType, vectorTwo: Co
       `(acos(
      ${Divide(
        calculateIntegratedDirection(vectorOne, vectorTwo),
-       Multiply((calculateVectorLength(vectorOne), calculateVectorLength(vectorTwo)))
+       Multiply(calculateVectorLength(vectorOne), calculateVectorLength(vectorTwo))
      )})*180)/PI`,
       1
     );
@@ -971,12 +966,13 @@ export function _calculateLinesByAnotherLineAndAngle(d: EquationType, p: Coordin
   if (isValid(d) && isValid(d.c) && isValid(d.d) && isValid(p) && isValid(p.x) && isValid(p.y) && isValid(angle)) {
     let results: Array<EquationType> = [];
 
-    const cosine = `cos((${angle} * PI) / 180)`;
+    const cosine = Round(`cos((${angle} * PI) / 180)`);
+
     //d.c * d.c - cosine * cosine * d.c * d.c - cosine * cosine * d.d * d.d
-    const A = Sub(Sub(Pow(d.c, 2), Multiply(Pow(cosine, 2), Pow(d.c, 2)), Multiply(Pow(cosine, 2), Pow(d.d, 2))));
+    const A = Sub(Sub(Pow(d.c, 2), Multiply(Pow(cosine, 2), Pow(d.c, 2))), Multiply(Pow(cosine, 2), Pow(d.d, 2)));
     const B = Multiply(2, Multiply(d.c, d.d));
     //d.d * d.d - cosine * cosine * d.c * d.c - cosine * cosine * d.d * d.d;
-    const C = Sub(Sub(Pow(d.d, 2), Multiply(Pow(cosine, 2), Pow(d.c, 2)), Multiply(Pow(cosine, 2), Pow(d.d, 2))));
+    const C = Sub(Sub(Pow(d.d, 2), Multiply(Pow(cosine, 2), Pow(d.c, 2))), Multiply(Pow(cosine, 2), Pow(d.d, 2)));
     const root = calculateQuadraticEquation(A, B, C);
 
     if (Array.isArray(root) && root.length === 1) {
@@ -1063,6 +1059,7 @@ export function getAngleFromTwoLines(d1: EquationType, d2: EquationType): number
     // round result
     return Round(result, 1);
   }
+  return -9999;
 }
 
 export function getMiddlePointFromThreePointsInALine(
@@ -1267,7 +1264,7 @@ export function calculateTangentIntersectPointsByPointOutsideCircle(
 
 export function isTwoEquationEqual(equationOne: EquationType, equationTwo: EquationType): boolean {
   if (isValid(equationOne) && isValid(equationTwo)) {
-    return isZero(getAngleFromTwoLines(equationOne, equationTwo, 1));
+    return isZero(getAngleFromTwoLines(equationOne, equationTwo));
   }
 }
 

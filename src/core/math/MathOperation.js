@@ -78,8 +78,8 @@ function MathOperation(): Object {
     }
 
     const result = `(${elementOne})*(${elementTwo})`;
-    const calculatedValue = evaluate(result);
 
+    const calculatedValue = evaluate(result);
     if (calculatedValue === Round(calculatedValue)) {
       return Parenthesis(calculatedValue);
     }

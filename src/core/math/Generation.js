@@ -78,9 +78,9 @@ export function getRandomPointInEquation(equation: EquationType): CoordinateType
       };
       //Math.sqrt(centerPoint.a * centerPoint.a + centerPoint.b * centerPoint.b - equation.e);
       const radius = Sqrt(Sub(Add(Pow(centerPoint.a, 2), Pow(centerPoint.b, 2)), equation.e));
-      const randomValueX = getRandomValue(centerPoint.a - radius, centerPoint.a + radius);
+      const randomValueX = getRandomValue(Round(Sub(centerPoint.a, radius), 9), Round(Add(centerPoint.a, radius), 9));
 
-      let solvedValueY = undefined;
+      let solvedValueY = [];
       if (isValid(randomValueX)) {
         solvedValueY = calculateQuadraticEquation(
           equation.b,
@@ -90,17 +90,10 @@ export function getRandomPointInEquation(equation: EquationType): CoordinateType
         );
       }
 
-      if (typeof solvedValueY === 'number') {
-        return {
-          x: randomValueX,
-          y: solvedValueY
-        };
-      } else if (typeof solvedValueY === 'object') {
-        return {
-          x: randomValueX,
-          y: solvedValueY.secondRoot || solvedValueY.firstRoot
-        };
-      }
+      return {
+        x: randomValueX,
+        y: solvedValueY[getRandomValue(0, solvedValueY.length)] || 0
+      };
     }
   }
 }
