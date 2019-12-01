@@ -17,7 +17,7 @@ import autobind from 'autobind-decorator';
 import { isTwoEquationEqual } from '../core/math/Math2D';
 import { getRandomValue } from '../core/math/Generation';
 import { Operation } from '../core/math/MathOperation';
-
+import { InputConverter } from './InputConverter';
 const NOT_FOUND = GConst.Number.NOT_FOUND;
 const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
 
@@ -40,6 +40,13 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
+    InputConverter(`Cho các điểm: A, B, C;
+                    Cho tam giác ABC;
+                    Tam giác ABC = Tam giác EHK;
+                    Góc(CAB)=80;
+                    Góc(ABC)=45;
+
+    So sánh: AB và BC, AC và BC, AB và AC;`);
     this.relationsInput = [
       new RelationInputModel('tam giác ABC'),
       new RelationInputModel('AB = 4'),
