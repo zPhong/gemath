@@ -11,7 +11,7 @@ import {
   calculateParallelLineByPointAndLine,
   calculatePerpendicularLineByPointAndLine,
   calculateSymmetricalPoint,
-  getAngleFromTwoLines,
+  calculateAngleTwoVector,
   getLineFromTwoPoints,
   getMiddlePointFromThreePointsInALine,
   isIn,
@@ -679,7 +679,10 @@ function calculateLineEquationByAngleRelation(
     calculatedEquation,
     calculateCircleEquationByCenterPoint(changedPoint, calculateDistanceTwoPoints(changedPoint, rootPoint))
   ).sort((rootOne: CoordinateType, rootTwo: CoordinateType): number => {
-    return calculateDistanceTwoPoints(intersectPoint, rootTwo) - calculateDistanceTwoPoints(intersectPoint, rootOne);
+    return Operation.Compare(
+      calculateDistanceTwoPoints(intersectPoint, rootOne),
+      calculateDistanceTwoPoints(intersectPoint, rootTwo)
+    );
   });
   //move newRoot to oldRoot
   const transitionVector = calculateVector(newRootPoint[0], rootPoint, false);
@@ -689,6 +692,15 @@ function calculateLineEquationByAngleRelation(
       x: Operation.Add(changedPoint.x, transitionVector.x),
       y: Operation.Add(changedPoint.y, transitionVector.y)
     };
+
+    console.log({
+      root: modifiedAngleName[1],
+      isRight: Operation.Compare(rootPoint.x, calculatedCoordinate.x),
+      isUp: Operation.Compare(rootPoint.y, calculatedCoordinate.y)
+    });
+    const staticVector = calculateVector(rootPoint, staticPoint, false);
+    const dynamicVector = calculateVector(rootPoint, calculatedCoordinate, false);
+    console.log(calculateAngleTwoVector(dynamicVector, staticVector));
     dataViewModel.updateCoordinate(modifiedAngleName[2], calculatedCoordinate);
 
     dataViewModel.getData.getPointDirectionMap[modifiedAngleName[2]] = {

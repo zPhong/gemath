@@ -44,14 +44,12 @@ function getInformation(string: string): mixed {
   const _string = '_ '.concat(string.concat(' _'));
   let isMatching = false;
   let result = '';
-  console.log(string);
   defineSentences.forEach((sentence) => {
     const _sentence = '_ '.concat(sentence.concat(' _'));
 
     if (isMatching) return;
     const value = getBasicInformation(_string, _sentence);
     if (Object.keys(value).length > 0) {
-      console.log(specializeLanguageMap[sentence]);
       const mySentence = classifyData(specializeLanguageMap[sentence], value);
       result = mySentence;
       isMatching = true;
@@ -85,11 +83,7 @@ function getBasicInformation(string, _defineSentence, type = 'define') {
         .replace(')', '\\)') || '';
     let param = string.match(new RegExp(start + '(.*)' + end));
     const regex = new RegExp(start + '(.*)' + end);
-    if (`/_ Góc\\((.*)\\)=/` === regex.toString()) {
-      console.log('----------');
-      console.log({ start, end, regex });
-      console.log({ string, param });
-    }
+
     if (param) {
       result[params[i]].push(param[1]);
     }
@@ -121,9 +115,9 @@ export function InputConverter(input: string): Array<RelationInputModel> {
   const inputArray = input.split(new RegExp(';', 'g')).map((item: string): string => item.trim());
   inputArray.splice(0, 1);
   inputArray.splice(inputArray.length - 2, 2);
-  console.log(inputArray);
   const convertedInput = inputArray.map((input) => {
     return getInformation(input);
   });
-  console.log(convertedInput);
+
+  return convertedInput.map((input: string): RelationInputModel => new RelationInputModel(input));
 }

@@ -887,7 +887,7 @@ export function calculateIntersectionTwoCircleEquations(firstEquation: EquationT
   return [];
 }
 
-export function   calculateLinesByAnotherLineAndAngle(
+export function calculateLinesByAnotherLineAndAngle(
   rootPoint: CoordinateType,
   staticPoint: CoordinateType,
   dynamicPoint: CoordinateType,
@@ -905,14 +905,12 @@ export function   calculateLinesByAnotherLineAndAngle(
       const staticVector = calculateVector(rootPoint, staticPoint, false);
       const dynamicVector = calculateVector(newRootPoint, dynamicPoint, false);
       const result = calculateAngleTwoVector(staticVector, dynamicVector) === parseInt(angle);
-      console.log(result, calculateAngleTwoVector(staticVector, dynamicVector));
       if (result) {
         count++;
       }
       return result;
     });
     if (count > 0) {
-      console.log(count, filterEquations);
       return filterEquations[getRandomValue(0, count - 1)];
     }
 
@@ -1283,7 +1281,7 @@ export function isIsosceles(p1: CoordinateType, p2: CoordinateType, p3: Coordina
 }
 
 export function gcd(x, y) {
-  if ((typeof x !== 'number') || (typeof y !== 'number')) {
+  if (typeof x !== 'number' || typeof y !== 'number') {
     return false;
   }
   x = Math.abs(x);
@@ -1300,9 +1298,9 @@ export function fractionReducing(numerator = 1, denominator = 1) {
   if (typeof numerator === 'number' && typeof denominator === 'number') {
     const _gcd = gcd(numerator, denominator);
     return {
-      numerator: Math.abs(numerator/_gcd),
-      denominator: Math.abs(denominator/_gcd),
-    }
+      numerator: Math.abs(numerator / _gcd),
+      denominator: Math.abs(denominator / _gcd)
+    };
   }
   return {};
 }

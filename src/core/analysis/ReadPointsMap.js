@@ -105,7 +105,6 @@ export function readPointsMap(): Array | {} {
         return;
       }
       const roots = dataViewModel.getData.getPointDetails.get(node.id).roots;
-
       if (typeof roots === 'string') {
         ErrorService.showError('400');
         return;
@@ -123,6 +122,7 @@ export function readPointsMap(): Array | {} {
         } else {
           const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[node.id];
           if (nodeDirectionInfo) {
+            console.log(node.id, nodeDirectionInfo);
             const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
             if (roots.length > 1) {
               const rootsDirection = roots.map((root) => {
@@ -147,7 +147,6 @@ export function readPointsMap(): Array | {} {
                   };
                 })
                 .sort((a, b) => b.matchCount - a.matchCount);
-              console.log(coordinateMatch[0].matchCount);
               coordinate = coordinateMatch[0].coordinate;
             } else {
               coordinate = roots[0];
