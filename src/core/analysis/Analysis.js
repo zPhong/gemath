@@ -13,7 +13,6 @@ let RelationPointsMap: Array<NodeType> = [];
 export function analyzeResult(validatedResult): DrawingDataType {
   validatedResult = deleteWrongRelation(validatedResult);
   const shapes = validatedResult.shapes;
-
   shapes.forEach((shape) => {
     createPointsMapByShape(shape);
   });
@@ -243,11 +242,10 @@ function unique(dependentNodes: Array<NodeRelationType>): Array<NodeRelationType
 
 function createPointsMapByShape(shape: any) {
   const shapeName = Object.keys(shape).filter((key) => key !== 'type')[0];
-  let points = shape[shapeName].split('').filter((point) => point === point.toUpperCase());
+  //let points = shape[shapeName].split('').filter((point) => point === point.toUpperCase());
 
   //points = sortPriority([...points]);
-  points = getPointOrderInShape(shape[shapeName]);
-
+  let points = getPointOrderInShape(shape[shapeName]);
   let objectPointsMap;
   // đường tròn ngoại tiếp, nội tiếp
   if (shape.point) {
@@ -280,17 +278,17 @@ export function getPointOrderInShape(shape: string): Array<string> {
     });
 
     const shapePointCount = {};
+    shape.split('').forEach((point) => {
+      shapePointCount[point] = 0;
+    });
+
     segments.forEach((segment: string) => {
       if (!shape.includes(segment[1]) && !shape.includes(segment[0])) {
         return;
       }
       segment.split('').forEach((point, index) => {
         //don't check middle point
-        if (shapePointCount[point]) {
-          shapePointCount[point] += 1;
-        } else {
-          shapePointCount[point] = 1;
-        }
+        shapePointCount[point] += 1;
       });
     });
 
@@ -300,18 +298,10 @@ export function getPointOrderInShape(shape: string): Array<string> {
       }
       angle.split('').forEach((point, index) => {
         //don't check middle point
-        if (shapePointCount[point]) {
-          if (index !== 1) {
-            shapePointCount[point] += 1;
-          } else {
-            shapePointCount[point] += 3;
-          }
+        if (index !== 1) {
+          shapePointCount[point] += 1;
         } else {
-          if (index !== 1) {
-            shapePointCount[point] = 1;
-          } else {
-            shapePointCount[point] = 3;
-          }
+          shapePointCount[point] += 3;
         }
       });
     });

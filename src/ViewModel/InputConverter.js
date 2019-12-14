@@ -9,15 +9,15 @@ const specializeLanguageMap = {
   '{object} vuông góc {object}': '{object} vuông góc {object}',
   '{object} cắt {object} tại {arrayPoints}': '{object} cắt {object} tại {arrayPoints}',
   '{arrayPoints} là giao điểm của {object} và {object}': '{object} cắt {object} tại {arrayPoints}',
-  '{object} là phân giác ngoài Góc{angle}': '{object} phân giác ngoài {angle}',
-  '{object} là phân giác trong Góc{angle}': '{object} phân giác trong {angle}',
-  '{object} là phân giác cuả Góc{angle}': '{object} phân giác {angle}',
+  '{object} là phân giác ngoài Góc({angle})': '{object} phân giác ngoài {angle}',
+  '{object} là phân giác trong Góc({angle})': '{object} phân giác trong {angle}',
+  '{object} là phân giác của Góc({angle})': '{object} phân giác {angle}',
   '{arrayPoints} thẳng hàng': '{arrayPoints} thẳng hàng',
   '{point} là trung điểm của {segment}': '{point} trung điểm {segment}',
   '{point} không thuộc {object}': '{point} không thuộc {object}',
   '{point} thuộc {object}': '{point} thuộc {object}',
   '{segment} là trung tuyến {type triangle}': '{segment} trung tuyến {triangle}',
-  '{segment} là đường cao {type triangle}': '{segment} đường cao {triangle}',
+  '{segment} là đường cao của tam giác {triangle}': '{segment} đường cao {triangle}',
   '{circle} đường kính {segment}': '{circle} đường kính {segment}',
   '{segment} là tiếp tuyến {circle}': '{segment} tiếp tuyến {circle}',
   'Cho tam giác {type triangle}': 'tam giác {type triangle}',
@@ -46,7 +46,6 @@ function getInformation(string: string): mixed {
   let result = '';
   defineSentences.forEach((sentence) => {
     const _sentence = '_ '.concat(sentence.concat(' _'));
-
     if (isMatching) return;
     const value = getBasicInformation(_string, _sentence);
     if (Object.keys(value).length > 0) {
@@ -81,9 +80,8 @@ function getBasicInformation(string, _defineSentence, type = 'define') {
         .replace('*', '\\*')
         .replace('(', '\\(')
         .replace(')', '\\)') || '';
-    let param = string.match(new RegExp(start + '(.*)' + end));
-    const regex = new RegExp(start + '(.*)' + end);
 
+    let param = string.match(new RegExp(start + '(.*)' + end));
     if (param) {
       result[params[i]].push(param[1]);
     }
@@ -114,7 +112,7 @@ function classifyData(sentence: string, data) {
 export function InputConverter(input: string): Array<RelationInputModel> {
   const inputArray = input.split(new RegExp(';', 'g')).map((item: string): string => item.trim());
   inputArray.splice(0, 1);
-  inputArray.splice(inputArray.length - 2, 2);
+  inputArray.splice(inputArray.length - 1, 1);
   const convertedInput = inputArray.map((input) => {
     return getInformation(input);
   });

@@ -101,8 +101,13 @@ export function getRandomPointInEquation(equation: EquationType): CoordinateType
 export function generatePointAlignmentInside(firstPoint: CoordinateType, secondPoint: CoordinateType): CoordinateType {
   if (isValid(firstPoint) && isValid(firstPoint.x) && isValid(secondPoint) && isValid(secondPoint.x)) {
     const line = getLineFromTwoPoints(firstPoint, secondPoint);
-    const tempX = Divide(Add(firstPoint.x, secondPoint.x), getRandomValue(2, 5));
-
+    // const randomValue = getRandomValue(2, 5);
+    // const tempX = Divide(Add(firstPoint.x, Multiply(secondPoint.x, randomValue - 1)), randomValue);
+    const rV = getRandomValue(20, 80) / 100;
+    let less = Compare(firstPoint.x, secondPoint.x) < 0 ? firstPoint.x : secondPoint.x;
+    let greater = Compare(less, firstPoint.x) === 0 ? secondPoint.x : firstPoint.x;
+    const dis = Sub(greater, less);
+    const tempX = Add(less, Multiply(dis, rV));
     if (isValid(line) && isValid(line.c) && isValid(line.d) && isValid(line.e) && isValid(tempX)) {
       return {
         x: tempX,

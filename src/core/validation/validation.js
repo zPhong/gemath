@@ -1,10 +1,10 @@
 import { RankingObjectContain, validate } from '../definition/define.js';
 import { checkFormatString } from '../definition/defineObjType';
-import ErrorService from '../error/ErrorHandleService.js';
-import { relative } from 'upath';
 
 export function validateValue(data, type) {
-  if (!_validateName(data.value)) return false;
+  if (data.key !== 'value') {
+    if (!_validateName(data.value)) return false;
+  }
 
   const validateGeometryType = validate.object[type];
   let validateType;

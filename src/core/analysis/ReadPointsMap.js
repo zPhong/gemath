@@ -28,7 +28,7 @@ let shape, shapeName, shapeType;
 export function readPointsMap(): Array | {} {
   dataViewModel.createPointDetails();
   console.table(JSON.parse(JSON.stringify(dataViewModel.getData.getPointsMap)));
-
+  let isChangeShape = false;
   while (!dataViewModel.isPointsMapStatic()) {
     //get node to calculate
     const executingNode = dataViewModel.getNextExecuteNode();
@@ -38,6 +38,8 @@ export function readPointsMap(): Array | {} {
     //Update calculated value to pointsMap
     if (dataViewModel.getData.getPointDetails.has(executingNode.id)) {
       const roots = dataViewModel.getData.getPointDetails.get(executingNode.id).roots;
+      console.log(executingNode.id, roots);
+
       if (typeof roots === 'string') {
         ErrorService.showError('400');
         return;
@@ -92,83 +94,83 @@ export function readPointsMap(): Array | {} {
 
     if (shapeRules[shapeName] && shapeRules[shapeName][shapeType]) {
       makeCorrectShape(shape, shapeName, shapeRules[shapeName][shapeType], executingNode.id);
+      isChangeShape = true;
     }
   }
+  if (isChangeShape) {
+    dataViewModel.getData.getPointsMap.forEach((node: NodeType) => {
+      //Update calculated value to pointsMap
+      if (dataViewModel.getData.getPointDetails.has(node.id)) {
+        const setOfEquation = dataViewModel.getData.getPointDetails.get(node.id).setOfEquation;
 
-  dataViewModel.getData.getPointsMap.forEach((node: NodeType) => {
-    //Update calculated value to pointsMap
-    if (dataViewModel.getData.getPointDetails.has(node.id)) {
-      const setOfEquation = dataViewModel.getData.getPointDetails.get(node.id).setOfEquation;
+        if (setOfEquation.length === 1 && isQuadraticEquation(setOfEquation[0])) {
+          dataViewModel.updateCoordinate(node.id, getRandomPointInEquation(setOfEquation[0]));
+          return;
+        }
+        const roots = dataViewModel.getData.getPointDetails.get(node.id).roots;
+        if (typeof roots === 'string') {
+          ErrorService.showError('400');
+          return;
+        }
 
-      if (setOfEquation.length === 1 && isQuadraticEquation(setOfEquation[0])) {
-        dataViewModel.updateCoordinate(node.id, getRandomPointInEquation(setOfEquation[0]));
-        return;
-      }
-      const roots = dataViewModel.getData.getPointDetails.get(node.id).roots;
-      if (typeof roots === 'string') {
-        ErrorService.showError('400');
-        return;
-      }
-
-      if (roots.length >= 0) {
-        let coordinate;
-        if (roots.length === 0) {
-          if (setOfEquation.length >= 2) {
-            const _roots = calculateIntersectionTwoCircleEquations(setOfEquation[0], setOfEquation[1]);
-            coordinate = _roots[getRandomValue(0, _roots.length)];
-          }
-        } else if (dataViewModel.isNeedRandomCoordinate(node.id)) {
-          coordinate = roots[getRandomValue(0, roots.length)];
-        } else {
-          const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[node.id];
-          if (nodeDirectionInfo) {
-            console.log(node.id, nodeDirectionInfo);
-            const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
-            if (roots.length > 1) {
-              const rootsDirection = roots.map((root) => {
-                return {
-                  coordinate: root,
-                  isRight: Operation.Compare(staticPointCoordinate.x, root.x),
-                  isUp: Operation.Compare(staticPointCoordinate.y, root.y)
-                };
-              });
-              const coordinateMatch = rootsDirection
-                .map((directionInfo) => {
-                  let matchCount = 0;
-                  if (directionInfo.isRight === nodeDirectionInfo.isRight) {
-                    matchCount++;
-                  }
-                  if (directionInfo.isUp === nodeDirectionInfo.isUp) {
-                    matchCount++;
-                  }
-                  return {
-                    coordinate: directionInfo.coordinate,
-                    matchCount
-                  };
-                })
-                .sort((a, b) => b.matchCount - a.matchCount);
-              coordinate = coordinateMatch[0].coordinate;
-            } else {
-              coordinate = roots[0];
+        if (roots.length >= 0) {
+          let coordinate;
+          if (roots.length === 0) {
+            if (setOfEquation.length >= 2) {
+              const _roots = calculateIntersectionTwoCircleEquations(setOfEquation[0], setOfEquation[1]);
+              coordinate = _roots[getRandomValue(0, _roots.length)];
             }
+          } else if (dataViewModel.isNeedRandomCoordinate(node.id)) {
+            coordinate = roots[getRandomValue(0, roots.length)];
           } else {
-            const filterRoots = roots.filter(
-              (root) =>
-                (Operation.isEqual(dataViewModel.getNodeInPointsMapById(node.id).coordinate.x, root.x) &&
-                  Operation.isEqual(dataViewModel.getNodeInPointsMapById(node.id).coordinate.y, root.y) &&
-                  !dataViewModel.isCoordinateExist(node.id, root)) ||
-                !dataViewModel.isCoordinateExist(node.id, root)
-            );
-            console.log(node.id, filterRoots.length);
-            coordinate = filterRoots[getRandomValue(0, filterRoots.length - 1)];
+            const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[node.id];
+            if (nodeDirectionInfo) {
+              const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
+              if (roots.length > 1) {
+                const rootsDirection = roots.map((root) => {
+                  return {
+                    coordinate: root,
+                    isRight: Operation.Compare(staticPointCoordinate.x, root.x),
+                    isUp: Operation.Compare(staticPointCoordinate.y, root.y)
+                  };
+                });
+                const coordinateMatch = rootsDirection
+                  .map((directionInfo) => {
+                    let matchCount = 0;
+                    if (directionInfo.isRight === nodeDirectionInfo.isRight) {
+                      matchCount++;
+                    }
+                    if (directionInfo.isUp === nodeDirectionInfo.isUp) {
+                      matchCount++;
+                    }
+                    return {
+                      coordinate: directionInfo.coordinate,
+                      matchCount
+                    };
+                  })
+                  .sort((a, b) => b.matchCount - a.matchCount);
+                coordinate = coordinateMatch[0].coordinate;
+              } else {
+                coordinate = roots[0];
+              }
+            } else {
+              const filterRoots = roots.filter(
+                (root) =>
+                  (Operation.isEqual(dataViewModel.getNodeInPointsMapById(node.id).coordinate.x, root.x) &&
+                    Operation.isEqual(dataViewModel.getNodeInPointsMapById(node.id).coordinate.y, root.y) &&
+                    !dataViewModel.isCoordinateExist(node.id, root)) ||
+                  !dataViewModel.isCoordinateExist(node.id, root)
+              );
+              coordinate = filterRoots[getRandomValue(0, filterRoots.length - 1)];
+            }
+          }
+          if (coordinate) {
+            dataViewModel.updateCoordinate(node.id, coordinate);
           }
         }
-        if (coordinate) {
-          dataViewModel.updateCoordinate(node.id, coordinate);
-        }
       }
-    }
-  });
+    });
+  }
 
   return dataViewModel.getData.getPointsMap.map((node) => ({
     id: node.id,

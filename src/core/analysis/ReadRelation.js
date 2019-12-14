@@ -230,10 +230,14 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[1]).coordinate
           );
         case 'thuộc':
+          console.log(Operation.Round(dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate.x));
+          console.log(Operation.Round(dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[1]).coordinate.x));
+
           calculatedPoint = generatePointAlignmentInside(
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate,
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[1]).coordinate
           );
+
           dataViewModel.updateCoordinate(point, calculatedPoint);
           return getLineFromTwoPoints(
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate,
@@ -693,14 +697,8 @@ function calculateLineEquationByAngleRelation(
       y: Operation.Add(changedPoint.y, transitionVector.y)
     };
 
-    console.log({
-      root: modifiedAngleName[1],
-      isRight: Operation.Compare(rootPoint.x, calculatedCoordinate.x),
-      isUp: Operation.Compare(rootPoint.y, calculatedCoordinate.y)
-    });
     const staticVector = calculateVector(rootPoint, staticPoint, false);
     const dynamicVector = calculateVector(rootPoint, calculatedCoordinate, false);
-    console.log(calculateAngleTwoVector(dynamicVector, staticVector));
     dataViewModel.updateCoordinate(modifiedAngleName[2], calculatedCoordinate);
 
     dataViewModel.getData.getPointDirectionMap[modifiedAngleName[2]] = {

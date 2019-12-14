@@ -40,12 +40,9 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = InputConverter(`Cho các điểm: A, B, C;
-                    Cho tam giác ABC;
-                    Góc(CAB)=80;
-                    Góc(ABC)=45;
-
-    So sánh: AB và BC, AC và BC, AB và AC;`);
+    this.relationsInput = InputConverter(
+      `Cho các điểm: A, B, C, D, H; Cho tam giác ABC; AD là đường cao của tam giác ABC; H thuộc BD; Góc(ABC)=70; Góc(ACB)=30;`
+    );
     // this.relationsInput = [
     //   new RelationInputModel('tam giác ABC'),
     //   new RelationInputModel('AB = 4'),
@@ -145,6 +142,9 @@ class DataViewModel {
       .forEach((key: string) => {
         _coordinate[key] = coordinate[key];
       });
+    if (nodeId === 'H') {
+      console.error(Operation.Round(_coordinate.x),Operation.Round(_coordinate.y));
+    }
     if (index !== NOT_FOUND) {
       this.data.getPointsMap[index].coordinate = _coordinate;
     }
@@ -390,7 +390,7 @@ class DataViewModel {
       return;
     }
     const roots = this._calculateSet(setOfEquation);
-    
+
     this.data.getPointDetails.set(pointId, {
       ...pointDetail,
       setOfEquation,
