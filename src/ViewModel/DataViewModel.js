@@ -1,23 +1,33 @@
 // @flow
 
 import appData from '../Model/AppData';
-import type { EquationType, PointDetailsType } from '../utils/types';
+import type {
+	EquationType,
+	PointDetailsType,
+} from '../utils/types';
 import { NodeType } from '../utils/types';
 import GConst from '../core/config/values.js';
-import { calculateIntersectionTwoCircleEquations, isIn, makeRoundCoordinate } from '../core/math/Math2D.js';
+import {
+	calculateIntersectionTwoCircleEquations,
+	isIn,
+	makeRoundCoordinate,
+} from '../core/math/Math2D.js';
 import { isQuadraticEquation } from '../utils/checker.js';
 import { defineSentences } from '../core/definition/define';
 import { defineInformation } from '../core/definition';
 import { analyzeResult } from '../core/analysis/Analysis';
 import RelationInputModel from '../Model/RelationInputModel';
-import { observable, action, computed } from 'mobx';
+import {
+	action,
+	computed,
+	observable,
+} from 'mobx';
 import ErrorService from '../core/error/ErrorHandleService';
-import { observer } from 'mobx-react';
-import autobind from 'autobind-decorator';
 import { isTwoEquationEqual } from '../core/math/Math2D';
 import { getRandomValue } from '../core/math/Generation';
 import { Operation } from '../core/math/MathOperation';
 import { InputConverter } from './InputConverter';
+
 const NOT_FOUND = GConst.Number.NOT_FOUND;
 const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
 
@@ -41,7 +51,7 @@ class DataViewModel {
   constructor(appData) {
     this.data = appData;
     this.relationsInput = InputConverter(
-      `Cho các điểm: A, B, C, D, H; Cho tam giác đều ABC; AD là đường cao của tam giác ABC; H thuộc BD; Góc(ABC)=70; Góc(ACB)=30;`
+      `Cho các điểm: A, B, C, D, H; Cho hình thang cân ABCD;E thuộc AC;E thuộc BD;`
     );
     // this.relationsInput = [
     //   new RelationInputModel('tam giác ABC'),
@@ -142,7 +152,7 @@ class DataViewModel {
       .forEach((key: string) => {
         _coordinate[key] = coordinate[key];
       });
-    if (nodeId === 'B') {
+    if (nodeId === 'D') {
       console.error(Operation.Round(_coordinate.x), Operation.Round(_coordinate.y));
     }
     if (index !== NOT_FOUND) {
@@ -546,23 +556,25 @@ class DataViewModel {
               isUp: Operation.Compare(staticPointCoordinate.y, root.y)
             }));
 
-            const coordinateMatch = rootsDirection
-              .map((directionInfo) => {
-                let matchCount = 0;
-                if (directionInfo.isRight === nodeDirectionInfo.isRight) {
-                  matchCount++;
-                }
-                if (directionInfo.isUp === nodeDirectionInfo.isUp) {
-                  matchCount++;
-                }
-                return {
-                  coordinate: directionInfo.coordinate,
-                  matchCount
-                };
-              })
-              .sort((a, b) => b.matchCount - a.matchCount)[0];
+	          let coordinateMatch = rootsDirection
+	            .map((directionInfo) => {
+		            let matchCount = 0;
+		            if (directionInfo.isRight === nodeDirectionInfo.isRight) {
+			            matchCount++;
+		            }
+		            if (directionInfo.isUp === nodeDirectionInfo.isUp) {
+			            matchCount++;
+		            }
+		            return {
+			            coordinate: directionInfo.coordinate,
+			            matchCount,
+		            };
+	            });
 
-            coordinate = coordinateMatch.coordinate;
+	          let beSorted = coordinateMatch.sort((a, b) => b.matchCount - a.matchCount);
+	          coordinateMatch = beSorted[0];
+
+	          coordinate = coordinateMatch.coordinate;
           } else {
             coordinate = temp[0];
           }

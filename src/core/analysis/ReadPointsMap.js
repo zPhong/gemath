@@ -1,23 +1,35 @@
-import type { CoordinateType, EquationType, NodeRelationType, NodeType } from '../../utils/types';
+import type {
+	CoordinateType,
+	EquationType,
+	NodeRelationType,
+	NodeType,
+} from '../../utils/types';
 import dataViewModel from '../../ViewModel/DataViewModel.js';
 import {
-  calculateCircleEquationByCenterPoint,
-  calculateDistanceTwoPoints,
-  calculateIntersectionByLineAndLine,
-  calculateParallelLineByPointAndLine,
-  calculatePerpendicularLineByPointAndLine,
-  getLineFromTwoPoints,
-  calculateInCircleEquation,
-  calculateCircumCircleEquation,
-  calculateMiddlePoint,
-  calculateSymmetricalPoint,
-  calculateEscribedCirclesEquation,
-  calculateIntersectionTwoCircleEquations
+	calculateCircleEquationByCenterPoint,
+	calculateCircumCircleEquation,
+	calculateDistanceTwoPoints,
+	calculateEscribedCirclesEquation,
+	calculateInCircleEquation,
+	calculateIntersectionByLineAndLine,
+	calculateIntersectionTwoCircleEquations,
+	calculateMiddlePoint,
+	calculateParallelLineByPointAndLine,
+	calculatePerpendicularLineByPointAndLine,
+	calculateSymmetricalPoint,
+	getLineFromTwoPoints,
 } from '../math/Math2D';
-import { getRandomValue } from '../math/Generation';
-import { mappingShapeType, shapeRules, TwoStaticPointRequireShape, circleType } from '../definition/define';
+import {
+	getRandomPointInEquation,
+	getRandomValue,
+} from '../math/Generation';
+import {
+	circleType,
+	mappingShapeType,
+	shapeRules,
+	TwoStaticPointRequireShape,
+} from '../definition/define';
 import { generateGeometry } from '../math/GenerateGeometry';
-import { getRandomPointInEquation } from '../math/Generation';
 import { readRelation } from './ReadRelation';
 import ErrorService from '../error/ErrorHandleService';
 import { isQuadraticEquation } from '../../utils/checker.js';
@@ -250,21 +262,27 @@ function executeRelations(node: NodeType) {
 }
 
 function setPointsDirection(shape: string) {
-  if (shape.length < 4) {
-    return;
-  }
-  shape.split('').forEach((point, index) => {
-    if (index > 0) {
-      const pointCoordinate = dataViewModel.getNodeInPointsMapById(point).coordinate;
-      const rootCoordinate = dataViewModel.getNodeInPointsMapById(shape[index - 1]).coordinate;
+	if (shape.length < 4) {
+		return;
+	}
+	let i = 0;
+	shape.split('')
+	     .forEach((point, index) => {
+		     if (index > 0) {
+			     // Case point D => set anchor point is A
+			     i = index === shape.length - 1
+			         ? 1
+			         : index;
+			     const pointCoordinate = dataViewModel.getNodeInPointsMapById(point).coordinate;
+			     const rootCoordinate = dataViewModel.getNodeInPointsMapById(shape[i - 1]).coordinate;
 
-      dataViewModel.getData.getPointDirectionMap[point] = {
-        root: shape[index - 1],
-        isRight: pointCoordinate.x > rootCoordinate.x,
-        isUp: pointCoordinate.y < rootCoordinate.y
-      };
-    }
-  });
+			     dataViewModel.getData.getPointDirectionMap[point] = {
+				     root: shape[i - 1],
+				     isRight: Operation.Compare(rootCoordinate.x, pointCoordinate.x),
+				     isUp: Operation.Compare(rootCoordinate.y, pointCoordinate.y),
+			     };
+		     }
+	     });
 }
 
 export function _makeUniqueNodeRelation(dependentNodes: Array<NodeRelationType>): Array<any> {
