@@ -756,7 +756,7 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
       v = Multiply(q.c, Pow(l.d, 2));
       //q.b * l.e * l.e - q.d * l.d * l.e + q.e * l.d * l.d
       w = Add(
-        Sub(Multiply(q.b, Pow(l.e, 2)), Multiply(Multiply(q.d, l.d), Multiply(q.e, l.e))),
+        Sub(Multiply(q.b, Pow(l.e, 2)), Multiply(Multiply(q.d, l.d),  l.e)),
         Multiply(q.e, Pow(l.d, 2))
       );
       // solves x. Unneeded check IMPOSSIBLE.
@@ -946,7 +946,7 @@ export function calculateAngleTwoVector(vectorOne: CoordinateType, vectorTwo: Co
     isValid(vectorTwo.x) &&
     isValid(vectorTwo.y)
   ) {
-    if ((isZero(vectorOne.x) && isZero(vectorOne.y)) || (isZero(vectorTwo.x) && isZero(vectorTwo.y))) {
+        if ((isZero(vectorOne.x) && isZero(vectorOne.y)) ||  (isZero(vectorTwo.x) && isZero(vectorTwo.y))) {
       return 0;
     }
     return Round(
