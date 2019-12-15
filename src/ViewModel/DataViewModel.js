@@ -41,7 +41,7 @@ class DataViewModel {
   constructor(appData) {
     this.data = appData;
     this.relationsInput = InputConverter(
-      `Cho các điểm: A, B, C, D, H; Cho tam giác ABC; AD là đường cao của tam giác ABC; H thuộc BD; Góc(ABC)=70; Góc(ACB)=30;`
+      `Cho các điểm: A, B, C, D, H; Cho tam giác đều ABC; AD là đường cao của tam giác ABC; H thuộc BD; Góc(ABC)=70; Góc(ACB)=30;`
     );
     // this.relationsInput = [
     //   new RelationInputModel('tam giác ABC'),
@@ -142,8 +142,8 @@ class DataViewModel {
       .forEach((key: string) => {
         _coordinate[key] = coordinate[key];
       });
-    if (nodeId === 'H') {
-      console.error(Operation.Round(_coordinate.x),Operation.Round(_coordinate.y));
+    if (nodeId === 'B') {
+      console.error(Operation.Round(_coordinate.x), Operation.Round(_coordinate.y));
     }
     if (index !== NOT_FOUND) {
       this.data.getPointsMap[index].coordinate = _coordinate;
@@ -400,7 +400,7 @@ class DataViewModel {
     if (roots.length > 0) {
       let coordinate;
       if (dataViewModel.isNeedRandomCoordinate(pointId)) {
-        coordinate = roots[getRandomValue(0, roots.length)];
+        coordinate =          roots[getRandomValue(0, roots.length - 1)];
       } else {
         const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[pointId];
 
