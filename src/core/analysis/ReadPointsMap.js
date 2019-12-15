@@ -475,17 +475,13 @@ function getLinearEquationByParallelRule(rule: string, shape: string, executePoi
     nonStaticLine.includes(executePointIndex) &&
     dataViewModel.isStaticNodeById(shape[nonStaticLine.replace(executePointIndex, '')])
   ) {
-    return [
-      calculateParallelLineByPointAndLine(
-        //point
-        dataViewModel.getNodeInPointsMapById(shape[nonStaticLine.replace(executePointIndex, '')]).coordinate,
-        //line
-        getLineFromTwoPoints(
-          dataViewModel.getNodeInPointsMapById(shape[staticLine[0]]).coordinate,
-          dataViewModel.getNodeInPointsMapById(shape[staticLine[1]]).coordinate
-        )
-      )
-    ];
+  	const point = dataViewModel.getNodeInPointsMapById(shape[nonStaticLine.replace(executePointIndex, '')]).coordinate;
+  	const line = getLineFromTwoPoints(
+	  dataViewModel.getNodeInPointsMapById(shape[staticLine[0]]).coordinate,
+	  dataViewModel.getNodeInPointsMapById(shape[staticLine[1]]).coordinate
+    );
+  	const pLine = calculateParallelLineByPointAndLine(point, line);
+    return [pLine];
   }
 }
 

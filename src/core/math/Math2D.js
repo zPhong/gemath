@@ -1069,10 +1069,10 @@ export function getAngleFromTwoLines(d1: EquationType, d2: EquationType): number
     const b1 = d1.d;
     const b2 = d2.d;
 
-    const result = `acos(${Divide(
+    const result = `(acos(${Divide(
       Abs(Add(Multiply(a1, a2), Multiply(b1, b2))),
       Sqrt(Multiply(Add(Pow(a1, 2), Pow(b1, 2)), Add(Pow(a2, 2), Pow(b2, 2))))
-    )} * 180) / PI`;
+    )}) * 180) / PI`;
 
     // round result
     return Round(result, 1);
