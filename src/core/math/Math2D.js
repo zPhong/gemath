@@ -1,7 +1,20 @@
 import GConst from '../config/values';
-import type { CalculatedResultType, CircleType, CoordinateType, EquationType, LineType } from '../../utils/types';
-import { convertEquationToLineType, convertLinearToEquation, convertLineTypeToEquation } from './Converter';
-import { getRandomPointInEquation, getRandomValue } from './Generation';
+import type {
+	CalculatedResultType,
+	CircleType,
+	CoordinateType,
+	EquationType,
+	LineType,
+} from '../../utils/types';
+import {
+	convertEquationToLineType,
+	convertLinearToEquation,
+	convertLineTypeToEquation,
+} from './Converter';
+import {
+	getRandomPointInEquation,
+	getRandomValue,
+} from './Generation';
 import ErrorService from '../error/ErrorHandleService';
 import { Operation } from './MathOperation';
 import GLog from '../config/GLog';
@@ -893,6 +906,7 @@ export function calculateLinesByAnotherLineAndAngle(
   dynamicPoint: CoordinateType,
   angle: number
 ): EquationType {
+	let dynamicVectorArr = [], newRootPointArr = [], staticVectorArr = [];
   if (isValid(rootPoint) && isValid(staticPoint) && isValid(dynamicPoint) && isValid(angle)) {
     const equations = _calculateLinesByAnotherLineAndAngle(
       getLineFromTwoPoints(rootPoint, staticPoint),
@@ -904,6 +918,9 @@ export function calculateLinesByAnotherLineAndAngle(
       const newRootPoint = calculateIntersectionByLineAndLine(getLineFromTwoPoints(rootPoint, staticPoint), equation);
       const staticVector = calculateVector(rootPoint, staticPoint, false);
       const dynamicVector = calculateVector(newRootPoint, dynamicPoint, false);
+      newRootPointArr.push(newRootPoint);
+      staticVectorArr.push(staticVector);
+      dynamicVectorArr.push(dynamicVector);
       const result = calculateAngleTwoVector(staticVector, dynamicVector) === parseInt(angle);
       if (result) {
         count++;
@@ -912,6 +929,9 @@ export function calculateLinesByAnotherLineAndAngle(
     });
     if (count > 0) {
       return filterEquations[getRandomValue(0, count - 1)];
+    }
+    else {
+	    debugger;
     }
 
     return ErrorService.showError('500');
@@ -1304,3 +1324,47 @@ export function fractionReducing(numerator = 1, denominator = 1) {
   }
   return {};
 }
+
+window.math2D = {
+	calculateVector,
+	isVectorSameDirection,
+	isVectorInSameLine,
+	calculateMiddlePoint,
+	calculateSymmetricalPoint,
+	getLineFromTwoPoints,
+	calculateParallelEquation,
+	calculatePerpendicularEquation,
+	calculateDistanceTwoPoints,
+	calculateDistanceFromPointToLine,
+	calculateParallelLineByPointAndLine,
+	calculatePerpendicularLineByPointAndLine,
+	calculateIntersectionByLineAndLine,
+	calculateCircleEquationByCenterPoint,
+	calculateInternalBisectLineEquation,
+	calculateExternalBisectLineEquation,
+	_calculateBisectLineEquation,
+	_getInternalBisectLineEquation,
+	calculateSetOfEquationTypes,
+	calculateIntersectionEquationTypeWithCircleEquation,
+	calculateQuadraticEquation,
+	isIn,
+	calculateSetOfEquationTypeAndQuadraticEquation,
+	calculateIntersectionTwoCircleEquations,
+	calculateLinesByAnotherLineAndAngle,
+	calculateIntegratedDirection,
+	calculateVectorLength,
+	calculateAngleTwoVector,
+	_calculateLinesByAnotherLineAndAngle,
+	makeRoundCoordinate,
+	getAngleFromTwoLines,
+	getMiddlePointFromThreePointsInALine,
+	calculateCircumCircleEquation,
+	calculateInCircleEquation,
+	calculateEscribedCirclesEquation,
+	calculateTangentEquation,
+	calculateTangentIntersectPointsByPointOutsideCircle,
+	isTwoEquationEqual,
+	isIsosceles,
+	gcd,
+	fractionReducing,
+};
