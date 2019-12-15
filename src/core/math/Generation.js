@@ -1,9 +1,19 @@
 // @flow
 
 import GConst from '../config/values';
-import type { CoordinateType, EquationType } from '../../utils/types';
-import { calculatePerpendicularLineByPointAndLine, calculateQuadraticEquation, getLineFromTwoPoints } from './Math2D';
-import { isNum, isValid } from '../utils';
+import type {
+	CoordinateType,
+	EquationType,
+} from '../../utils/types';
+import {
+	calculatePerpendicularLineByPointAndLine,
+	calculateQuadraticEquation,
+	getLineFromTwoPoints,
+} from './Math2D';
+import {
+	isNum,
+	isValid,
+} from '../utils';
 import { Operation } from './MathOperation';
 
 const MIN = GConst.Number.MIN_RANDOM_NUMBER;
@@ -99,23 +109,55 @@ export function getRandomPointInEquation(equation: EquationType): CoordinateType
 }
 
 export function generatePointAlignmentInside(firstPoint: CoordinateType, secondPoint: CoordinateType): CoordinateType {
-  if (isValid(firstPoint) && isValid(firstPoint.x) && isValid(secondPoint) && isValid(secondPoint.x)) {
-    const line = getLineFromTwoPoints(firstPoint, secondPoint);
-    // const randomValue = getRandomValue(2, 5);
-    // const tempX = Divide(Add(firstPoint.x, Multiply(secondPoint.x, randomValue - 1)), randomValue);
-    const rV = getRandomValue(20, 80) / 100;
-    let less = Compare(firstPoint.x, secondPoint.x) < 0 ? firstPoint.x : secondPoint.x;
-    let greater = Compare(less, firstPoint.x) === 0 ? secondPoint.x : firstPoint.x;
-    const dis = Sub(greater, less);
-    const tempX = Add(less, Multiply(dis, rV));
-    if (isValid(line) && isValid(line.c) && isValid(line.d) && isValid(line.e) && isValid(tempX)) {
-      return {
-        x: tempX,
-        //y: (line.c * tempX + line.e) / -line.d
-        y: Divide(Add(Multiply(line.c, tempX), line.e), Sub(0, line.d))
-      };
-    }
-  }
+	if (isValid(firstPoint) && isValid(firstPoint.x) && isValid(secondPoint) && isValid(secondPoint.x)) {
+		const line = getLineFromTwoPoints(firstPoint, secondPoint);
+		// const randomValue = getRandomValue(2, 5);
+		// const tempX = Divide(Add(firstPoint.x, Multiply(secondPoint.x, randomValue - 1)), randomValue);
+		const rV = getRandomValue(20, 80) / 100;
+		let less = Compare(firstPoint.x, secondPoint.x) < 0
+		           ? firstPoint.x
+		           : secondPoint.x;
+		let greater = Compare(less, firstPoint.x) === 0
+		              ? secondPoint.x
+		              : firstPoint.x;
+		let dis = Sub(greater, less);
+
+		if (Round(dis) != 0) {
+			const tempX = Add(less, Multiply(dis, rV));
+			if (isValid(line) && isValid(line.c) && isValid(line.d) && isValid(line.e) && isValid(tempX)) {
+				// line.d can not equals 0
+				return {
+					x: tempX,
+					//y: (line.c * tempX + line.e) / -line.d
+					y: Divide(Add(Multiply(line.c, tempX), line.e), Sub(0, line.d)),
+				};
+			}
+		}
+		else {
+			less = Compare(firstPoint.y, secondPoint.y) < 0
+			       ? firstPoint.y
+			       : secondPoint.y;
+			greater = Compare(less, firstPoint.y) === 0
+			          ? secondPoint.y
+			          : firstPoint.y;
+			dis = Sub(greater, less);
+			if(Round(dis) == 0) {
+				return {
+					x: firstPoint.x,
+					y: firstPoint.y,
+				}
+			}
+			const tempY = Add(less, Multiply(dis, rV));
+			if (isValid(line) && isValid(line.c) && isValid(line.d) && isValid(line.e) && isValid(tempY)) {
+				// line.c can not equals 0
+				return {
+					// x = (line.d * tempY + line.e) / -line.c
+					x: Divide(Add(Multiply(line.d, tempY), line.e), Sub(0, line.c)),
+					y: tempY,
+				};
+			}
+		}
+	}
 }
 
 export function generatePointAlignmentOutside(
