@@ -121,7 +121,7 @@ export function readPointsMap(): Array | {} {
               coordinate = _roots[getRandomValue(0, _roots.length)];
             }
           } else if (dataViewModel.isNeedRandomCoordinate(node.id)) {
-            coordinate = roots[getRandomValue(0, roots.length)];
+            coordinate = roots[getRandomValue(0, roots.length - 1)];
           } else {
             const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[node.id];
             if (nodeDirectionInfo) {
