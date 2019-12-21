@@ -280,7 +280,7 @@ function generateTrapezoid(name: string, type: string) {
           p1.x - distanceX;
         // p4 represents point D
         const p4: CoordinateType = {
-          x: p4X,
+          x: p1.x - distanceX,
           y: p3.y,
         };
         updateCoordinate(name[3], p4);

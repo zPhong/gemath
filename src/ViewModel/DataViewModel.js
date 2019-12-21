@@ -552,12 +552,12 @@ class DataViewModel {
           if (temp.length > 1) {
             const rootsDirection = temp.map((root) => ({
               coordinate: root,
-              isRight: Operation.Compare(staticPointCoordinate.x, root.x) < 0,
+              isRight: Operation.Compare(staticPointCoordinate.x, root.x),
               isUp: Operation.Compare(staticPointCoordinate.y, root.y)
             }));
 
 	          let coordinateMatch = rootsDirection
-	            .map((directionInfo) => {
+	            .map((directionInfo) => { 
 		            let matchCount = 0;
 		            if (directionInfo.isRight === nodeDirectionInfo.isRight) {
 			            matchCount++;
@@ -570,7 +570,7 @@ class DataViewModel {
 			            matchCount,
 		            };
 	            });
-
+            console.log(nodeDirectionInfo.root,coordinateMatch)
 	          let beSorted = coordinateMatch.sort((a, b) => b.matchCount - a.matchCount);
 	          coordinateMatch = beSorted[0];
 
