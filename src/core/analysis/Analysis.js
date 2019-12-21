@@ -23,7 +23,11 @@ export function analyzeResult(validatedResult): DrawingDataType {
   });
 
   const relations = validatedResult.relations;
+  console.log([...AdditionRelation]);
+  console.log([...relations]);
+
   AdditionRelation.concat(relations).forEach((relation) => {
+    console.log(relation);
     createPointsMapByRelation(relation).forEach((node) => {
       updateMap(node, dataViewModel.getData.getPointsMap);
     });
@@ -287,20 +291,24 @@ export function getPointOrderInShape(shape: string): Array<string> {
       shapePointCount[point] = 0;
     });
 
+    let segmentCount = 0;
     segments.forEach((segment: string) => {
-      if (!shape.includes(segment[1]) && !shape.includes(segment[0])) {
+      if (!shape.includes(segment[1]) || !shape.includes(segment[0])) {
         return;
       }
+      segmentCount += 1;
       segment.split('').forEach((point, index) => {
         //don't check middle point
         shapePointCount[point] += 1;
       });
     });
 
+    let angleCount = 0;
     angles.forEach((angle: string): void => {
       if (!shape.includes(angle[1])) {
         return;
       }
+      angleCount += 1;
       angle.split('').forEach((point, index) => {
         //don't check middle point
         if (index !== 1) {
@@ -310,8 +318,7 @@ export function getPointOrderInShape(shape: string): Array<string> {
         }
       });
     });
-
-    if (angles.length === 0 && segments.length === 2 && shape.length === 3) {
+    if (angleCount === 0 && segmentCount === 2 && shape.length === 3) {
       const angle = createAngleByTwoSegments(segments[0], segments[1]);
       if (AdditionRelation.length === 0) {
         AdditionRelation.push({
