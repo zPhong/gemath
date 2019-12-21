@@ -1,34 +1,21 @@
-import type {
-	CoordinateType,
-	EquationType,
-	NodeRelationType,
-	NodeType,
-} from '../../utils/types';
+import type { CoordinateType, EquationType, NodeRelationType, NodeType } from '../../utils/types';
 import dataViewModel from '../../ViewModel/DataViewModel.js';
 import {
-	calculateCircleEquationByCenterPoint,
-	calculateCircumCircleEquation,
-	calculateDistanceTwoPoints,
-	calculateEscribedCirclesEquation,
-	calculateInCircleEquation,
-	calculateIntersectionByLineAndLine,
-	calculateIntersectionTwoCircleEquations,
-	calculateMiddlePoint,
-	calculateParallelLineByPointAndLine,
-	calculatePerpendicularLineByPointAndLine,
-	calculateSymmetricalPoint,
-	getLineFromTwoPoints,
+  calculateCircleEquationByCenterPoint,
+  calculateCircumCircleEquation,
+  calculateDistanceTwoPoints,
+  calculateEscribedCirclesEquation,
+  calculateInCircleEquation,
+  calculateIntersectionByLineAndLine,
+  calculateIntersectionTwoCircleEquations,
+  calculateMiddlePoint,
+  calculateParallelLineByPointAndLine,
+  calculatePerpendicularLineByPointAndLine,
+  calculateSymmetricalPoint,
+  getLineFromTwoPoints
 } from '../math/Math2D';
-import {
-	getRandomPointInEquation,
-	getRandomValue,
-} from '../math/Generation';
-import {
-	circleType,
-	mappingShapeType,
-	shapeRules,
-	TwoStaticPointRequireShape,
-} from '../definition/define';
+import { getRandomPointInEquation, getRandomValue } from '../math/Generation';
+import { circleType, mappingShapeType, shapeRules, TwoStaticPointRequireShape } from '../definition/define';
 import { generateGeometry } from '../math/GenerateGeometry';
 import { readRelation } from './ReadRelation';
 import ErrorService from '../error/ErrorHandleService';
@@ -50,7 +37,6 @@ export function readPointsMap(): Array | {} {
     //Update calculated value to pointsMap
     if (dataViewModel.getData.getPointDetails.has(executingNode.id)) {
       const roots = dataViewModel.getData.getPointDetails.get(executingNode.id).roots;
-      console.log(executingNode.id, roots);
 
       if (typeof roots === 'string') {
         ErrorService.showError('400');
@@ -110,15 +96,17 @@ export function readPointsMap(): Array | {} {
     }
   }
   // if (isChangeShape) {
-  //   dataViewModel.getData.getPointsMap.forEach((node: NodeType) => {
-  //     //Update calculated value to pointsMap
-  //     if (dataViewModel.getData.getPointDetails.has(node.id)) {
-  //       const setOfEquation = dataViewModel.getData.getPointDetails.get(node.id).setOfEquation;
-
-  //       if (setOfEquation.length === 1 && isQuadraticEquation(setOfEquation[0])) {
-  //         dataViewModel.updateCoordinate(node.id, getRandomPointInEquation(setOfEquation[0]));
-  //         return;
-  //       }
+  dataViewModel.getData.getPointsMap.forEach((node: NodeType) => {
+    //Update calculated value to pointsMap
+    if (dataViewModel.getData.getPointDetails.has(node.id)) {
+      const setOfEquation = dataViewModel.getData.getPointDetails.get(node.id).setOfEquation;
+      //random in case have 1 cicrleEquation
+      if (setOfEquation.length === 1 && isQuadraticEquation(setOfEquation[0])) {
+        dataViewModel.updateCoordinate(node.id, getRandomPointInEquation(setOfEquation[0]));
+        return;
+      }
+    }
+  });
   //       const roots = dataViewModel.getData.getPointDetails.get(node.id).roots;
   //       if (typeof roots === 'string') {
   //         ErrorService.showError('400');
@@ -262,32 +250,24 @@ function executeRelations(node: NodeType) {
 }
 
 function setPointsDirection(shape: string) {
-	if (shape.length < 4) {
-		return;
-	}
-	let i = 0;
-	shape.split('')
-	     .forEach((point, index) => {
-		     if (index > 0) {
-			     // Case point D => set anchor point is A
-			     i = index === shape.length - 1
-			         ? 1
-			         : index;
-			     const pointCoordinate = dataViewModel.getNodeInPointsMapById(point).coordinate;
-			     const rootCoordinate = dataViewModel.getNodeInPointsMapById(shape[i - 1]).coordinate;
+  if (shape.length < 4) {
+    return;
+  }
+  let i = 0;
+  shape.split('').forEach((point, index) => {
+    if (index > 0) {
+      // Case point D => set anchor point is A
+      i = index === shape.length - 1 ? 1 : index;
+      const pointCoordinate = dataViewModel.getNodeInPointsMapById(point).coordinate;
+      const rootCoordinate = dataViewModel.getNodeInPointsMapById(shape[i - 1]).coordinate;
 
-			     dataViewModel.getData.getPointDirectionMap[point] = {
-				     root: shape[i - 1],
-				     isRight: Operation.Compare(rootCoordinate.x, pointCoordinate.x),
-				     isUp: Operation.Compare(rootCoordinate.y, pointCoordinate.y),
-           };
-           
-           console.log({root: shape[i - 1],
-            isRight: Operation.Compare(rootCoordinate.x, pointCoordinate.x),
-            isUp: Operation.Compare(rootCoordinate.y, pointCoordinate.y),
-          })
-		     }
-	     });
+      dataViewModel.getData.getPointDirectionMap[point] = {
+        root: shape[i - 1],
+        isRight: Operation.Compare(rootCoordinate.x, pointCoordinate.x),
+        isUp: Operation.Compare(rootCoordinate.y, pointCoordinate.y)
+      };
+    }
+  });
 }
 
 export function _makeUniqueNodeRelation(dependentNodes: Array<NodeRelationType>): Array<any> {
@@ -498,12 +478,12 @@ function getLinearEquationByParallelRule(rule: string, shape: string, executePoi
     nonStaticLine.includes(executePointIndex) &&
     dataViewModel.isStaticNodeById(shape[nonStaticLine.replace(executePointIndex, '')])
   ) {
-  	const point = dataViewModel.getNodeInPointsMapById(shape[nonStaticLine.replace(executePointIndex, '')]).coordinate;
-  	const line = getLineFromTwoPoints(
-	  dataViewModel.getNodeInPointsMapById(shape[staticLine[0]]).coordinate,
-	  dataViewModel.getNodeInPointsMapById(shape[staticLine[1]]).coordinate
+    const point = dataViewModel.getNodeInPointsMapById(shape[nonStaticLine.replace(executePointIndex, '')]).coordinate;
+    const line = getLineFromTwoPoints(
+      dataViewModel.getNodeInPointsMapById(shape[staticLine[0]]).coordinate,
+      dataViewModel.getNodeInPointsMapById(shape[staticLine[1]]).coordinate
     );
-  	const pLine = calculateParallelLineByPointAndLine(point, line);
+    const pLine = calculateParallelLineByPointAndLine(point, line);
     return [pLine];
   }
 }

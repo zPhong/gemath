@@ -7,10 +7,15 @@ import { readPointsMap } from './ReadPointsMap';
 import { makeRoundCoordinate } from '../math/Math2D.js';
 import ErrorService from '../error/ErrorHandleService.js';
 import { Operation } from '../math/MathOperation.js';
+import { getRandomValue } from '../math/Generation.js';
 
 let RelationPointsMap: Array<NodeType> = [];
+let AdditionRelation: Array<Object> = [];
+
+const random_angle_default = ['30', '45', '60', '75', '120', '150'];
 
 export function analyzeResult(validatedResult): DrawingDataType {
+  AdditionRelation = [];
   validatedResult = deleteWrongRelation(validatedResult);
   const shapes = validatedResult.shapes;
   shapes.forEach((shape) => {
@@ -18,7 +23,7 @@ export function analyzeResult(validatedResult): DrawingDataType {
   });
 
   const relations = validatedResult.relations;
-  relations.forEach((relation) => {
+  AdditionRelation.concat(relations).forEach((relation) => {
     createPointsMapByRelation(relation).forEach((node) => {
       updateMap(node, dataViewModel.getData.getPointsMap);
     });
@@ -306,9 +311,41 @@ export function getPointOrderInShape(shape: string): Array<string> {
       });
     });
 
+    if (angles.length === 0 && segments.length === 2 && shape.length === 3) {
+      const angle = createAngleByTwoSegments(segments[0], segments[1]);
+      if (AdditionRelation.length === 0) {
+        AdditionRelation.push({
+          angle: [angle],
+          value: [random_angle_default[getRandomValue(0, random_angle_default.length - 1)]],
+          outputType: 'define',
+          operation: '='
+        });
+      }
+    }
+
     return Object.keys(shapePointCount).sort((a, b) => -shapePointCount[a] + shapePointCount[b]);
   }
   return shape.split('');
+}
+
+function createAngleByTwoSegments(segOne: string, segTwo: string) {
+  const pointCount = {};
+  segOne
+    .concat(segTwo)
+    .split('')
+    .forEach((point) => {
+      if (pointCount[point]) {
+        pointCount[point] = pointCount[point] + 1;
+      } else {
+        pointCount[point] = 1;
+      }
+    });
+
+  const intersectPoint = Object.keys(pointCount).sort((a, b) => {
+    return a.count - b.count;
+  })[0];
+
+  return `${segOne.replace(intersectPoint, '')}${intersectPoint}${segTwo.replace(intersectPoint, '')}`;
 }
 
 function createPointsMapByRelation(relation: any) {

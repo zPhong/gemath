@@ -17,7 +17,7 @@ function validateObject(str) {
 }
 
 export function defineObject(value) {
-  if (isNumber(value)) {
+  if (isNumber(value) && parseInt(value) == value && parseInt(value) > 0) {
     return 'value';
   }
 

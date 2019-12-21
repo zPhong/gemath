@@ -3,7 +3,7 @@ import RelationInputModel from '../Model/RelationInputModel';
 import GConst from '../core/config/values.js';
 
 const specializeLanguageMap = {
-  'Góc({object})={object}': '{object} = {object}',
+  'Góc({object})=Góc({object})': '{object} = {object}',
   '{object}={object}': '{object} = {object}',
   '{object} song song {object}': '{object} song song {object}',
   '{object} vuông góc {object}': '{object} vuông góc {object}',
@@ -93,6 +93,7 @@ function getBasicInformation(string, _defineSentence, type = 'define') {
 
   if (getLength(result) === params.length) {
     if (type === 'relation') result[type] = others[1].replace('_', '').trim();
+    console.log(result);
     return result;
   }
 
