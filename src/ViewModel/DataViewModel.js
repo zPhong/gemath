@@ -4,7 +4,14 @@ import appData from '../Model/AppData';
 import type { EquationType, PointDetailsType } from '../utils/types';
 import { NodeType } from '../utils/types';
 import GConst from '../core/config/values.js';
-import { calculateIntersectionTwoCircleEquations, isIn, makeRoundCoordinate } from '../core/math/Math2D.js';
+import {
+  calculateIntersectionTwoCircleEquations,
+  isIn,
+  makeRoundCoordinate,
+  calculateVector,
+  getLineFromTwoPoints,
+  isVectorSameDirection
+} from '../core/math/Math2D.js';
 import { isQuadraticEquation } from '../utils/checker.js';
 import { defineSentences } from '../core/definition/define';
 import { defineInformation } from '../core/definition';
@@ -16,6 +23,7 @@ import { isTwoEquationEqual } from '../core/math/Math2D';
 import { getRandomValue } from '../core/math/Generation';
 import { Operation } from '../core/math/MathOperation';
 import { InputConverter } from './InputConverter';
+import autobind from 'autobind-decorator';
 
 const NOT_FOUND = GConst.Number.NOT_FOUND;
 const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
@@ -107,9 +115,53 @@ class DataViewModel {
       this._updatePointDetails(node.id, {
         setOfEquation: [],
         roots: roots,
-        exceptedCoordinates: []
+        exceptedCoordinates: [],
+        insideRule: [],
+        outsideRule: []
       });
     });
+  }
+
+  @autobind
+  pushInsideRule(pointId: string, segment: string) {
+    this.data.getPointDetails.get(pointId).insideRule.push(segment);
+  }
+
+  @autobind
+  checkInsideRule(point: string, coordinate: CoordinateType): boolean {
+    const insideRuleSegments = this.data.getPointDetails.get(point).insideRule;
+
+    for (let i = 0; i < insideRuleSegments.length; i++) {
+      if (
+        !this.checkPointRelationWithTwoPoint(
+          coordinate,
+          dataViewModel.getNodeInPointsMapById(insideRuleSegments[0][0]).coordinate,
+          dataViewModel.getNodeInPointsMapById(insideRuleSegments[0][1]).coordinate
+        )
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @autobind
+  checkPointRelationWithTwoPoint(
+    coordinate: CoordinateType,
+    coordinateOne: CoordinateType,
+    coordinateTwo: CoordinateType
+  ): number {
+    const vectorOne = calculateVector(coordinate, coordinateOne);
+    const vectorTwo = calculateVector(coordinate, coordinateTwo);
+
+    return (
+      isIn(coordinate, getLineFromTwoPoints(coordinateOne, coordinateTwo)) &&
+      !isVectorSameDirection(vectorOne, vectorTwo)
+    );
+  }
+
+  pushOutsideRule(pointId: string, segment: string) {
+    this.data.getPointDetails.get(pointId).outsideRule.push(segment);
   }
 
   isNeedRandomCoordinate = (pointId: string): boolean => {
@@ -368,7 +420,9 @@ class DataViewModel {
       this._updatePointDetails(pointId, {
         setOfEquation: [],
         roots: [],
-        exceptedCoordinates: []
+        exceptedCoordinates: [],
+        insideRule: [],
+        outsideRule: []
       });
     }
     const pointDetail = this.data.getPointDetails.get(pointId);
@@ -443,11 +497,7 @@ class DataViewModel {
   }
 
   _updatePointDetails(pointId: string, pointDetails: PointDetailsType) {
-    this.data.getPointDetails.set(pointId, {
-      setOfEquation: pointDetails.setOfEquation,
-      roots: pointDetails.roots,
-      exceptedCoordinates: pointDetails.exceptedCoordinates
-    });
+    this.data.getPointDetails.set(pointId, pointDetails);
   }
 
   uniqueSetOfEquation(equations: any[]): any[] {
@@ -469,7 +519,9 @@ class DataViewModel {
       this._updatePointDetails(pointId, {
         setOfEquation: [],
         roots: [],
-        exceptedCoordinates: []
+        exceptedCoordinates: [],
+        insideRule: [],
+        outsideRule: []
       });
     }
 
@@ -481,6 +533,7 @@ class DataViewModel {
         }
       }
       this._updatePointDetails(pointId, {
+        ...this.data.getPointDetails.get(pointId),
         setOfEquation: newSetOfEquation,
         roots: this.data.getPointDetails.get(pointId).roots,
         exceptedCoordinates: this.data.getPointDetails.get(pointId).exceptedCoordinates
@@ -503,6 +556,7 @@ class DataViewModel {
 
       const finalRoots = typeof roots === 'string' ? currentRoots : currentRoots.concat(roots);
       this._updatePointDetails(pointId, {
+        ...this.data.getPointDetails.get(pointId),
         setOfEquation: this.data.getPointDetails.get(pointId).setOfEquation,
         roots: finalRoots,
         exceptedCoordinates: this.data.getPointDetails.get(pointId).exceptedCoordinates
@@ -526,9 +580,8 @@ class DataViewModel {
     if (temp.length > 0) {
       // TODO: Add exception
       this._updatePointDetails(pointId, {
-        setOfEquation: this.data.getPointDetails.get(pointId).setOfEquation,
-        roots: temp,
-        exceptedCoordinates: this.data.getPointDetails.get(pointId).exceptedCoordinates
+        ...this.data.getPointDetails.get(pointId),
+        roots: temp
       });
 
       let coordinate;

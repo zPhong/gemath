@@ -51,7 +51,7 @@ const validate = {
   },
   point: { length: 1, format: '1' },
   segment: { length: 2, format: '11' },
-  ray: { length: 2, format: '10' },
+  ray: { length: 2, format: '11' },
   line: { length: 1, format: '0' },
   angle: { length: 3 },
   shape: {

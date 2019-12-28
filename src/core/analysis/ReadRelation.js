@@ -230,14 +230,22 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[1]).coordinate
           );
         case 'thuộc':
-          console.log(Operation.Round(dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate.x));
-          console.log(Operation.Round(dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[1]).coordinate.x));
-
           calculatedPoint = generatePointAlignmentInside(
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate,
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[1]).coordinate
           );
-
+          dataViewModel.getData.getPointDirectionMap[point] = {
+            root: segmentNotIncludePoint[0],
+            isRight: Operation.Compare(
+              dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate.x,
+              calculatedPoint.x
+            ),
+            isUp: Operation.Compare(
+              dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate.x,
+              calculatedPoint.y
+            )
+          };
+          dataViewModel.pushInsideRule(point, segmentNotIncludePoint);
           dataViewModel.updateCoordinate(point, calculatedPoint);
           return getLineFromTwoPoints(
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate,
@@ -252,6 +260,18 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
 
           dataViewModel.getData.getAdditionSegment.push(`${point}${segmentNotIncludePoint[0]}`);
           dataViewModel.updateCoordinate(point, calculatedPoint);
+          dataViewModel.getData.getPointDirectionMap[point] = {
+            root: segmentNotIncludePoint[0],
+            isRight: Operation.Compare(
+              dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate.x,
+              calculatedPoint.x
+            ),
+            isUp: Operation.Compare(
+              dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate.x,
+              calculatedPoint.y
+            )
+          };
+          dataViewModel.pushInsideRule(point, segmentNotIncludePoint);
           break;
         default:
           break;

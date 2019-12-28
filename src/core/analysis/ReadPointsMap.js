@@ -57,7 +57,7 @@ export function readPointsMap(): Array | {} {
                 isUp: Operation.Compare(staticPointCoordinate.y, root.y)
               }));
 
-              const coordinateMatch = rootsDirection
+              let coordinatesMatch = rootsDirection
                 .map((directionInfo) => {
                   let matchCount = 0;
                   if (directionInfo.isRight === nodeDirectionInfo.isRight) {
@@ -71,9 +71,18 @@ export function readPointsMap(): Array | {} {
                     matchCount
                   };
                 })
-                .sort((a, b) => b.matchCount - a.matchCount)[0];
-
-              coordinate = coordinateMatch.coordinate;
+                .sort((a, b) => b.matchCount - a.matchCount);
+              coordinatesMatch = coordinatesMatch.filter(
+                (coordinate) => coordinate.matchCount === coordinatesMatch[0].matchCount
+              );
+              if (coordinatesMatch.length > 1) {
+                const result = coordinatesMatch.filter((coordinate) =>
+                  dataViewModel.checkInsideRule(executingNode.id, coordinate)
+                );
+                coordinate = result[0].coordinate;
+              } else {
+                coordinate = coordinatesMatch[0].coordinate;
+              }
             } else {
               coordinate = roots[0];
             }
