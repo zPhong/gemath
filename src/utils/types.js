@@ -1,17 +1,18 @@
 import { circleType } from '../core/definition/define';
+export type CalculatedResultType = number | string;
 
 export type CoordinateType = {
-  x: number,
-  y: number
+  x: CalculatedResultType,
+  y: CalculatedResultType
 };
 
 // Ax2 + By2 + Cx + Dy + E = 0
 export type EquationType = {
-  a: number,
-  b: number,
-  c: number,
-  d: number,
-  e: number
+  a: CalculatedResultType,
+  b: CalculatedResultType,
+  c: CalculatedResultType,
+  d: CalculatedResultType,
+  e: CalculatedResultType
 };
 
 export type NodeRelationType = {
@@ -35,7 +36,7 @@ export type DrawingSegmentType = {
 
 export type CircleType = {
   center: CoordinateType,
-  radius: number,
+  radius: CalculatedResultType,
   equation: EquationType
 };
 
@@ -47,14 +48,14 @@ export type DrawingDataType = {
 
 // ax - y + b = 0
 export type LineType = {
-  a: number,
-  b: number
+  a: CalculatedResultType,
+  b: CalculatedResultType
 };
 
 // u(a,b) | n(a,b)
 export type Vector = {
-  a: number,
-  b: number
+  a: CalculatedResultType,
+  b: CalculatedResultType
 };
 
 export type PointDetailsType = {

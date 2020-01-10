@@ -14,8 +14,8 @@ export function defineShapeType(data) {
         .split(' ');
       result[shapeName] = shape;
       let point = '';
-      if (otherData[0].length === 1) {
-        result['point'] = otherData[0];
+      if (otherData[0].length === 3 && otherData[0].includes('(') && otherData[0].includes(')')) {
+        result['point'] = otherData[0][1];
         point = otherData[0];
       }
       result['type'] = otherData

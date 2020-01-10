@@ -1,6 +1,6 @@
 // @flow
 import { observable } from 'mobx';
-import GConst from '../utils/values';
+import GConst from '../core/config/values';
 
 export default class RelationInputModel {
   @observable
@@ -10,6 +10,6 @@ export default class RelationInputModel {
   status: string = GConst.InputStatus.NORMAL;
 
   constructor(value: string) {
-    this.value = value;
+    this.value = value || '';
   }
 }

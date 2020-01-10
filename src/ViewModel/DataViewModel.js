@@ -3,22 +3,35 @@
 import appData from '../Model/AppData';
 import type { EquationType, PointDetailsType } from '../utils/types';
 import { NodeType } from '../utils/types';
-import GConst from '../utils/values.js';
-import { calculateIntersectionTwoCircleEquations, isIn, makeRoundCoordinate } from '../core/math/Math2D.js';
+import GConst from '../core/config/values.js';
+import {
+  calculateIntersectionTwoCircleEquations,
+  isIn,
+  makeRoundCoordinate,
+  calculateVector,
+  getLineFromTwoPoints,
+  isVectorSameDirection
+} from '../core/math/Math2D.js';
 import { isQuadraticEquation } from '../utils/checker.js';
 import { defineSentences } from '../core/definition/define';
 import { defineInformation } from '../core/definition';
 import { analyzeResult } from '../core/analysis/Analysis';
 import RelationInputModel from '../Model/RelationInputModel';
-import { observable, action, computed } from 'mobx';
-import ErrorService from '../utils/ErrorHandleService';
-import { observer } from 'mobx-react';
+import { action, computed, observable } from 'mobx';
+import ErrorService from '../core/error/ErrorHandleService';
+import { isTwoEquationEqual } from '../core/math/Math2D';
+import { getRandomValue } from '../core/math/Generation';
+import { Operation } from '../core/math/MathOperation';
+import { InputConverter } from './InputConverter';
 import autobind from 'autobind-decorator';
 
 const NOT_FOUND = GConst.Number.NOT_FOUND;
 const NOT_ENOUGH_SET = GConst.String.NOT_ENOUGH_SET;
 
 class DataViewModel {
+  @observable
+  isReCalculated = false;
+
   @observable
   circlesData = {};
 
@@ -34,7 +47,16 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = [new RelationInputModel('')];
+    this.relationsInput = InputConverter(
+      `Cho các điểm A, B, C, M, N; Cho tam giác ABC; M thuộc AB; N thuộc AC; AB=12; AC=15;BC=18; AM=10; AN=8;`
+    );
+    // this.relationsInput = [
+    //   new RelationInputModel('tam giác ABC'),
+    //   new RelationInputModel('AB = 4'),
+    //   new RelationInputModel('AC = 4'),
+    //   new RelationInputModel('ACB = 60')
+    //   //new RelationInputModel('ABC = 60')
+    // ];
   }
 
   @computed
@@ -77,6 +99,10 @@ class DataViewModel {
 
   clear() {
     this.data.clear();
+    this.inputData = [];
+    this.circlesData = {};
+    this.executedInputIndex = undefined;
+    this.executingRelation = undefined;
   }
 
   get getData() {
@@ -89,9 +115,53 @@ class DataViewModel {
       this._updatePointDetails(node.id, {
         setOfEquation: [],
         roots: roots,
-        exceptedCoordinates: []
+        exceptedCoordinates: [],
+        insideRule: [],
+        outsideRule: []
       });
     });
+  }
+
+  @autobind
+  pushInsideRule(pointId: string, segment: string) {
+    this.data.getPointDetails.get(pointId).insideRule.push(segment);
+  }
+
+  @autobind
+  checkInsideRule(point: string, coordinate: CoordinateType): boolean {
+    const insideRuleSegments = this.data.getPointDetails.get(point).insideRule;
+
+    for (let i = 0; i < insideRuleSegments.length; i++) {
+      if (
+        !this.checkPointRelationWithTwoPoint(
+          coordinate,
+          dataViewModel.getNodeInPointsMapById(insideRuleSegments[0][0]).coordinate,
+          dataViewModel.getNodeInPointsMapById(insideRuleSegments[0][1]).coordinate
+        )
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @autobind
+  checkPointRelationWithTwoPoint(
+    coordinate: CoordinateType,
+    coordinateOne: CoordinateType,
+    coordinateTwo: CoordinateType
+  ): number {
+    const vectorOne = calculateVector(coordinate, coordinateOne);
+    const vectorTwo = calculateVector(coordinate, coordinateTwo);
+
+    return (
+      isIn(coordinate, getLineFromTwoPoints(coordinateOne, coordinateTwo)) &&
+      !isVectorSameDirection(vectorOne, vectorTwo)
+    );
+  }
+
+  pushOutsideRule(pointId: string, segment: string) {
+    this.data.getPointDetails.get(pointId).outsideRule.push(segment);
   }
 
   isNeedRandomCoordinate = (pointId: string): boolean => {
@@ -111,14 +181,21 @@ class DataViewModel {
     return false;
   };
 
-  updateCoordinate = (nodeId: string, coordinate: CoordinateType): void => {
+  updateCoordinate = (nodeId: string, coordinate: CoordinateType, f: number = 3): void => {
     const index = this.getIndexOfNodeInPointsMapById(nodeId);
+    if (!coordinate) {
+      ErrorService.showError('200');
+    }
+
     const _coordinate = {};
     Object.keys(coordinate)
       .sort()
       .forEach((key: string) => {
         _coordinate[key] = coordinate[key];
       });
+    if (nodeId === 'D') {
+      console.error(Operation.Round(_coordinate.x), Operation.Round(_coordinate.y));
+    }
     if (index !== NOT_FOUND) {
       this.data.getPointsMap[index].coordinate = _coordinate;
     }
@@ -127,16 +204,41 @@ class DataViewModel {
   isStaticNode = (node: NodeType): boolean => {
     if (node.isStatic) return true;
     for (let i = 0; i < node.dependentNodes.length; i++) {
-      if (!this.isExecutedRelation(node.dependentNodes[i].relation)) return false;
+      if (!this.isExecutedRelation(node.dependentNodes[i].relation)) {
+        return false;
+      }
     }
 
     return this.data.getExecutedNode.includes(node.id);
   };
 
+  reExecuteNode = (arrayPoint: Array<string>) => {
+    this.isReCalculated = true;
+    this.getData.pointsMap.forEach((node: NodeType, index: number) => {
+      if (arrayPoint.includes(node.id)) {
+        return;
+      }
+      this.getData.pointsMap[index].dependentNodes.forEach((dependence: NodeRelationType, index: number) => {
+        if (dependence.relation.outputType === 'shape' && !dependence.relation.point && arrayPoint.length > 0) {
+          this.getData.pointsMap[index].dependentNodes[index] = { ...dependence, id: arrayPoint[0] };
+        }
+      });
+      this.getData.pointsMap[index].isStatic = false;
+    });
+    this.getData.__pointDetails__.clear();
+
+    this.getData.executedNode = arrayPoint;
+    const keepExecutedRelations = this.getData.executedRelations.filter(
+      (relation: mixed): boolean => relation.outputType === 'shape'
+    );
+    this.getData.executedRelations = keepExecutedRelations;
+  };
+
   isExecutedRelation = (relation: any): boolean => {
     for (let i = 0; i < this.data.getExecutedRelations.length; i++) {
-      if (relation === this.data.getExecutedRelations[i]) return true;
+      if (JSON.stringify(relation) === JSON.stringify(this.data.getExecutedRelations[i])) return true;
     }
+
     return false;
   };
 
@@ -160,6 +262,19 @@ class DataViewModel {
     return true;
   };
 
+  isCoordinateExist(id: string, coordinate: CoordinateType): boolean {
+    for (let i = 0; i < this.data.getPointsMap.length; i++) {
+      if (
+        this.data.getPointsMap[i].id !== id &&
+        Operation.isEqual(this.data.getPointsMap[i].coordinate.x, coordinate.x) &&
+        Operation.isEqual(this.data.getPointsMap[i].coordinate.y, coordinate.y)
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   isValidCoordinate = (nodeId: string) => {
     if (nodeId) {
       const node = this.getNodeInPointsMapById(nodeId);
@@ -171,8 +286,8 @@ class DataViewModel {
   };
 
   getNextExecuteNode = (): NodeType => {
-    const clonePointsMap = [...this.data.pointsMap]
-      .filter((node) => !this.data.executedNode.includes(node.id))
+    const clonePointsMap = this.data.pointsMap
+      .filter((node) => !this.data.executedNode.includes(node.id) && !this.isStaticNode(node))
       .sort(this.sortNodeByPriority);
 
     if (clonePointsMap.length > 0) return clonePointsMap[0];
@@ -278,7 +393,9 @@ class DataViewModel {
 
   getNodeInPointsMapById = (id: string): NodeType | null => {
     for (let i = 0; i < this.data.getPointsMap.length; i++) {
-      if (id === this.data.getPointsMap[i].id) return this.data.getPointsMap[i];
+      if (id === this.data.getPointsMap[i].id) {
+        return this.data.getPointsMap[i];
+      }
     }
     return null;
   };
@@ -293,17 +410,94 @@ class DataViewModel {
   };
 
   _calculateSet = (equations: Array<EquationType>) => {
-    if (equations.length === 2) {
+    if (equations.length >= 2) {
       return calculateIntersectionTwoCircleEquations(equations[0], equations[1]);
     } else return NOT_ENOUGH_SET;
   };
 
-  _updatePointDetails(pointId: string, pointDetails: PointDetailsType) {
-    this.data.getPointDetails.set(pointId, {
-      setOfEquation: pointDetails.setOfEquation,
-      roots: pointDetails.roots,
-      exceptedCoordinates: pointDetails.exceptedCoordinates
+  replaceSetOfEquation(pointId: string, searchEquation: EquationType, replaceEquation: EquationType) {
+    if (!this.data.getPointDetails.has(pointId)) {
+      this._updatePointDetails(pointId, {
+        setOfEquation: [],
+        roots: [],
+        exceptedCoordinates: [],
+        insideRule: [],
+        outsideRule: []
+      });
+    }
+    const pointDetail = this.data.getPointDetails.get(pointId);
+    const setOfEquation = pointDetail.setOfEquation;
+    let isReplaceComplete = false;
+
+    setOfEquation.forEach((equation: EquationType, index: number) => {
+      if (isTwoEquationEqual(equation, searchEquation)) {
+        setOfEquation[index] = replaceEquation;
+        isReplaceComplete = true;
+      }
     });
+
+    if (!isReplaceComplete) {
+      setOfEquation.push(replaceEquation);
+    }
+    if (setOfEquation.length === 1) {
+      return;
+    }
+    const roots = this._calculateSet(setOfEquation);
+
+    this.data.getPointDetails.set(pointId, {
+      ...pointDetail,
+      setOfEquation,
+      roots
+    });
+
+    if (roots.length > 0) {
+      let coordinate;
+      if (dataViewModel.isNeedRandomCoordinate(pointId)) {
+        coordinate = roots[getRandomValue(0, roots.length - 1)];
+      } else {
+        const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[pointId];
+
+        if (nodeDirectionInfo) {
+          const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
+          if (roots.length > 1) {
+            const rootsDirection = roots.map((root) => ({
+              coordinate: root,
+              isRight: Operation.Compare(staticPointCoordinate.x, root.x) < 0,
+              isUp: Operation.Compare(staticPointCoordinate.y, root.y)
+            }));
+
+            const coordinateMatch = rootsDirection
+              .map((directionInfo) => {
+                let matchCount = 0;
+                if (directionInfo.isRight === nodeDirectionInfo.isRight) {
+                  matchCount++;
+                }
+                if (directionInfo.isUp === nodeDirectionInfo.isUp) {
+                  matchCount++;
+                }
+                return {
+                  coordinate: directionInfo.coordinate,
+                  matchCount
+                };
+              })
+              .sort((a, b) => b.matchCount - a.matchCount)[0];
+
+            coordinate = coordinateMatch.coordinate;
+          } else {
+            coordinate = roots[0];
+          }
+        } else {
+          coordinate = roots[0];
+        }
+      }
+      if (coordinate) {
+        dataViewModel.updateCoordinate(pointId, coordinate);
+      }
+    }
+  }
+
+  _updatePointDetails(pointId: string, pointDetails: PointDetailsType) {
+    this.data.getPointDetails.set(pointId, pointDetails);
   }
 
   uniqueSetOfEquation(equations: any[]): any[] {
@@ -325,13 +519,22 @@ class DataViewModel {
       this._updatePointDetails(pointId, {
         setOfEquation: [],
         roots: [],
-        exceptedCoordinates: []
+        exceptedCoordinates: [],
+        insideRule: [],
+        outsideRule: []
       });
     }
 
     if (this.data.getPointDetails.get(pointId).setOfEquation.length <= 1) {
+      let newSetOfEquation = [...this.data.getPointDetails.get(pointId).setOfEquation, equation];
+      if (newSetOfEquation.length === 2) {
+        if (isTwoEquationEqual(newSetOfEquation[0], newSetOfEquation[1])) {
+          newSetOfEquation = newSetOfEquation[0];
+        }
+      }
       this._updatePointDetails(pointId, {
-        setOfEquation: [...this.data.getPointDetails.get(pointId).setOfEquation, equation],
+        ...this.data.getPointDetails.get(pointId),
+        setOfEquation: newSetOfEquation,
         roots: this.data.getPointDetails.get(pointId).roots,
         exceptedCoordinates: this.data.getPointDetails.get(pointId).exceptedCoordinates
       });
@@ -353,6 +556,7 @@ class DataViewModel {
 
       const finalRoots = typeof roots === 'string' ? currentRoots : currentRoots.concat(roots);
       this._updatePointDetails(pointId, {
+        ...this.data.getPointDetails.get(pointId),
         setOfEquation: this.data.getPointDetails.get(pointId).setOfEquation,
         roots: finalRoots,
         exceptedCoordinates: this.data.getPointDetails.get(pointId).exceptedCoordinates
@@ -360,7 +564,6 @@ class DataViewModel {
     }
 
     let temp = this.data.getPointDetails.get(pointId).roots;
-    const tempLength = temp.length;
 
     if (typeof temp === 'string') {
       ErrorService.showError('500');
@@ -368,16 +571,61 @@ class DataViewModel {
     }
 
     temp = temp.filter((root) => {
+      if (root.y === Infinity) {
+        console.error(temp);
+      }
       return isIn(root, equation);
     });
 
-    if (temp.length < tempLength) {
+    if (temp.length > 0) {
       // TODO: Add exception
       this._updatePointDetails(pointId, {
-        setOfEquation: this.data.getPointDetails.get(pointId).setOfEquation,
-        roots: temp,
-        exceptedCoordinates: this.data.getPointDetails.get(pointId).exceptedCoordinates
+        ...this.data.getPointDetails.get(pointId),
+        roots: temp
       });
+
+      let coordinate;
+      if (dataViewModel.isNeedRandomCoordinate(pointId)) {
+        coordinate = temp[getRandomValue(0, temp.length)];
+      } else {
+        const nodeDirectionInfo = dataViewModel.getData.getPointDirectionMap[pointId];
+        if (nodeDirectionInfo) {
+          const staticPointCoordinate = dataViewModel.getNodeInPointsMapById(nodeDirectionInfo.root).coordinate;
+          if (temp.length > 1) {
+            const rootsDirection = temp.map((root) => ({
+              coordinate: root,
+              isRight: Operation.Compare(staticPointCoordinate.x, root.x),
+              isUp: Operation.Compare(staticPointCoordinate.y, root.y)
+            }));
+
+            let coordinateMatch = rootsDirection.map((directionInfo) => {
+              let matchCount = 0;
+              if (directionInfo.isRight === nodeDirectionInfo.isRight) {
+                matchCount++;
+              }
+              if (directionInfo.isUp === nodeDirectionInfo.isUp) {
+                matchCount++;
+              }
+              return {
+                coordinate: directionInfo.coordinate,
+                matchCount
+              };
+            });
+            console.log(nodeDirectionInfo.root, coordinateMatch);
+            let beSorted = coordinateMatch.sort((a, b) => b.matchCount - a.matchCount);
+            coordinateMatch = beSorted[0];
+
+            coordinate = coordinateMatch.coordinate;
+          } else {
+            coordinate = temp[0];
+          }
+        } else {
+          coordinate = temp[0];
+        }
+      }
+      if (coordinate) {
+        dataViewModel.updateCoordinate(pointId, coordinate);
+      }
     }
   }
 
@@ -401,7 +649,6 @@ class DataViewModel {
     const type = preProgress.outputType;
 
     const result = defineInformation(preProgress);
-    console.log(result);
     if (result.Error || !result.outputType) {
       ErrorService.showError('300');
       return;

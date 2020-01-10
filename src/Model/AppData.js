@@ -12,8 +12,10 @@ class AppData {
   }
 
   clear() {
-    this.relationsResult = [];
+    this.additionSegment = [];
+    this.relationsResult = {};
     this.pointsMap = [];
+    this.pointsDirectionMap = {};
     this.executedRelations = [];
     this.executedNode = [];
     this.__pointDetails__.clear();
@@ -21,6 +23,10 @@ class AppData {
 
   set setRelationsResult(value) {
     this.relationsResult = value;
+  }
+
+  pushAdditionSegment(segment: string) {
+    this.additionSegment.push(segment);
   }
 
   get getAdditionSegment() {
