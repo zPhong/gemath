@@ -15,6 +15,7 @@ let AdditionRelation: Array<Object> = [];
 const random_angle_default = ['30', '45', '60', '75', '120', '150'];
 
 export function analyzeResult(validatedResult): DrawingDataType {
+  console.log(JSON.stringify(validatedResult));
   AdditionRelation = [];
   validatedResult = deleteWrongRelation(validatedResult);
   const shapes = validatedResult.shapes;
@@ -402,6 +403,7 @@ function createPointsMapByRelation(relation: any) {
   if (lastObjectPoints.length === RelationPointsMap.length) {
     lastObjectPoints = [lastObjectPoints[0]];
   }
+
   if (relation.relation === 'song song' || relation.relation === 'vuông góc' || relation.relation === 'phân giác') {
     lastObjectPoints = lastObjectPoints.filter(
       (point: string): boolean => !dataViewModel.getNodeInPointsMapById(point)
