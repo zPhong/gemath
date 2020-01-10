@@ -1,4 +1,5 @@
 import InputItem from './InputItem/InputItem';
 import Icon from './Icon/Icon';
-import SegmentSetting from './SegmentSetting/SegmentSetting';
-export { InputItem, Icon, SegmentSetting };
+import { BlockSetting } from './BlockSetting/BlockSetting';
+
+export { InputItem, Icon, BlockSetting as SegmentSetting };

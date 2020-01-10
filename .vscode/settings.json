@@ -1,0 +1,50 @@
+{
+    "files.autoSave": "onFocusChange",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true
+    },
+    "editor.formatOnSave": false,
+    "editor.tabSize": 2,
+    "[javascriptreact]": {
+      "editor.formatOnSave": false
+    },
+    "[typescript]": {
+      "editor.formatOnSave": false
+    },
+    "[typescriptreact]": {
+      "editor.formatOnSave": false
+    },
+    "eslint.autoFixOnSave": true,
+    "eslint.enable": true,
+    "javascript.validate.enable": false,
+    "eslint.validate": [
+      "javascript",
+      "javascriptreact",
+      {
+        "language": "typescript",
+        "autoFix": true
+      },
+      {
+        "language": "typescriptreact",
+        "autoFix": true
+      },
+      {
+        "language": "html",
+        "autoFix": true
+      }
+    ],
+    "files.exclude": {
+      "**/.DS_Store": true,
+      "**/bundles/": true,
+      "**/node_modules": false,
+      "**/.next": true,
+      "**/next-env.d.ts": true,
+      "**/.env.development": true
+    },
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    }
+  }
+  

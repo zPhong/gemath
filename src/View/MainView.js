@@ -2,7 +2,7 @@ import React from 'react';
 import './css/MainView.scss';
 import { observer } from 'mobx-react';
 import autobind from 'autobind-decorator';
-import { Button, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Button, OverlayTrigger, Tooltip, Modal } from 'react-bootstrap';
 
 import DataViewModel from '../ViewModel/DataViewModel';
 
@@ -10,7 +10,8 @@ import { Icon, InputItem, SegmentSetting } from './components';
 import { DrawingPanel } from './components/DrawingPanel';
 import { calculateDistanceTwoPoints, calculateVector, isVectorSameDirection } from '../core/math/Math2D';
 import type { DrawingSegmentType, SegmentDataType } from '../utils/types';
-import GConst from '../utils/values';
+import GConst from '../core/config/values';
+import { LineStyle } from '../core/drawing/base/DrawingData';
 
 @observer
 class MainView extends React.Component {
@@ -65,7 +66,8 @@ class MainView extends React.Component {
         'ED',
         'EA'
       ],
-      drawingSegments: []
+      drawingData: [],
+      isShowAddBlockSettingModal: false
     };
     this.scrollView = React.createRef();
   }
@@ -73,9 +75,10 @@ class MainView extends React.Component {
   componentWillMount() {
     const { points, segments } = this.state;
     this.setState({
-      drawingSegments: this.trimDrawingData({ points, segments }).map((segment: string): DrawingSegmentType => ({
+      drawingData: this.trimDrawingData({ points, segments }).map((segment: string): DrawingSegmentType => ({
         name: segment,
-        visible: true
+        visible: true,
+        lineType: LineStyle.Medium
       }))
     });
   }
@@ -190,7 +193,7 @@ class MainView extends React.Component {
 
   @autobind
   onClickDrawing() {
-    DataViewModel.getData.clear();
+    DataViewModel.clear();
 
     const data = DataViewModel.analyzeInput();
     if (data.points.length === 0 && data.segments.length === 0) {
@@ -201,9 +204,10 @@ class MainView extends React.Component {
     this.setState({
       points: data.points,
       segments: data.segments,
-      drawingSegments: this.trimDrawingData(data).map((segment: string): DrawingSegmentType => ({
+      drawingData: this.trimDrawingData(data).map((segment: string): DrawingSegmentType => ({
         name: segment,
-        visible: true
+        visible: true,
+        lineType: LineStyle.Medium
       }))
     });
   }
@@ -218,7 +222,6 @@ class MainView extends React.Component {
   @autobind
   renderRelationInput(): React.Node {
     return DataViewModel.RelationsInput.map((model, index) => {
-      console.log(model.value);
       return (
         <InputItem
           key={`input-${index}`}
@@ -244,19 +247,18 @@ class MainView extends React.Component {
 
   @autobind
   onDoneSegmentSetting(data: DrawingSegmentType, index: number) {
-    const { drawingSegments } = this.state;
-    if (JSON.stringify(data) === JSON.stringify(drawingSegments[index])) {
+    const { drawingData } = this.state;
+    if (JSON.stringify(data) === JSON.stringify(drawingData[index])) {
       return;
     }
-    const length = JSON.parse(JSON.stringify(drawingSegments.length));
-    const isAddSegment = !!drawingSegments[index];
-    drawingSegments[index] = data;
-
-    this.setState({ drawingSegments }, () => {
+    const length = JSON.parse(JSON.stringify(drawingData.length));
+    const isAddSegment = !!drawingData[index];
+    drawingData[index] = data;
+    this.setState({ drawingData }, () => {
       if (isAddSegment) {
         if (
-          drawingSegments.map((segment: SegmentDataType): string => segment.name).includes(data.name) &&
-          length !== drawingSegments.length
+          drawingData.map((item: SegmentDataType): string => item.name).includes(data.name) &&
+          length !== drawingData.length
         ) {
           this.onDeleteSegmentSetting(index);
         }
@@ -266,43 +268,49 @@ class MainView extends React.Component {
 
   @autobind
   onChangeSegmentSetting(data: DrawingSegmentType, index: number) {
-    const { drawingSegments } = this.state;
+    const { drawingData } = this.state;
 
-    drawingSegments[index] = data;
+    drawingData[index] = data;
 
-    this.setState({ drawingSegments });
+    this.setState({ drawingData });
   }
 
   @autobind
   onDeleteSegmentSetting(index: number) {
-    const { drawingSegments } = this.state;
+    const { drawingData } = this.state;
 
-    drawingSegments.splice(index, 1);
-    this.setState({ drawingSegments });
+    drawingData.splice(index, 1);
+    this.setState({ drawingData });
   }
 
   @autobind
-  addNewSegmentSetting() {
-    if (this.state.drawingSegments.includes(undefined)) {
+  addNewSegmentSetting(type: BlockType) {
+    this.hideBlockSettingModal();
+    if (
+      this.state.drawingData.filter((item: DrawingDataType): boolean => {
+        return !item.name;
+      }).length > 0
+    ) {
       return;
     }
+
     this.scrollToBottom();
     this.setState((prevState) => ({
-      drawingSegments: prevState.drawingSegments.concat([undefined])
+      drawingData: prevState.drawingData.concat([{ type }])
     }));
   }
 
   @autobind
   renderSegmentSettings(): React.Node {
-    const { drawingSegments } = this.state;
+    const { drawingData } = this.state;
     const points = this.state.points.map((point: NodeType): number => point.id);
 
-    return drawingSegments.map((segment: DrawingSegmentType, index: number): React.Node => {
+    return drawingData.map((item: DrawingSegmentType, index: number): React.Node => {
       return (
         <SegmentSetting
-          key={`segment-setting-${index}`}
+          key={`segment-setting-${item ? `${item.type}-${item.name}` : index}`}
           data={points}
-          value={segment}
+          value={item}
           onDone={(value) => {
             this.onDoneSegmentSetting(value, index);
           }}
@@ -318,8 +326,47 @@ class MainView extends React.Component {
     });
   }
 
+  @autobind
+  showBlockSettingModal() {
+    this.setState({ isShowAddBlockSettingModal: true });
+  }
+
+  @autobind
+  hideBlockSettingModal() {
+    this.setState({ isShowAddBlockSettingModal: false });
+  }
+
+  @autobind
+  renderAddBlockSettingModal(): React.Node {
+    const { isShowAddBlockSettingModal } = this.state;
+    const types = ['SEGMENT', 'LINE', 'CIRCLE'];
+    if (!isShowAddBlockSettingModal) return;
+    return (
+      <Modal size="sm" show onHide={this.hideBlockSettingModal} centered aria-labelledby="example-modal-sizes-title-sm">
+        <Modal.Body className="block-modal">
+          <div className="title">Chọn đối tượng vẽ thêm</div>
+          <div>
+            {types.map((item: string): React.Node => {
+              const type = item[0] + item.slice(1).toLowerCase();
+              return (
+                <Button
+                  key={`btn-add-${type}`}
+                  variant="light"
+                  onClick={() => {
+                    this.addNewSegmentSetting(item);
+                  }}>
+                  {type}
+                </Button>
+              );
+            })}
+          </div>
+        </Modal.Body>
+      </Modal>
+    );
+  }
+
   render() {
-    const { points, drawingSegments, segments } = this.state;
+    const { points, drawingData } = this.state;
     return (
       <div className={'container-fluid'}>
         <div className={'app-header'}>
@@ -331,7 +378,7 @@ class MainView extends React.Component {
             <p>app description</p>
           </div>
         </div>
-
+        {this.renderAddBlockSettingModal()}
         <div className="app-body">
           <div className="app-controller">
             <div className="accordion" id="accordionExample">
@@ -393,7 +440,7 @@ class MainView extends React.Component {
                     placement="right"
                     overlay={
                       <Tooltip id={`tooltip-right`} className="help-tooltip">
-                        <span>Thêm/Xóa các doạn thẳng</span>
+                        <span>Vẽ thêm</span>
                       </Tooltip>
                     }>
                     <div className="bg-transparent icon-container">
@@ -405,9 +452,9 @@ class MainView extends React.Component {
                   <div className="card-body" ref={this.scrollView}>
                     <div>
                       {this.renderSegmentSettings()}
-                      <div className={'add-row-container'} onClick={this.addNewSegmentSetting}>
+                      <div className={'add-row-container'} onClick={this.showBlockSettingModal}>
                         <Icon name={'icAdd'} width={35} height={35} color={'#757575'} />
-                        <p>Thêm đoạn thẳng</p>
+                        <p>Thêm</p>
                       </div>
                     </div>
                   </div>
@@ -417,7 +464,7 @@ class MainView extends React.Component {
           </div>
 
           <div className={'app-drawing-panel'}>
-            <DrawingPanel drawingData={{ points, segments: drawingSegments, circles: DataViewModel.circlesData }} />
+            <DrawingPanel drawingData={{ points, segments: drawingData, circles: DataViewModel.circlesData }} />
           </div>
         </div>
 

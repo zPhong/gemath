@@ -1,6 +1,6 @@
 // @flow
 import { observable } from 'mobx';
-import GConst from '../utils/values';
+import GConst from '../core/config/values';
 
 export default class RelationInputModel {
   @observable
