@@ -114,6 +114,7 @@ export function InputConverter(input: string): Array<RelationInputModel> {
   const inputArray = input.split(new RegExp(';', 'g')).map((item: string): string => item.trim());
   inputArray.splice(0, 1);
   inputArray.splice(inputArray.length - 1, 1);
+  console.log(inputArray);
   const convertedInput = inputArray.map((input) => {
     return getInformation(input);
   });

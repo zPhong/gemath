@@ -47,9 +47,7 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = InputConverter(
-      `Cho các điểm A, B, C, M, N; Cho tam giác ABC; M thuộc AB; N thuộc AC; AB=12; AC=15;BC=18; AM=10; AN=8;`
-    );
+    this.relationsInput = InputConverter(`Cho các điểm A, B, C; Cho tam giác vuông ABC; AB=16; ABC=38;`);
     // this.relationsInput = [
     //   new RelationInputModel('tam giác ABC'),
     //   new RelationInputModel('AB = 4'),
@@ -193,7 +191,7 @@ class DataViewModel {
       .forEach((key: string) => {
         _coordinate[key] = coordinate[key];
       });
-    if (nodeId === 'D') {
+    if (nodeId === 'C') {
       console.error(Operation.Round(_coordinate.x), Operation.Round(_coordinate.y));
     }
     if (index !== NOT_FOUND) {
