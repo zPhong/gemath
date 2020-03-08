@@ -51,7 +51,7 @@ const validate = {
   },
   point: { length: 1, format: '1' },
   segment: { length: 2, format: '11' },
-  ray: { length: 2, format: '10' },
+  ray: { length: 2, format: '11' },
   line: { length: 1, format: '0' },
   angle: { length: 3 },
   shape: {
@@ -77,14 +77,14 @@ const validate = {
  */
 const shapeRules = {
   triangle: {
-    right: '01^02', // Ex: AB vuong goc AC
+    right: '10^02', // Ex: AB vuong goc AC
     isosceles: '01=02',
-    right_isosceles: '01^02&01=02',
+    right_isosceles: '10^02&01=02',
     equilateral: '01=02&01=12&02=12'
   },
   trapezoid: {
     normal: '01|23',
-    right: '01|23&01^03',
+    right: '01|23&10^03',
     isosceles: '01|23&03=12'
   },
   parallelogram: {

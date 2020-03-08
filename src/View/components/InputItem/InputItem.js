@@ -51,7 +51,7 @@ class InputItem extends React.Component<PropsType, StateType> {
   }
 
   @autobind
-  onChange(e: React.FormEvent<HTMLInputElement>) {
+  onChange(e) {
     const value = e.currentTarget.value;
     const { onValueChange } = this.props;
 

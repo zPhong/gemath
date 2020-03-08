@@ -247,7 +247,6 @@ class MainView extends React.Component {
 
   @autobind
   onDoneSegmentSetting(data: DrawingSegmentType, index: number) {
-    console.log('onDone',data)
     const { drawingData } = this.state;
     if (JSON.stringify(data) === JSON.stringify(drawingData[index])) {
       return;

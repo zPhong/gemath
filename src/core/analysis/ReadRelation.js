@@ -11,7 +11,7 @@ import {
   calculateParallelLineByPointAndLine,
   calculatePerpendicularLineByPointAndLine,
   calculateSymmetricalPoint,
-  getAngleFromTwoLines,
+  calculateAngleTwoVector,
   getLineFromTwoPoints,
   getMiddlePointFromThreePointsInALine,
   isIn,
@@ -234,6 +234,18 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate,
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[1]).coordinate
           );
+          dataViewModel.getData.getPointDirectionMap[point] = {
+            root: segmentNotIncludePoint[0],
+            isRight: Operation.Compare(
+              dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate.x,
+              calculatedPoint.x
+            ),
+            isUp: Operation.Compare(
+              dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate.x,
+              calculatedPoint.y
+            )
+          };
+          dataViewModel.pushInsideRule(point, segmentNotIncludePoint);
           dataViewModel.updateCoordinate(point, calculatedPoint);
           return getLineFromTwoPoints(
             dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate,
@@ -248,6 +260,18 @@ function analyzeRelationType(relation: mixed, point: string): LinearEquation {
 
           dataViewModel.getData.getAdditionSegment.push(`${point}${segmentNotIncludePoint[0]}`);
           dataViewModel.updateCoordinate(point, calculatedPoint);
+          dataViewModel.getData.getPointDirectionMap[point] = {
+            root: segmentNotIncludePoint[0],
+            isRight: Operation.Compare(
+              dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate.x,
+              calculatedPoint.x
+            ),
+            isUp: Operation.Compare(
+              dataViewModel.getNodeInPointsMapById(segmentNotIncludePoint[0]).coordinate.x,
+              calculatedPoint.y
+            )
+          };
+          dataViewModel.pushInsideRule(point, segmentNotIncludePoint);
           break;
         default:
           break;
@@ -679,7 +703,10 @@ function calculateLineEquationByAngleRelation(
     calculatedEquation,
     calculateCircleEquationByCenterPoint(changedPoint, calculateDistanceTwoPoints(changedPoint, rootPoint))
   ).sort((rootOne: CoordinateType, rootTwo: CoordinateType): number => {
-    return calculateDistanceTwoPoints(intersectPoint, rootTwo) - calculateDistanceTwoPoints(intersectPoint, rootOne);
+    return Operation.Compare(
+      calculateDistanceTwoPoints(intersectPoint, rootOne),
+      calculateDistanceTwoPoints(intersectPoint, rootTwo)
+    );
   });
   //move newRoot to oldRoot
   const transitionVector = calculateVector(newRootPoint[0], rootPoint, false);
@@ -689,6 +716,9 @@ function calculateLineEquationByAngleRelation(
       x: Operation.Add(changedPoint.x, transitionVector.x),
       y: Operation.Add(changedPoint.y, transitionVector.y)
     };
+
+    const staticVector = calculateVector(rootPoint, staticPoint, false);
+    const dynamicVector = calculateVector(rootPoint, calculatedCoordinate, false);
     dataViewModel.updateCoordinate(modifiedAngleName[2], calculatedCoordinate);
 
     dataViewModel.getData.getPointDirectionMap[modifiedAngleName[2]] = {
