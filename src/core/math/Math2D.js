@@ -1,20 +1,7 @@
 import GConst from '../config/values';
-import type {
-	CalculatedResultType,
-	CircleType,
-	CoordinateType,
-	EquationType,
-	LineType,
-} from '../../utils/types';
-import {
-	convertEquationToLineType,
-	convertLinearToEquation,
-	convertLineTypeToEquation,
-} from './Converter';
-import {
-	getRandomPointInEquation,
-	getRandomValue,
-} from './Generation';
+import type { CalculatedResultType, CircleType, CoordinateType, EquationType, LineType } from '../../utils/types';
+import { convertEquationToLineType, convertLinearToEquation, convertLineTypeToEquation } from './Converter';
+import { getRandomPointInEquation, getRandomValue } from './Generation';
 import ErrorService from '../error/ErrorHandleService';
 import { Operation } from './MathOperation';
 import GLog from '../config/GLog';
@@ -768,10 +755,7 @@ export function calculateSetOfEquationTypeAndQuadraticEquation(l: EquationType, 
       //q.c * l.d * l.d
       v = Multiply(q.c, Pow(l.d, 2));
       //q.b * l.e * l.e - q.d * l.d * l.e + q.e * l.d * l.d
-      w = Add(
-        Sub(Multiply(q.b, Pow(l.e, 2)), Multiply(Multiply(q.d, l.d),  l.e)),
-        Multiply(q.e, Pow(l.d, 2))
-      );
+      w = Add(Sub(Multiply(q.b, Pow(l.e, 2)), Multiply(Multiply(q.d, l.d), l.e)), Multiply(q.e, Pow(l.d, 2)));
       // solves x. Unneeded check IMPOSSIBLE.
       const root = calculateQuadraticEquation(u, v, w);
 
@@ -906,7 +890,9 @@ export function calculateLinesByAnotherLineAndAngle(
   dynamicPoint: CoordinateType,
   angle: number
 ): EquationType {
-	let dynamicVectorArr = [], newRootPointArr = [], staticVectorArr = [];
+  let dynamicVectorArr = [],
+    newRootPointArr = [],
+    staticVectorArr = [];
   if (isValid(rootPoint) && isValid(staticPoint) && isValid(dynamicPoint) && isValid(angle)) {
     const equations = _calculateLinesByAnotherLineAndAngle(
       getLineFromTwoPoints(rootPoint, staticPoint),
@@ -921,6 +907,7 @@ export function calculateLinesByAnotherLineAndAngle(
       newRootPointArr.push(newRootPoint);
       staticVectorArr.push(staticVector);
       dynamicVectorArr.push(dynamicVector);
+      console.log(calculateAngleTwoVector(staticVector, dynamicVector), angle);
       const result = calculateAngleTwoVector(staticVector, dynamicVector) === parseInt(angle);
       if (result) {
         count++;
@@ -929,9 +916,8 @@ export function calculateLinesByAnotherLineAndAngle(
     });
     if (count > 0) {
       return filterEquations[getRandomValue(0, count - 1)];
-    }
-    else {
-	    debugger;
+    } else {
+      debugger;
     }
 
     return ErrorService.showError('500');
@@ -966,7 +952,7 @@ export function calculateAngleTwoVector(vectorOne: CoordinateType, vectorTwo: Co
     isValid(vectorTwo.x) &&
     isValid(vectorTwo.y)
   ) {
-        if ((isZero(vectorOne.x) && isZero(vectorOne.y)) ||  (isZero(vectorTwo.x) && isZero(vectorTwo.y))) {
+    if ((isZero(vectorOne.x) && isZero(vectorOne.y)) || (isZero(vectorTwo.x) && isZero(vectorTwo.y))) {
       return 0;
     }
     return Round(
@@ -1326,45 +1312,45 @@ export function fractionReducing(numerator = 1, denominator = 1) {
 }
 
 window.math2D = {
-	calculateVector,
-	isVectorSameDirection,
-	isVectorInSameLine,
-	calculateMiddlePoint,
-	calculateSymmetricalPoint,
-	getLineFromTwoPoints,
-	calculateParallelEquation,
-	calculatePerpendicularEquation,
-	calculateDistanceTwoPoints,
-	calculateDistanceFromPointToLine,
-	calculateParallelLineByPointAndLine,
-	calculatePerpendicularLineByPointAndLine,
-	calculateIntersectionByLineAndLine,
-	calculateCircleEquationByCenterPoint,
-	calculateInternalBisectLineEquation,
-	calculateExternalBisectLineEquation,
-	_calculateBisectLineEquation,
-	_getInternalBisectLineEquation,
-	calculateSetOfEquationTypes,
-	calculateIntersectionEquationTypeWithCircleEquation,
-	calculateQuadraticEquation,
-	isIn,
-	calculateSetOfEquationTypeAndQuadraticEquation,
-	calculateIntersectionTwoCircleEquations,
-	calculateLinesByAnotherLineAndAngle,
-	calculateIntegratedDirection,
-	calculateVectorLength,
-	calculateAngleTwoVector,
-	_calculateLinesByAnotherLineAndAngle,
-	makeRoundCoordinate,
-	getAngleFromTwoLines,
-	getMiddlePointFromThreePointsInALine,
-	calculateCircumCircleEquation,
-	calculateInCircleEquation,
-	calculateEscribedCirclesEquation,
-	calculateTangentEquation,
-	calculateTangentIntersectPointsByPointOutsideCircle,
-	isTwoEquationEqual,
-	isIsosceles,
-	gcd,
-	fractionReducing,
+  calculateVector,
+  isVectorSameDirection,
+  isVectorInSameLine,
+  calculateMiddlePoint,
+  calculateSymmetricalPoint,
+  getLineFromTwoPoints,
+  calculateParallelEquation,
+  calculatePerpendicularEquation,
+  calculateDistanceTwoPoints,
+  calculateDistanceFromPointToLine,
+  calculateParallelLineByPointAndLine,
+  calculatePerpendicularLineByPointAndLine,
+  calculateIntersectionByLineAndLine,
+  calculateCircleEquationByCenterPoint,
+  calculateInternalBisectLineEquation,
+  calculateExternalBisectLineEquation,
+  _calculateBisectLineEquation,
+  _getInternalBisectLineEquation,
+  calculateSetOfEquationTypes,
+  calculateIntersectionEquationTypeWithCircleEquation,
+  calculateQuadraticEquation,
+  isIn,
+  calculateSetOfEquationTypeAndQuadraticEquation,
+  calculateIntersectionTwoCircleEquations,
+  calculateLinesByAnotherLineAndAngle,
+  calculateIntegratedDirection,
+  calculateVectorLength,
+  calculateAngleTwoVector,
+  _calculateLinesByAnotherLineAndAngle,
+  makeRoundCoordinate,
+  getAngleFromTwoLines,
+  getMiddlePointFromThreePointsInALine,
+  calculateCircumCircleEquation,
+  calculateInCircleEquation,
+  calculateEscribedCirclesEquation,
+  calculateTangentEquation,
+  calculateTangentIntersectPointsByPointOutsideCircle,
+  isTwoEquationEqual,
+  isIsosceles,
+  gcd,
+  fractionReducing
 };
