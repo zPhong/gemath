@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/gemath/static/css/main.017253d9.chunk.css",
-    "main.js": "/gemath/static/js/main.fcf44050.chunk.js",
-    "main.js.map": "/gemath/static/js/main.fcf44050.chunk.js.map",
+    "main.js": "/gemath/static/js/main.f21d0802.chunk.js",
+    "main.js.map": "/gemath/static/js/main.f21d0802.chunk.js.map",
     "runtime~main.js": "/gemath/static/js/runtime~main.2912cca0.js",
     "runtime~main.js.map": "/gemath/static/js/runtime~main.2912cca0.js.map",
-    "static/js/2.bdf5b01e.chunk.js": "/gemath/static/js/2.bdf5b01e.chunk.js",
-    "static/js/2.bdf5b01e.chunk.js.map": "/gemath/static/js/2.bdf5b01e.chunk.js.map",
+    "static/js/2.71c22179.chunk.js": "/gemath/static/js/2.71c22179.chunk.js",
+    "static/js/2.71c22179.chunk.js.map": "/gemath/static/js/2.71c22179.chunk.js.map",
     "index.html": "/gemath/index.html",
-    "precache-manifest.0a01c941d4fe9efc7016a770dbd44add.js": "/gemath/precache-manifest.0a01c941d4fe9efc7016a770dbd44add.js",
+    "precache-manifest.4d0895eba36c22fd1298bb1d5ed3d352.js": "/gemath/precache-manifest.4d0895eba36c22fd1298bb1d5ed3d352.js",
     "service-worker.js": "/gemath/service-worker.js",
     "static/css/main.017253d9.chunk.css.map": "/gemath/static/css/main.017253d9.chunk.css.map",
     "static/media/MainView.scss": "/gemath/static/media/Nunito-Light.18a81d43.ttf"
