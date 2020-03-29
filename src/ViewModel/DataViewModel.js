@@ -47,7 +47,7 @@ class DataViewModel {
 
   constructor(appData) {
     this.data = appData;
-    this.relationsInput = InputConverter(`Cho các điểm A, B, C; Cho tam giác vuông ABC; AB=16; ABC=38;`);
+    //this.relationsInput = InputConverter(`Cho các điểm A, B, C; Cho tam giác vuông ABC; AB=16; ABC=38;`);
     // this.relationsInput = [
     //   new RelationInputModel('tam giác ABC'),
     //   new RelationInputModel('AB = 4'),
